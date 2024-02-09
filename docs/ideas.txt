@@ -1,0 +1,17 @@
+1. Language interface for Plot libraries --> too easy
+ 
+2. Audio and Gesture controll for your laptop. --> already available
+
+3 Trainer for giving presentations
+3.1 gesture analysis
+3.2 Sound analysis
+
+4. interactive drawing for bioimageing (pixel img --> svg )
+
+5. face to emojy generator
+
+6. ai powered reaction videos
+
+7. extract a knowledge graph from videos and compare knowledge graphs different videos on the same topic
+
+8. ultimate frisbee game analyser
