@@ -161,3 +161,6 @@ cython_debug/
 
 # Project database
 data/
+
+# Allow unit test data
+!test/data/
