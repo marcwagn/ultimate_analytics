@@ -16,6 +16,9 @@ def test_convert_to_yolo():
 
     df = sup.convert_to_yolo_df(key_id_filename, annotations_filename)
 
+    width = 3840.0
+    height = 2160.0
+
     assert len(df) == 2211
     assert df.iloc[0].at["cls"] == 0
     assert df.iloc[0].at["x"] == 0.38033854166666664
@@ -23,7 +26,10 @@ def test_convert_to_yolo():
     assert df.iloc[0].at["w"] == 0.02109375
     assert df.iloc[0].at["h"] == 0.08518518518518518
 
-    actualfirstRow = df.iloc[0, 0:5].to_numpy()
-    expectedFirstRow = np.array([0, 0.38033854166666664, 0.3958333333333333, 0.02109375, 0.08518518518518518])
-    assert_array_equal(actualfirstRow, expectedFirstRow)
-    #0,0.44388020833333336,0.17962962962962964,0.012239583333333333,0.041666666666666664,9,0
+    actualFirstRow = df.iloc[0, 0:5].to_numpy()
+    expectedFirstRow = np.array([0, (1501+1420)/2/width, (947+763)/2/height, (1501-1420)/width, (947-763)/height])
+    assert_array_equal(actualFirstRow, expectedFirstRow)
+
+    actualFourteenthRow = df.iloc[13, 0:5].to_numpy()
+    expectedFourteenthRow = np.array([0, (2084+2049)/2/width, (438+343)/2/height, (2084-2049)/width, (438-343)/height])
+    assert_array_equal(actualFourteenthRow, expectedFourteenthRow)
