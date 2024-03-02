@@ -1,0 +1,159 @@
+{
+    "classes": [
+        {
+            "title": "TLC",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#8D2B91",
+            "geometry_config": {},
+            "id": 12620983,
+            "hotkey": ""
+        },
+        {
+            "title": "TRC",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#60429E",
+            "geometry_config": {},
+            "id": 12620984,
+            "hotkey": ""
+        },
+        {
+            "title": "C",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#000000",
+            "geometry_config": {},
+            "id": 12620985,
+            "hotkey": ""
+        },
+        {
+            "title": "TRF",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#4287CD",
+            "geometry_config": {},
+            "id": 12620986,
+            "hotkey": ""
+        },
+        {
+            "title": "BBP",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#50E3C2",
+            "geometry_config": {},
+            "id": 12620987,
+            "hotkey": ""
+        },
+        {
+            "title": "BLF",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#BE2D3D",
+            "geometry_config": {},
+            "id": 12620988,
+            "hotkey": ""
+        },
+        {
+            "title": "BRF",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#C335B9",
+            "geometry_config": {},
+            "id": 12620989,
+            "hotkey": ""
+        },
+        {
+            "title": "TLF",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#F8E71C",
+            "geometry_config": {},
+            "id": 12620990,
+            "hotkey": ""
+        },
+        {
+            "title": "BRC",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#EF348B",
+            "geometry_config": {},
+            "id": 12620991,
+            "hotkey": ""
+        },
+        {
+            "title": "BLC",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#E9102F",
+            "geometry_config": {},
+            "id": 12620992,
+            "hotkey": ""
+        },
+        {
+            "title": "TBP",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#9B9B9B",
+            "geometry_config": {},
+            "id": 12620993,
+            "hotkey": ""
+        },
+        {
+            "title": "BEC",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#9377DF",
+            "geometry_config": {},
+            "id": 12620994,
+            "hotkey": ""
+        },
+        {
+            "title": "TEC",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#2498A3",
+            "geometry_config": {},
+            "id": 12620995,
+            "hotkey": ""
+        },
+        {
+            "title": "person",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#D0021B",
+            "geometry_config": {},
+            "id": 12620996,
+            "hotkey": "P"
+        },
+        {
+            "title": "disc",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#FFFFFF",
+            "geometry_config": {},
+            "id": 12620997,
+            "hotkey": "D"
+        }
+    ],
+    "tags": [
+        {
+            "name": "object_id",
+            "value_type": "any_number",
+            "color": "#208A0F",
+            "id": 32684144,
+            "hotkey": "",
+            "applicable_type": "objectsOnly",
+            "classes": []
+        }
+    ],
+    "projectType": "images",
+    "projectSettings": {
+        "multiView": {
+            "enabled": false,
+            "tagName": null,
+            "tagId": null,
+            "isSynced": false
+        }
+    }
+}

@@ -7,7 +7,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 def test_convert_to_yolo():
-    prefix = './test/data/supervisely/sample1'
+    prefix = './test/data/supervisely/sample_video_1'
     key_id_filename = path.join(prefix, "key_id_map.json")
     with open(key_id_filename, 'r') as f:
         key_id_map =  json.load(f)
