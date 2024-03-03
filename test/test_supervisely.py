@@ -1,6 +1,6 @@
 import pytest
 from os import path
-import src.features.supervisely as sup
+from src.features.supervisely import VideoAnnotationsConverter
 import json
 import pandas as pd
 import numpy as np
@@ -14,7 +14,8 @@ def test_convert_to_yolo():
     assert key_id_map is not None
     annotations_filename = path.join(prefix, "ds0/ann/machine_vs_condors_pool_001a.mp4.json")
 
-    df = sup.convert_to_yolo_df(key_id_filename, annotations_filename)
+    sup = VideoAnnotationsConverter(annotations_filename, key_id_filename)
+    df = sup.read_bounding_boxes_dataframe()
 
     width = 3840.0
     height = 2160.0
