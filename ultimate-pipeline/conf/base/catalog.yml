@@ -15,4 +15,5 @@ yolo_annotations:
   save_args:
     index: False
     sep: ","
+    columns: ["cls","x","y","w","h"]
     decimal: .

@@ -43,21 +43,32 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
 
     # TODO - fix so that we can have either objects[n]["key"] or objects[n]["id"]
     objects_map = annotations["objects"]
-
-    class_key_to_idx_map = {}
-
-    # for i, m in enumerate(objects_map):
-    #     class_key_to_idx_map[m["key"]] = i
+    if len(objects_map) == 0:
+        return pd.DataFrame(columns=["cls", "x", "y", "w", "h"])
+    
+    class_to_idx_map = {}
+    resolve_class_idx = None
+    if "key" in objects_map[0]:
+        for i, m in enumerate(objects_map):
+            class_to_idx_map[m["key"]] = i
+        resolve_class_idx = lambda fig: class_to_idx_map[fig["objectKey"]]
+    elif "id" in objects_map[0]:
+        for i, m in enumerate(objects_map):
+            class_to_idx_map[m["id"]] = i
+        resolve_class_idx = lambda fig: class_to_idx_map[fig["objectId"]]
+    else:
+        raise ValueError("The JSON annotations file is expected to have either objects[...].key identifier, or objects[...].id")
 
     # Each DataFrame in dfs will correspond to 1 bounding box
     dfs = [] 
     (width, height) = annotations["size"]["width"], annotations["size"]["height"]
 
+    idx = 0
     for frame in annotations["frames"]:
         frame_index = frame["index"]
         for fig in frame["figures"]:
             #class_id = class_key_to_idx_map[fig["objectKey"]]
-            class_id = 0
+            class_id = resolve_class_idx(fig)
         
             (x1, y1) = fig["geometry"]["points"]["exterior"][0]
             (x2, y2) = fig["geometry"]["points"]["exterior"][1]
@@ -65,8 +76,10 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
             box_arr = np.array([x1, y1, x2, y2], dtype='float')
             box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
 
-            data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
+            data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index, object_key=fig.get("objectKey",""), x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
+            #data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
             dfs.append(pd.DataFrame([data]))
+            idx += 1
 
     return pd.concat(dfs, axis=0)
 
