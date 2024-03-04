@@ -79,13 +79,6 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
 
     return pd.concat(dfs, axis=0)
 
-def convert_to_yolo_txts(df: pd.DataFrame, output_path: str):
-    groups = df.groupby('frame_no')
-    for g in groups:
-        frame_no, df = g
-        df = df[["cls", "x", "y", "w", "h"]]
-        filepath = os.path.join(output_path, f"frame_{frame_no:06}.txt")
-        df.to_csv(filepath, index=False, header=False, sep=' ')
 
 def _xyxy2xywhn(x, w=640, h=640, clip=False, eps=0.0):
     """
