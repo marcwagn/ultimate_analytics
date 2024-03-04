@@ -4,13 +4,12 @@ generated using Kedro 0.19.3
 """
 
 import typing as t
-import supervisely as sly
-
 import json 
 import logging
 import os
-
 from pathlib import Path
+import supervisely as sly
+from .supervisely_converter import convert_to_normalized_bounding_boxes
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +51,5 @@ def download_videos_from_supervisely(parameters: t.Dict) -> t.Tuple:
 
     return video_name_list
 
-from .supervisely_converter import VideoAnnotationsConverter
-
 def convert_supervisely_to_dataframe(json_data):
-    sup = VideoAnnotationsConverter('NOTHING')
-    return sup.read_bounding_boxes_dataframe(json_data)
+    return convert_to_normalized_bounding_boxes(json_data)

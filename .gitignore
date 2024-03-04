@@ -163,4 +163,4 @@ cython_debug/
 data/
 
 # Allow unit test data
-!test/data/
+!ultimate-pipeline/src/tests/data/

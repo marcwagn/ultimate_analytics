@@ -1,17 +1,13 @@
-import pytest
 from os import path
-from src.features.supervisely import VideoAnnotationsConverter
-import json
-import pandas as pd
+from src.ultimate_pipeline.pipelines.data_processing.supervisely_converter import convert_to_normalized_bounding_boxes
 import numpy as np
 from numpy.testing import assert_array_equal
 
 def test_convert_to_yolo():
-    prefix = './test/data/supervisely/sample_video_1'
+    prefix = './src/tests/data/supervisely/sample_video_1'
     annotations_filename = path.join(prefix, "ds0/ann/machine_vs_condors_pool_001a.mp4.json")
 
-    sup = VideoAnnotationsConverter(annotations_filename)
-    df = sup.read_bounding_boxes_dataframe()
+    df = convert_to_normalized_bounding_boxes(annotations_filename)
 
     width = 3840.0
     height = 2160.0
