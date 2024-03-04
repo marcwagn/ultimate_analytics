@@ -1,0 +1,920 @@
+{
+    "description": "",
+    "tags": [],
+    "size": {
+        "height": 2160,
+        "width": 3840
+    },
+    "objects": [
+        {
+            "id": 1542904904,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.073Z",
+            "updatedAt": "2024-02-28T10:01:17.073Z",
+            "tags": [
+                {
+                    "id": 222166451,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.073Z",
+                    "updatedAt": "2024-02-28T10:01:17.073Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1772,
+                        394
+                    ],
+                    [
+                        1806,
+                        473
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904905,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.074Z",
+            "updatedAt": "2024-02-28T10:01:17.074Z",
+            "tags": [
+                {
+                    "id": 222166452,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.073Z",
+                    "updatedAt": "2024-02-28T10:01:17.073Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1708,
+                        391
+                    ],
+                    [
+                        1737,
+                        471
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904906,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.074Z",
+            "updatedAt": "2024-02-28T10:01:17.074Z",
+            "tags": [
+                {
+                    "id": 222166453,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.074Z",
+                    "updatedAt": "2024-02-28T10:01:17.074Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        182,
+                        1025
+                    ],
+                    [
+                        325,
+                        1224
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904907,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.074Z",
+            "updatedAt": "2024-02-28T10:01:17.074Z",
+            "tags": [
+                {
+                    "id": 222166454,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.074Z",
+                    "updatedAt": "2024-02-28T10:01:17.074Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        972,
+                        1035
+                    ],
+                    [
+                        1047,
+                        1243
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904908,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.074Z",
+            "updatedAt": "2024-02-28T10:01:17.074Z",
+            "tags": [
+                {
+                    "id": 222166455,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.074Z",
+                    "updatedAt": "2024-02-28T10:01:17.074Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1229,
+                        1028
+                    ],
+                    [
+                        1304,
+                        1222
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904909,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.074Z",
+            "updatedAt": "2024-02-28T10:01:17.074Z",
+            "tags": [
+                {
+                    "id": 222166456,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.074Z",
+                    "updatedAt": "2024-02-28T10:01:17.074Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1260,
+                        1102
+                    ],
+                    [
+                        1346,
+                        1304
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904910,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.074Z",
+            "updatedAt": "2024-02-28T10:01:17.074Z",
+            "tags": [
+                {
+                    "id": 222166457,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.074Z",
+                    "updatedAt": "2024-02-28T10:01:17.074Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1467,
+                        1108
+                    ],
+                    [
+                        1538,
+                        1283
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904911,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.075Z",
+            "updatedAt": "2024-02-28T10:01:17.075Z",
+            "tags": [
+                {
+                    "id": 222166458,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.074Z",
+                    "updatedAt": "2024-02-28T10:01:17.074Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1655,
+                        1054
+                    ],
+                    [
+                        1727,
+                        1257
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904912,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.075Z",
+            "updatedAt": "2024-02-28T10:01:17.075Z",
+            "tags": [
+                {
+                    "id": 222166459,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.075Z",
+                    "updatedAt": "2024-02-28T10:01:17.075Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        2266,
+                        1130
+                    ],
+                    [
+                        2344,
+                        1321
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904913,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.075Z",
+            "updatedAt": "2024-02-28T10:01:17.075Z",
+            "tags": [
+                {
+                    "id": 222166460,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.075Z",
+                    "updatedAt": "2024-02-28T10:01:17.075Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1327,
+                        367
+                    ],
+                    [
+                        1357,
+                        445
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904914,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.075Z",
+            "updatedAt": "2024-02-28T10:01:17.075Z",
+            "tags": [
+                {
+                    "id": 222166461,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.075Z",
+                    "updatedAt": "2024-02-28T10:01:17.075Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1523,
+                        390
+                    ],
+                    [
+                        1557,
+                        471
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904915,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.077Z",
+            "updatedAt": "2024-02-28T10:01:17.077Z",
+            "tags": [
+                {
+                    "id": 222166462,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.077Z",
+                    "updatedAt": "2024-02-28T10:01:17.077Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1618,
+                        392
+                    ],
+                    [
+                        1648,
+                        473
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904916,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.077Z",
+            "updatedAt": "2024-02-28T10:01:17.077Z",
+            "tags": [
+                {
+                    "id": 222166463,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.077Z",
+                    "updatedAt": "2024-02-28T10:01:17.077Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1659,
+                        392
+                    ],
+                    [
+                        1688,
+                        470
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904917,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.077Z",
+            "updatedAt": "2024-02-28T10:01:17.077Z",
+            "tags": [
+                {
+                    "id": 222166464,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.077Z",
+                    "updatedAt": "2024-02-28T10:01:17.077Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1840,
+                        389
+                    ],
+                    [
+                        1875,
+                        470
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904918,
+            "classId": 12620996,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.077Z",
+            "updatedAt": "2024-02-28T10:01:17.077Z",
+            "tags": [
+                {
+                    "id": 222166465,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998277,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.077Z",
+                    "updatedAt": "2024-02-28T10:01:17.077Z"
+                }
+            ],
+            "classTitle": "person",
+            "points": {
+                "exterior": [
+                    [
+                        1882,
+                        393
+                    ],
+                    [
+                        1909,
+                        470
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904919,
+            "classId": 12620997,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.078Z",
+            "updatedAt": "2024-02-28T10:01:17.078Z",
+            "tags": [
+                {
+                    "id": 222166466,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1219998278,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.078Z",
+                    "updatedAt": "2024-02-28T10:01:17.078Z"
+                }
+            ],
+            "classTitle": "disc",
+            "points": {
+                "exterior": [
+                    [
+                        178,
+                        1052
+                    ],
+                    [
+                        213,
+                        1076
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904920,
+            "classId": 12620983,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.078Z",
+            "updatedAt": "2024-02-28T10:01:17.078Z",
+            "tags": [
+                {
+                    "id": 222166467,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001708,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.078Z",
+                    "updatedAt": "2024-02-28T10:01:17.078Z"
+                }
+            ],
+            "classTitle": "TLC",
+            "points": {
+                "exterior": [
+                    [
+                        1174,
+                        392
+                    ],
+                    [
+                        1185,
+                        404
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904921,
+            "classId": 12620990,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.078Z",
+            "updatedAt": "2024-02-28T10:01:17.078Z",
+            "tags": [
+                {
+                    "id": 222166468,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001709,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.078Z",
+                    "updatedAt": "2024-02-28T10:01:17.078Z"
+                }
+            ],
+            "classTitle": "TLF",
+            "points": {
+                "exterior": [
+                    [
+                        1054,
+                        461
+                    ],
+                    [
+                        1064,
+                        472
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904922,
+            "classId": 12620984,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.078Z",
+            "updatedAt": "2024-02-28T10:01:17.078Z",
+            "tags": [
+                {
+                    "id": 222166469,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001710,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.078Z",
+                    "updatedAt": "2024-02-28T10:01:17.078Z"
+                }
+            ],
+            "classTitle": "TRC",
+            "points": {
+                "exterior": [
+                    [
+                        2504,
+                        389
+                    ],
+                    [
+                        2514,
+                        400
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904923,
+            "classId": 12620985,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.079Z",
+            "updatedAt": "2024-02-28T10:01:17.079Z",
+            "tags": [
+                {
+                    "id": 222166470,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001711,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.079Z",
+                    "updatedAt": "2024-02-28T10:01:17.079Z"
+                }
+            ],
+            "classTitle": "C",
+            "points": {
+                "exterior": [
+                    [
+                        1812,
+                        664
+                    ],
+                    [
+                        1840,
+                        674
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904924,
+            "classId": 12620993,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.079Z",
+            "updatedAt": "2024-02-28T10:01:17.079Z",
+            "tags": [
+                {
+                    "id": 222166471,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001712,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.079Z",
+                    "updatedAt": "2024-02-28T10:01:17.079Z"
+                }
+            ],
+            "classTitle": "TBP",
+            "points": {
+                "exterior": [
+                    [
+                        1818,
+                        563
+                    ],
+                    [
+                        1850,
+                        573
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904925,
+            "classId": 12620987,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.079Z",
+            "updatedAt": "2024-02-28T10:01:17.079Z",
+            "tags": [
+                {
+                    "id": 222166472,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001713,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.079Z",
+                    "updatedAt": "2024-02-28T10:01:17.079Z"
+                }
+            ],
+            "classTitle": "BBP",
+            "points": {
+                "exterior": [
+                    [
+                        1801,
+                        818
+                    ],
+                    [
+                        1830,
+                        828
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904926,
+            "classId": 12620986,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.079Z",
+            "updatedAt": "2024-02-28T10:01:17.079Z",
+            "tags": [
+                {
+                    "id": 222166473,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001714,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.079Z",
+                    "updatedAt": "2024-02-28T10:01:17.079Z"
+                }
+            ],
+            "classTitle": "TRF",
+            "points": {
+                "exterior": [
+                    [
+                        2615,
+                        455
+                    ],
+                    [
+                        2628,
+                        469
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904927,
+            "classId": 12620995,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.079Z",
+            "updatedAt": "2024-02-28T10:01:17.079Z",
+            "tags": [
+                {
+                    "id": 222166474,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001715,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.079Z",
+                    "updatedAt": "2024-02-28T10:01:17.079Z"
+                }
+            ],
+            "classTitle": "TEC",
+            "points": {
+                "exterior": [
+                    [
+                        1833,
+                        430
+                    ],
+                    [
+                        1850,
+                        440
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904928,
+            "classId": 12620994,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.079Z",
+            "updatedAt": "2024-02-28T10:01:17.079Z",
+            "tags": [
+                {
+                    "id": 222166475,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001716,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.079Z",
+                    "updatedAt": "2024-02-28T10:01:17.079Z"
+                }
+            ],
+            "classTitle": "BEC",
+            "points": {
+                "exterior": [
+                    [
+                        1744,
+                        1495
+                    ],
+                    [
+                        1807,
+                        1517
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1542904929,
+            "classId": 12620989,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-02-28T10:01:17.080Z",
+            "updatedAt": "2024-02-28T10:01:17.080Z",
+            "tags": [
+                {
+                    "id": 222166476,
+                    "tagId": 32684144,
+                    "name": "object_id",
+                    "value": 1220001717,
+                    "labelerLogin": "marcch",
+                    "createdAt": "2024-02-28T10:01:17.080Z",
+                    "updatedAt": "2024-02-28T10:01:17.080Z"
+                }
+            ],
+            "classTitle": "BRF",
+            "points": {
+                "exterior": [
+                    [
+                        3759,
+                        1145
+                    ],
+                    [
+                        3785,
+                        1175
+                    ]
+                ],
+                "interior": []
+            }
+        }
+    ]
+}

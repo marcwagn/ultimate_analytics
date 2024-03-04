@@ -29,3 +29,13 @@ attr = "ultimate_pipeline.__version__"
 [tool.setuptools.packages.find]
 where = [ "src",]
 namespaces = false
+
+[project.optional-dependencies]
+dev = ["pytest", "tox"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q -W ignore::DeprecationWarning"
+testpaths = [
+    "src/tests"
+]

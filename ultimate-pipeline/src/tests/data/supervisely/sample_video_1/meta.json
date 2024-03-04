@@ -1,0 +1,22 @@
+{
+    "classes": [
+        {
+            "title": "Frisbee",
+            "shape": "rectangle",
+            "color": "#F8E71C",
+            "geometry_config": {},
+            "id": 12341909,
+            "hotkey": ""
+        },
+        {
+            "title": "Player",
+            "shape": "rectangle",
+            "color": "#18C9B4",
+            "geometry_config": {},
+            "id": 12217172,
+            "hotkey": ""
+        }
+    ],
+    "tags": [],
+    "projectType": "videos"
+}
