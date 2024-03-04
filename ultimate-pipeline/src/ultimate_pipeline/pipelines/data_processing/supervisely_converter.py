@@ -37,11 +37,8 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
     else:
         raise ValueError("Unsupported type of source argument")
 
-    logger.warning("Read annotations file")
-    print(type(annotations))
-    print(annotations["objects"][0])
+    logger.info("Reading Supervisely video annotations file")
 
-    # TODO - fix so that we can have either objects[n]["key"] or objects[n]["id"]
     objects_map = annotations["objects"]
     if len(objects_map) == 0:
         return pd.DataFrame(columns=["cls", "x", "y", "w", "h"])
@@ -67,7 +64,6 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
     for frame in annotations["frames"]:
         frame_index = frame["index"]
         for fig in frame["figures"]:
-            #class_id = class_key_to_idx_map[fig["objectKey"]]
             class_id = resolve_class_idx(fig)
         
             (x1, y1) = fig["geometry"]["points"]["exterior"][0]

@@ -9,6 +9,7 @@ import logging
 import os
 from pathlib import Path
 import supervisely as sly
+import pandas as pd
 from .supervisely_converter import convert_to_normalized_bounding_boxes
 
 logger = logging.getLogger(__name__)
@@ -53,3 +54,12 @@ def download_videos_from_supervisely(parameters: t.Dict) -> t.Tuple:
 
 def convert_supervisely_to_dataframe(json_data):
     return convert_to_normalized_bounding_boxes(json_data)
+
+def create_yolo_frame_partitions(df: pd.DataFrame) -> t.Dict[str, t.Any]:
+    grouped = df.groupby(by="frame")
+
+    frame_dict = {}
+    for frame, data in grouped:
+        frame_dict[str(frame)] = data
+
+    return frame_dict
