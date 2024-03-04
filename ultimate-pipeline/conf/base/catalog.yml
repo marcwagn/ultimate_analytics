@@ -2,3 +2,17 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+supervisely_video_annotations:
+  type: json.JSONDataset
+  filepath: data/raw/annotations/sockeye_vs_rhino_slam_pool_004.json
+
+yolo_annotations:
+  type: pandas.CSVDataset
+  filepath: data/processed/annotations/sockeye_vs_rhino_slam_pool_004.csv
+  # load_args:
+  #   sep: ","
+  #   na_values: ["#NA", NA]
+  save_args:
+    index: False
+    sep: ","
+    decimal: .

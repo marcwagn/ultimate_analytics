@@ -2,6 +2,9 @@ import json
 import pandas as pd
 import numpy as np
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 class VideoAnnotationsConverter:
     def __init__(self, label_file: str):
@@ -13,7 +16,7 @@ class VideoAnnotationsConverter:
         """
         self.label_file = label_file
 
-    def read_bounding_boxes_dataframe(self) -> pd.DataFrame:
+    def read_bounding_boxes_dataframe(self, annotations=None) -> pd.DataFrame:
         """
         Convert Supervisely annotations to a DataFrame containing normalized bounding boxes info in the following format:
 
@@ -24,15 +27,21 @@ class VideoAnnotationsConverter:
             - h (float) - bounding box width
             - frame (str) - frame number or name 
         """
-        with open(self.label_file, 'r') as f:
-            annotations =  json.load(f)
+        if annotations is None:
+            with open(self.label_file, 'r') as f:
+                annotations =  json.load(f)
 
+        logger.warning("Read annotations file")
+        print(type(annotations))
+        print(annotations["objects"][0])
+
+        # TODO - fix so that we can have either objects[n]["key"] or objects[n]["id"]
         objects_map = annotations["objects"]
 
         class_key_to_idx_map = {}
 
-        for i, m in enumerate(objects_map):
-            class_key_to_idx_map[m["key"]] = i
+        # for i, m in enumerate(objects_map):
+        #     class_key_to_idx_map[m["key"]] = i
 
         # Each DataFrame in dfs will correspond to 1 bounding box
         dfs = [] 
@@ -41,7 +50,8 @@ class VideoAnnotationsConverter:
         for frame in annotations["frames"]:
             frame_index = frame["index"]
             for fig in frame["figures"]:
-                class_id = class_key_to_idx_map[fig["objectKey"]]
+                #class_id = class_key_to_idx_map[fig["objectKey"]]
+                class_id = 0
             
                 (x1, y1) = fig["geometry"]["points"]["exterior"][0]
                 (x2, y2) = fig["geometry"]["points"]["exterior"][1]

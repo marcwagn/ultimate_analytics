@@ -51,3 +51,9 @@ def download_videos_from_supervisely(parameters: t.Dict) -> t.Tuple:
         video_name_list.append(video_name.stem)
 
     return video_name_list
+
+from .supervisely_converter import VideoAnnotationsConverter
+
+def convert_supervisely_to_dataframe(json_data):
+    sup = VideoAnnotationsConverter('NOTHING')
+    return sup.read_bounding_boxes_dataframe(json_data)
