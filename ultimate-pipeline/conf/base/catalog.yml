@@ -28,4 +28,13 @@ yolo_annotation_txt:
       sep: " "
       decimal: .
 
+supervisely_images_metadata:
+  type: json.JSONDataset
+  filepath: data/raw/ds_img_2/meta.json
 
+supervisely_images_annotation: 
+  type: partitions.PartitionedDataset
+  path: data/raw/ds_img_2/mini_test_set/ann/  # path to the location of partitions
+  #filename_suffix: '.json'
+  dataset: 
+    type: json.JSONDataset  # shorthand notation for the dataset which will handle individual partitions

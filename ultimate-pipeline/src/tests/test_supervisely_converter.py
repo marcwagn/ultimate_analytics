@@ -1,5 +1,7 @@
 import json
 from os import path
+
+import pytest
 import src.ultimate_pipeline.pipelines.data_processing.supervisely_converter as sc
 import numpy as np
 import pandas as pd
@@ -66,7 +68,7 @@ def test_convert_single_image_annotation():
         metadata = json.load(f)
         meta_map = { m["id"]: i for i, m in enumerate(metadata["classes"])}
     
-    df = sc.convert_single_image_annotation_file(annotations, frame_index=0, meta_map=meta_map)
+    df = sc.convert_single_image_annotation_file(annotations, frame_key=0, meta_map=meta_map)
 
     assert df is not None
     assert isinstance(df, pd.DataFrame)
@@ -82,3 +84,23 @@ def test_convert_single_image_annotation():
     expectedClassIdBrf = 6
     expectedLastRow = np.array([expectedClassIdBrf, (3796+3755)/2/width, (1185+1144)/2/height, (3796-3755)/width, (1185-1144)/height])
     assert_array_equal(actualLastRow, expectedLastRow)
+
+def test_convert_image_annotation_folder_nonexistent():
+    prefix = "./src/tests/data/supervisely/sample_images_nonexistent"
+    annotations_folder = path.join(prefix, "test/ann")
+    metadata_file = path.join(prefix, "meta.json")
+
+    with pytest.raises(ValueError, match="If source is passed as string, it needs to represent an existing directory"):
+        sc.convert_images_annotations_folder(annotations_folder, meta_file=metadata_file)
+
+def test_convert_image_annotation_folder():
+    prefix = "./src/tests/data/supervisely/sample_images_1"
+    annotations_folder = path.join(prefix, "test/ann")
+    metadata_file = path.join(prefix, "meta.json")
+
+    df = sc.convert_images_annotations_folder(annotations_folder, meta_file=metadata_file)
+
+    assert df is not None
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 780
+    assert len(df.groupby("frame")) == 30
