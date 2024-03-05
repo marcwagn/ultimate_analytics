@@ -7,12 +7,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFrame:
+def convert_video_annotations(source: Union[str|dict]) -> pd.DataFrame:
     """
-    Convert Supervisely annotations to a DataFrame containing normalized bounding boxes.
+    Convert Supervisely video annotations to a DataFrame containing normalized bounding boxes.
 
     Args:
-        source (str|DataFrame) - file path to the Supervisely labels/annotations file, or a JSON dictionary
+        source (str|DataFrame) - file path to the Supervisely video annotations file, or a JSON dictionary
 
     Returns: Pandas DataFrame with the following columns:
         cls (int) - class id
@@ -31,7 +31,7 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
         raise ValueError("source argument is mandatory")
     elif isinstance(source, str):
         with open(source, 'r') as f:
-            annotations =  json.load(f)
+            annotations = json.load(f)
     elif isinstance(source, dict):
         annotations = source
     else:
@@ -43,6 +43,12 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
     if len(objects_map) == 0:
         return pd.DataFrame(columns=["cls", "x", "y", "w", "h"])
     
+    # def make_map_to_index(json_objs:list, key="id"):
+    #     mmap = { m[key]: i for i, m in enumerate(json_objs)}
+    #     mmap = {}
+    #     for i, m in enumerate(json_objs):
+    #         mmap[m[key]] = i
+
     class_to_idx_map = {}
     resolve_class_idx = None
     if "key" in objects_map[0]:
@@ -56,8 +62,8 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
     else:
         raise ValueError("The JSON annotations file is expected to have either objects[...].key identifier, or objects[...].id")
 
-    # Each DataFrame in dfs will correspond to 1 bounding box
-    dfs = [] 
+    # Each element in datas will correspond to 1 bounding box
+    datas = []
     (width, height) = annotations["size"]["width"], annotations["size"]["height"]
 
     idx = 0
@@ -74,11 +80,62 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
 
             data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index, object_key=fig.get("objectKey",""), x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
             #data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
-            dfs.append(pd.DataFrame([data]))
+            datas.append(data)
             idx += 1
 
+    return pd.DataFrame(datas)
+
+def convert_images_annotations_folder(source: Union[str|dict], meta_file: str) -> pd.DataFrame:
+    # Each DataFrame in dfs will correspond to 1 image
+    dfs = [] 
+    
+    annotations_by_file = None
+    if source is None:
+        raise ValueError("source argument is mandatory")
+    elif isinstance(source, str):
+        if not os.path.isdir(source) or not os.path.exists(source):
+            raise ValueError("If source is passed as string, it needs to represent an existing directory")
+      
+    elif isinstance(source, dict):
+        if not isinstance(source[source.keys()[0]], dict):
+            raise ValueError("If source is passed as a dict, it needs to be a dict (keyed by file name) of JSON objects")
+        annotations_by_file = source
+    else:
+        raise ValueError("Unsupported type of source argument")
+    
+    meta_map = {}
+    with open(meta_file, 'r') as f:
+        meta_key_map = json.load(f)
+    
+    for i, cl in enumerate(meta_key_map["classes"]):
+        meta_map[cl["id"]] = i
+
+    for i, annotations in enumerate(annotations_by_file):
+        dfs.append(convert_single_image_annotation_file(annotations, i, meta_map))
     return pd.concat(dfs, axis=0)
 
+
+def convert_single_image_annotation_file(annotations: dict, frame_index: int, meta_map: dict) -> pd.DataFrame:
+    # Each element in datas correspond to 1 bounding box
+    datas = []
+    (width, height) = annotations["size"]["width"], annotations["size"]["height"]
+
+    resolve_class_idx = lambda fig: meta_map[fig["classId"]]
+    idx = 0
+    for detected in annotations["objects"]:
+        class_id = resolve_class_idx(detected)
+            
+        (x1, y1) = detected["points"]["exterior"][0]
+        (x2, y2) = detected["points"]["exterior"][1]
+
+        box_arr = np.array([x1, y1, x2, y2], dtype='float')
+        box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
+
+        data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index, object_key="", x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
+        # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
+        datas.append(data)
+        idx += 1
+    return pd.DataFrame(datas)
 
 def _xyxy2xywhn(x, w=640, h=640, clip=False, eps=0.0):
     """
