@@ -83,19 +83,18 @@ def convert_video_annotations(source: Union[str|dict]) -> pd.DataFrame:
 
     return pd.DataFrame(datas)
 
-def convert_images_annotations_folder(source: Union[str|dict[JSONGenerator]], meta_file: Union[str|dict]) -> pd.DataFrame:
-    # Each DataFrame in dfs will correspond to 1 image
+def convert_images_annotations_folder(source: Union[str|JSONGenerator], meta_file: Union[str|dict]) -> pd.DataFrame:
+    """
+    Convert a Supervisely image annotations within a folder to normalized bounding boxes.
+    Args:
+        source (str|JSONGenerator): path to the root folder containing JSON annotation files, 
+            or a dictionary (keyed by file name) containing Callables that generate JSON annotation content as dict
+        meta_file (str|dict): path to the meta.json file, or the JSON content of the meta file as dict
+    """
+    # Each DataFrame in dfs will correspond to bounding boxes from 1 image
     dfs = [] 
-    
-    # kkk = next(iter(source))
-    # logger.info(f"This is what was passed: {type(kkk)}")
-    # logger.info(f"This is what was passed: {kkk}")
-    # logger.info(f"This is what was passed: {source[kkk]}")
-    # truthy = [isinstance(o, Callable) for o in source.values()]
-    # logger.info(truthy)
 
     annotations_generators = None
-    #annotations_by_file = None
     if source is None:
         raise ValueError("source argument is mandatory")
     elif isinstance(source, str):
@@ -108,15 +107,9 @@ def convert_images_annotations_folder(source: Union[str|dict[JSONGenerator]], me
     elif isinstance(source, dict):
         if not all([isinstance(o, Callable) for o in source.values()]):
             raise ValueError("If source is passed as a dict, it needs to be a dict (keyed by file name) of callables returning JSON dicts")
-        #annotations_by_file = source()
         annotations_generators = source
     else:
         raise ValueError("Unsupported type of source argument")
-    
-    # if meta_file is None:
-    #     raise ValueError("meta_file argument is mandatory")
-    # if not isinstance(meta_file, str) and not isinstance(meta_file, JSONGenerator):
-    #     raise ValueError("meta_file needs to be a str or a callable returning a JSON dict")
     
     meta_file_content = None
     if isinstance(meta_file, str):
@@ -129,7 +122,6 @@ def convert_images_annotations_folder(source: Union[str|dict[JSONGenerator]], me
             
     meta_map = { m["id"]: i for i, m in enumerate(meta_file_content["classes"]) }
 
-
     for key, annotations_gen in annotations_generators.items():
         dfs.append(convert_single_image_annotation_file(annotations_gen(), key, meta_map))
     return pd.concat(dfs, axis=0)
@@ -140,6 +132,8 @@ def convert_single_image_annotation_file(annotations: dict, frame_key: str, meta
     Convert a Supervisely annotation for a single image to normalized bounding boxes.
     Args:
         annotations (dict): content of JSON annotation file
+        frame_key (str): frame number or name
+        meta_map (dict): mapping between detection class ids to indexes
     """
     # Each element in datas correspond to 1 bounding box
     datas = []
