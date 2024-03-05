@@ -56,10 +56,9 @@ def convert_supervisely_to_dataframe(json_data):
     return convert_video_annotations(json_data)
 
 def create_yolo_frame_partitions(df: pd.DataFrame) -> t.Dict[str, t.Any]:
+    """
+    Split the DataFrame by 'frame' column into a dictionary of partitioned data frames 
+    keyed by 'frame' (which corresponds to a video frame number or name). 
+    """
     grouped = df.groupby(by="frame")
-
-    frame_dict = {}
-    for frame, data in grouped:
-        frame_dict[str(frame)] = data
-
-    return frame_dict
+    return { str(frame): data for frame, data in grouped }

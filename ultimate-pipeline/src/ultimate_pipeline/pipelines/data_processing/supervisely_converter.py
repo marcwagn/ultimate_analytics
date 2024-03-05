@@ -39,28 +39,23 @@ def convert_video_annotations(source: Union[str|dict]) -> pd.DataFrame:
 
     logger.info("Reading Supervisely video annotations file")
 
-    objects_map = annotations["objects"]
-    if len(objects_map) == 0:
+    objects_list = annotations["objects"]
+    if len(objects_list) == 0:
         return pd.DataFrame(columns=["cls", "x", "y", "w", "h"])
-    
-    # def make_map_to_index(json_objs:list, key="id"):
-    #     mmap = { m[key]: i for i, m in enumerate(json_objs)}
-    #     mmap = {}
-    #     for i, m in enumerate(json_objs):
-    #         mmap[m[key]] = i
-
-    class_to_idx_map = {}
-    resolve_class_idx = None
-    if "key" in objects_map[0]:
-        for i, m in enumerate(objects_map):
-            class_to_idx_map[m["key"]] = i
-        resolve_class_idx = lambda fig: class_to_idx_map[fig["objectKey"]]
-    elif "id" in objects_map[0]:
-        for i, m in enumerate(objects_map):
-            class_to_idx_map[m["id"]] = i
-        resolve_class_idx = lambda fig: class_to_idx_map[fig["objectId"]]
+  
+    objects_class_id_key_name = None
+    figures_class_id_key_name = None
+    if "key" in objects_list[0]:
+        objects_class_id_key_name = "key"
+        figures_class_id_key_name = "objectKey"
+    elif "id" in objects_list[0]:
+        objects_class_id_key_name = "id"
+        figures_class_id_key_name = "objectId"
     else:
         raise ValueError("The JSON annotations file is expected to have either objects[...].key identifier, or objects[...].id")
+
+    class_to_idx_map = { m[objects_class_id_key_name]: i for i, m in enumerate(objects_list)}
+    resolve_class_idx = lambda fig: class_to_idx_map[fig[figures_class_id_key_name]]
 
     # Each element in datas will correspond to 1 bounding box
     datas = []
