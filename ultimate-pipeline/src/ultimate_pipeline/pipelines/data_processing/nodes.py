@@ -55,7 +55,7 @@ def download_videos_from_supervisely(parameters: t.Dict) -> t.Tuple:
 def convert_supervisely_video_annotations_to_dataframe(json_data):
     return convert_video_annotations(json_data)
 
-def create_yolo_frame_partitions(df: pd.DataFrame) -> t.Dict[str, t.Any]:
+def create_yolo_frame_partitions(df: pd.DataFrame) -> t.Dict[str, pd.DataFrame]:
     """
     Split the DataFrame by 'frame' column into a dictionary of partitioned data frames 
     keyed by 'frame' (which corresponds to a video frame number or name). 
@@ -65,11 +65,16 @@ def create_yolo_frame_partitions(df: pd.DataFrame) -> t.Dict[str, t.Any]:
 
 def convert_supervisely_images_annotations_to_dataframe(
         annotation_partitions: dict[str, t.Callable[[],dict]], 
-        meta_file: t.Callable[[],dict]) -> pd.DataFrame:
+        meta_file: dict) -> pd.DataFrame:
+    """
+    Convert Supervisely image annotations from a given folder to a DataFrame containing bounding boxes.
+    Args:
+        annotation_partitions (dict) - a dictionary (keyed by file names) containing content generator functions (Callables generating JSON annotation content as dict)
+        meta_file (dict) - JSON content of meta.json
+    """
     logger.info("Reading folder data")
     logger.info(f"annotation_partitions type: {type(annotation_partitions)}")
     logger.info(f"meta_file type: {type(meta_file)}")
 
-    df = convert_images_annotations_folder(source=annotation_partitions, meta_file=meta_file)
-    return df
+    return convert_images_annotations_folder(source=annotation_partitions, meta_file=meta_file)
     

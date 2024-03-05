@@ -1,0 +1,142 @@
+{
+    "description": "",
+    "tags": [],
+    "size": {
+        "height": 2160,
+        "width": 3840
+    },
+    "objects": [
+        {
+            "id": 1543581244,
+            "classId": 12632176,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-03-04T12:45:13.928Z",
+            "updatedAt": "2024-03-04T12:45:13.928Z",
+            "tags": [],
+            "classTitle": "Person",
+            "points": {
+                "exterior": [
+                    [
+                        2100,
+                        1129
+                    ],
+                    [
+                        2171,
+                        1309
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1543581249,
+            "classId": 12632176,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-03-04T12:45:22.272Z",
+            "updatedAt": "2024-03-04T12:45:22.272Z",
+            "tags": [],
+            "classTitle": "Person",
+            "points": {
+                "exterior": [
+                    [
+                        2110,
+                        1110
+                    ],
+                    [
+                        2175,
+                        1178
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1543581256,
+            "classId": 12632176,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-03-04T12:45:30.986Z",
+            "updatedAt": "2024-03-04T12:45:30.986Z",
+            "tags": [],
+            "classTitle": "Person",
+            "points": {
+                "exterior": [
+                    [
+                        2695,
+                        1089
+                    ],
+                    [
+                        2796,
+                        1272
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1543581275,
+            "classId": 12632177,
+            "objectId": null,
+            "description": "",
+            "geometryType": "rectangle",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-03-04T12:45:54.677Z",
+            "updatedAt": "2024-03-04T12:45:54.677Z",
+            "tags": [],
+            "classTitle": "Disc",
+            "points": {
+                "exterior": [
+                    [
+                        3126,
+                        1241
+                    ],
+                    [
+                        3160,
+                        1269
+                    ]
+                ],
+                "interior": []
+            }
+        },
+        {
+            "id": 1543581283,
+            "classId": 12632178,
+            "objectId": null,
+            "description": "",
+            "geometryType": "graph",
+            "labelerLogin": "marcch",
+            "createdAt": "2024-03-04T12:46:05.891Z",
+            "updatedAt": "2024-03-04T12:46:49.801Z",
+            "tags": [],
+            "classTitle": "Field",
+            "nodes": {
+                "9d13de17-a972-48e4-9430-f584b0dbb751": {
+                    "loc": [
+                        2812,
+                        1005
+                    ]
+                },
+                "d6d02ce3-4940-40ec-9818-2fcecdfc2c25": {
+                    "loc": [
+                        1267,
+                        1199
+                    ]
+                },
+                "f24d0a91-4562-4115-9699-8d8dcf704af5": {
+                    "loc": [
+                        3276,
+                        1451
+                    ]
+                }
+            }
+        }
+    ]
+}
