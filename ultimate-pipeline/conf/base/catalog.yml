@@ -2,6 +2,7 @@
 #
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+
 supervisely_video_annotations:
   type: json.JSONDataset
   filepath: data/raw/annotations/sockeye_vs_rhino_slam_pool_004.json
@@ -28,4 +29,20 @@ yolo_annotation_txt:
       sep: " "
       decimal: .
 
+dataset_metadata_json:
+  type: json.JSONDataset
+  filepath: data/raw/meta.json
 
+supervisely_images_annotation:
+  type: partitions.PartitionedDataset
+  path: data/raw/mini_test_set/annotations/
+  filename_suffix: '.json'
+  dataset: 
+    type: json.JSONDataset
+
+supervisely_images:
+  type: partitions.PartitionedDataset
+  path: data/raw/mini_test_set/images/
+  filename_suffix: '.jpg'
+  dataset: 
+    type: pillow.ImageDataset

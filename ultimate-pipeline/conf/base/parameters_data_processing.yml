@@ -4,8 +4,6 @@
 # Documentation for this file format can be found in "Parameters"
 # Link: https://docs.kedro.org/en/0.19.3/configuration/parameters.html
 
-video_dataset:
-  project_id: 289160
-  dataset_id: 920594
-  video_path: data/raw/videos/
-  annotations_path: data/raw/annotations/
+image_dataset:
+  project_id: 290921
+  dataset_id: 924169 # mini_test_set

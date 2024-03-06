@@ -4,5 +4,7 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.testing.cwd": "ultimate-pipeline"
+    "python.testing.cwd": "ultimate-pipeline",
+    "ruff.lint.args": ["--config=ultimate-pipeline/pyproject.toml"],
+    "ruff.format.args": ["--config=ultimate-pipeline/pyproject.toml"],
 }
