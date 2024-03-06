@@ -13,7 +13,7 @@ JSONGenerator: TypeAlias = Callable[[], dict]
 logger = logging.getLogger(__name__)
 
 
-def convert_video_annotations(source: Union[str | dict]) -> pd.DataFrame:
+def convert_video_annotations(source: Union[str, dict]) -> pd.DataFrame:
     """
     Convert Supervisely video annotations to a DataFrame containing normalized bounding boxes.
 
@@ -89,7 +89,7 @@ def convert_video_annotations(source: Union[str | dict]) -> pd.DataFrame:
     return pd.DataFrame(datas)
 
 
-def convert_images_annotations_folder(source: str | JSONGenerator, meta_file: str | dict) -> pd.DataFrame:
+def convert_images_annotations_folder(source: Union[str, JSONGenerator], meta_file: Union[str, dict]) -> pd.DataFrame:
     """
     Convert a Supervisely image annotations within a folder to normalized bounding boxes.
 
@@ -156,54 +156,6 @@ def convert_single_image_annotation_file(annotations: dict, frame_key: str, meta
             continue
 
         class_id = resolve_class_idx(detected)
-            
-        (x1, y1) = detected["points"]["exterior"][0]
-        (x2, y2) = detected["points"]["exterior"][1]
-
-        box_arr = np.array([x1, y1, x2, y2], dtype='float')
-        box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
-
-        data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_key, object_key="", x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
-        # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
-        datas.append(data)
-        idx += 1
-    return pd.DataFrame(datas)
-
-def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, frame_key: str, meta_file: dict) -> pd.DataFrame:
-    """
-    Convert a Supervisely annotation for a single image to pose estimation DataFrame.
-
-    Args:
-        annotations (dict): content of JSON annotation file
-        frame_key (str): frame number or name
-        meta_file (dict): content of meta.json
-    References:
-        https://docs.ultralytics.com/datasets/pose/
-    Examples:
-        <class-index> <x> <y> <width> <height> <px1> <py1> <px2> <py2> ... <pxn> <pyn>
-        <class-index> <x> <y> <width> <height> <px1> <py1> <p1-visibility> <px2> <py2> <p2-visibility> <pxn> <pyn> <pn-visibility>
-    """
-    # Each element in datas correspond to 1 bounding box
-    datas = []
-    (width, height) = annotations["size"]["width"], annotations["size"]["height"]
-
-    graph_classes = filter(lambda c: c["shape"] == "graph", meta_file["classes"])
-    graph_id_to_idx = {}
-    graph_id_to_nodes = {}
-    for idx, g in enumerate(graph_classes):
-        graph_id_to_idx[g["id"]] = idx
-        graph_id_to_nodes[g["id"]] = g["geometry_config"]["nodes"]
-
-    for idx, id in enumerate(graph_id_to_nodes):
-        graph_id_to_nodes[id]["idx"] = idx
-
-    idx = 0
-    for detected in annotations["objects"]:
-        # Skip non-rectangular annotations - they don't map to bounding boxes
-        if detected["geometryType"] != 'graph':
-            continue
-
-        class_id = graph_id_to_idx[detected["classId"]]
             
         (x1, y1) = detected["points"]["exterior"][0]
         (x2, y2) = detected["points"]["exterior"][1]
