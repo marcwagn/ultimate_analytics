@@ -1,3 +1,5 @@
+"""Conversion from Supervisely to YOLO annotation format."""
+
 import json
 import pandas as pd
 import numpy as np
@@ -5,12 +7,13 @@ from typing import Callable, Union, TypeAlias
 import os
 import logging
 
-JSONGenerator: TypeAlias = Callable[[],dict]
+JSONGenerator: TypeAlias = Callable[[], dict]
 # Python 3.12: type JSONGenerator = Callable[[],dict]
 
 logger = logging.getLogger(__name__)
 
-def convert_video_annotations(source: Union[str|dict]) -> pd.DataFrame:
+
+def convert_video_annotations(source: Union[str | dict]) -> pd.DataFrame:
     """
     Convert Supervisely video annotations to a DataFrame containing normalized bounding boxes.
 
@@ -57,8 +60,10 @@ def convert_video_annotations(source: Union[str|dict]) -> pd.DataFrame:
     else:
         raise ValueError("The JSON annotations file is expected to have either objects[...].key identifier, or objects[...].id")
 
-    class_to_idx_map = { m[objects_class_id_key_name]: i for i, m in enumerate(objects_list)}
-    resolve_class_idx = lambda fig: class_to_idx_map[fig[figures_class_id_key_name]]
+    class_to_idx_map = {m[objects_class_id_key_name]: i for i, m in enumerate(objects_list)}
+
+    def resolve_class_idx(fig):
+        return class_to_idx_map[fig[figures_class_id_key_name]]
 
     # Each element in datas will correspond to 1 bounding box
     datas = []
@@ -76,23 +81,25 @@ def convert_video_annotations(source: Union[str|dict]) -> pd.DataFrame:
             box_arr = np.array([x1, y1, x2, y2], dtype='float')
             box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
 
-            data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index, object_key=fig.get("objectKey",""), x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
-            #data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
+            data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index, object_key=fig.get("objectKey", ""), x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
+            # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
             datas.append(data)
             idx += 1
 
     return pd.DataFrame(datas)
 
-def convert_images_annotations_folder(source: Union[str|JSONGenerator], meta_file: Union[str|dict]) -> pd.DataFrame:
+
+def convert_images_annotations_folder(source: str | JSONGenerator, meta_file: str | dict) -> pd.DataFrame:
     """
     Convert a Supervisely image annotations within a folder to normalized bounding boxes.
+
     Args:
         source (str|JSONGenerator): path to the root folder containing JSON annotation files, 
             or a dictionary (keyed by file name) containing Callables that generate JSON annotation content as dict
         meta_file (str|dict): path to the meta.json file, or the JSON content of the meta file as dict
     """
     # Each DataFrame in dfs will correspond to bounding boxes from 1 image
-    dfs = [] 
+    dfs = []
 
     annotations_generators = None
     if source is None:
@@ -101,7 +108,7 @@ def convert_images_annotations_folder(source: Union[str|JSONGenerator], meta_fil
         if not os.path.isdir(source) or not os.path.exists(source):
             raise ValueError("If source is passed as string, it needs to represent an existing directory")
         annotations_generators = {
-            file: (lambda : _read_json_content(source, file))
+            file: (lambda: _read_json_content(source, file))
                 for file in os.listdir(source) 
                 if os.path.isfile(os.path.join(source, file))}
     elif isinstance(source, dict):
@@ -120,7 +127,7 @@ def convert_images_annotations_folder(source: Union[str|JSONGenerator], meta_fil
     else:
         raise ValueError("meta_file needs to be a str or a JSON dict")
             
-    meta_map = { m["id"]: i for i, m in enumerate(meta_file_content["classes"]) }
+    meta_map = {m["id"]: i for i, m in enumerate(meta_file_content["classes"])}
 
     for key, annotations_gen in annotations_generators.items():
         dfs.append(convert_single_image_annotation_file(annotations_gen(), key, meta_map))
@@ -139,7 +146,9 @@ def convert_single_image_annotation_file(annotations: dict, frame_key: str, meta
     datas = []
     (width, height) = annotations["size"]["width"], annotations["size"]["height"]
 
-    resolve_class_idx = lambda fig: meta_map[fig["classId"]]
+    def resolve_class_idx(fig):
+        return meta_map[fig["classId"]]
+
     idx = 0
     for detected in annotations["objects"]:
         # Skip non-rectangular annotations - they don't map to bounding boxes
@@ -147,6 +156,54 @@ def convert_single_image_annotation_file(annotations: dict, frame_key: str, meta
             continue
 
         class_id = resolve_class_idx(detected)
+            
+        (x1, y1) = detected["points"]["exterior"][0]
+        (x2, y2) = detected["points"]["exterior"][1]
+
+        box_arr = np.array([x1, y1, x2, y2], dtype='float')
+        box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
+
+        data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_key, object_key="", x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
+        # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
+        datas.append(data)
+        idx += 1
+    return pd.DataFrame(datas)
+
+def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, frame_key: str, meta_file: dict) -> pd.DataFrame:
+    """
+    Convert a Supervisely annotation for a single image to pose estimation DataFrame.
+
+    Args:
+        annotations (dict): content of JSON annotation file
+        frame_key (str): frame number or name
+        meta_file (dict): content of meta.json
+    References:
+        https://docs.ultralytics.com/datasets/pose/
+    Examples:
+        <class-index> <x> <y> <width> <height> <px1> <py1> <px2> <py2> ... <pxn> <pyn>
+        <class-index> <x> <y> <width> <height> <px1> <py1> <p1-visibility> <px2> <py2> <p2-visibility> <pxn> <pyn> <pn-visibility>
+    """
+    # Each element in datas correspond to 1 bounding box
+    datas = []
+    (width, height) = annotations["size"]["width"], annotations["size"]["height"]
+
+    graph_classes = filter(lambda c: c["shape"] == "graph", meta_file["classes"])
+    graph_id_to_idx = {}
+    graph_id_to_nodes = {}
+    for idx, g in enumerate(graph_classes):
+        graph_id_to_idx[g["id"]] = idx
+        graph_id_to_nodes[g["id"]] = g["geometry_config"]["nodes"]
+
+    for idx, id in enumerate(graph_id_to_nodes):
+        graph_id_to_nodes[id]["idx"] = idx
+
+    idx = 0
+    for detected in annotations["objects"]:
+        # Skip non-rectangular annotations - they don't map to bounding boxes
+        if detected["geometryType"] != 'graph':
+            continue
+
+        class_id = graph_id_to_idx[detected["classId"]]
             
         (x1, y1) = detected["points"]["exterior"][0]
         (x2, y2) = detected["points"]["exterior"][1]
