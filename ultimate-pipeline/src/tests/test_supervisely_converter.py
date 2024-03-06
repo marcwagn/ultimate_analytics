@@ -104,3 +104,53 @@ def test_convert_image_annotation_folder():
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 780
     assert len(df.groupby("frame")) == 30
+
+def test_convert_single_image_annotation_file_to_pose_estimation():
+    prefix = "./src/tests/data/supervisely/sample_images_2"
+    annotations_file = path.join(prefix, "mini_test_set/ann", "machine_vs_condors_pool_006_0.jpg.json")
+    metadata_file = path.join(prefix, "meta.json")
+
+    with open(annotations_file, 'r') as f:
+        annotations = json.load(f)
+
+    with open(metadata_file, 'r') as f:
+        metadata = json.load(f)
+    df = sc.convert_single_image_annotation_file_to_pose_estimation(annotations, "machine_vs_condors_pool_006_0.jpg", meta_file=metadata)
+
+    # Derived from the respective annotation json
+    width = 3840.0
+    height = 2160.0
+    expected_unscaled_triplets = [(1260, 432, 2), (2568, 424, 2), (1913, 462, 2), (1148, 502, 2), (2682, 494, 2), (1921, 594,2), (1923, 692, 2), (1929, 841, 2), (55, 1193, 2), (3829, 1173, 2), (0, 0, 0), (0, 0, 0), (1952, 1494, 2)]
+    leftX = 55.0
+    rightX = 3829.0
+    topY = 424.0
+    bottomY = 1193.0
+    expected_object_width = (rightX-leftX)/width
+    expected_object_height = (bottomY-topY)/height
+    expected_centre_x = (rightX+leftX)/2/width
+    expected_centre_y = (bottomY+topY)/2/height
+
+    def scalePoint(x,y):
+        return ((x-leftX)/expected_object_width, (y-topY)/expected_object_height)
+
+    def generateExpectedSequence():
+        for (x, y, vis) in expected_unscaled_triplets:
+            scaled_x, scaled_y = scalePoint(x, y)
+            yield scaled_x
+            yield scaled_y
+            yield vis
+
+    assert df is not None
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 1
+    actual_row = df.iloc[0,:]
+
+    assert actual_row["cls"] == 0
+    assert actual_row["x"] == expected_centre_x
+    assert actual_row["y"] == expected_centre_y
+    assert actual_row["w"] == expected_object_width
+    assert actual_row["h"] == expected_object_height
+
+    actual_keypoint_coords = actual_row[5:].to_numpy()
+    expected_keypoint_coords = np.array(list(generateExpectedSequence))
+    assert_array_equal(actual_keypoint_coords, expected_keypoint_coords)
