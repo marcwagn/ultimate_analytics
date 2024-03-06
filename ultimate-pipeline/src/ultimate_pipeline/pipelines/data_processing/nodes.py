@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import supervisely as sly
 import pandas as pd
-from .supervisely_converter import convert_video_annotations, convert_images_annotations_folder
+from .supervisely_converter import convert_images_annotations_folder
 
 logger = logging.getLogger(__name__)
 
@@ -52,10 +52,7 @@ def download_videos_from_supervisely(parameters: t.Dict) -> t.Tuple:
 
     return video_name_list
 
-def convert_supervisely_video_annotations_to_dataframe(json_data):
-    return convert_video_annotations(json_data)
-
-def create_yolo_frame_partitions(df: pd.DataFrame) -> t.Dict[str, pd.DataFrame]:
+def create_yolo_dataframe_partitions(df: pd.DataFrame) -> t.Dict[str, pd.DataFrame]:
     """
     Split the DataFrame by 'frame' column into a dictionary of partitioned data frames 
     keyed by 'frame' (which corresponds to a video frame number or name). 
