@@ -9,6 +9,19 @@ from pathlib import Path
 from tqdm import tqdm
 
 def helper_download_image_dataset_from_supervisely(params: t.Dict) -> t.Tuple[t.Dict, t.Dict, t.Dict]:
+    """ Download image dataset from Supervisely
+    
+    Args:
+        params: A dictionary containing the following keys:
+            - project_id: The ID of the Supervisely project
+            - dataset_id: The ID of the Supervisely dataset
+    Returns:
+        A tuple containing:
+            - metadata: The metadata of the Supervisely project
+            - annotations_dict: A dictionary containing the annotations for each image
+            - images_dict: A dictionary containing the images
+    """
+    
     if sly.is_development():
         load_dotenv(os.path.expanduser("~/supervisely.env"))
 
