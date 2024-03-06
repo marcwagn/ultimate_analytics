@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import supervisely as sly
 import pandas as pd
-from .supervisely_converter import convert_to_normalized_bounding_boxes
+from .supervisely_converter import convert_images_annotations_folder
 
 logger = logging.getLogger(__name__)
 
@@ -52,14 +52,26 @@ def download_videos_from_supervisely(parameters: t.Dict) -> t.Tuple:
 
     return video_name_list
 
-def convert_supervisely_to_dataframe(json_data):
-    return convert_to_normalized_bounding_boxes(json_data)
-
-def create_yolo_frame_partitions(df: pd.DataFrame) -> t.Dict[str, t.Any]:
+def create_yolo_dataframe_partitions(df: pd.DataFrame) -> t.Dict[str, pd.DataFrame]:
+    """
+    Split the DataFrame by 'frame' column into a dictionary of partitioned data frames 
+    keyed by 'frame' (which corresponds to a video frame number or name). 
+    """
     grouped = df.groupby(by="frame")
+    return { str(frame): data for frame, data in grouped }
 
-    frame_dict = {}
-    for frame, data in grouped:
-        frame_dict[str(frame)] = data
+def convert_supervisely_images_annotations_to_dataframe(
+        annotation_partitions: dict[str, t.Callable[[],dict]], 
+        meta_file: dict) -> pd.DataFrame:
+    """
+    Convert Supervisely image annotations from a given folder to a DataFrame containing bounding boxes.
+    Args:
+        annotation_partitions (dict) - a dictionary (keyed by file names) containing content generator functions (Callables generating JSON annotation content as dict)
+        meta_file (dict) - JSON content of meta.json
+    """
+    logger.info("Reading folder data")
+    logger.info(f"annotation_partitions type: {type(annotation_partitions)}")
+    logger.info(f"meta_file type: {type(meta_file)}")
 
-    return frame_dict
+    return convert_images_annotations_folder(source=annotation_partitions, meta_file=meta_file)
+    

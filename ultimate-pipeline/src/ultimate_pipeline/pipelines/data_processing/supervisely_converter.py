@@ -1,18 +1,24 @@
+"""Conversion from Supervisely to YOLO annotation format."""
+
 import json
 import pandas as pd
 import numpy as np
-from typing import Union
+from typing import Callable, Union, TypeAlias
 import os
 import logging
 
+JSONGenerator: TypeAlias = Callable[[], dict]
+# Python 3.12: type JSONGenerator = Callable[[],dict]
+
 logger = logging.getLogger(__name__)
 
-def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFrame:
+
+def convert_video_annotations(source: Union[str, dict]) -> pd.DataFrame:
     """
-    Convert Supervisely annotations to a DataFrame containing normalized bounding boxes.
+    Convert Supervisely video annotations to a DataFrame containing normalized bounding boxes.
 
     Args:
-        source (str|DataFrame) - file path to the Supervisely labels/annotations file, or a JSON dictionary
+        source (str|dict) - file path to the Supervisely video annotations file, or a JSON dictionary
 
     Returns: Pandas DataFrame with the following columns:
         cls (int) - class id
@@ -31,7 +37,7 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
         raise ValueError("source argument is mandatory")
     elif isinstance(source, str):
         with open(source, 'r') as f:
-            annotations =  json.load(f)
+            annotations = json.load(f)
     elif isinstance(source, dict):
         annotations = source
     else:
@@ -39,25 +45,28 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
 
     logger.info("Reading Supervisely video annotations file")
 
-    objects_map = annotations["objects"]
-    if len(objects_map) == 0:
+    objects_list = annotations["objects"]
+    if len(objects_list) == 0:
         return pd.DataFrame(columns=["cls", "x", "y", "w", "h"])
-    
-    class_to_idx_map = {}
-    resolve_class_idx = None
-    if "key" in objects_map[0]:
-        for i, m in enumerate(objects_map):
-            class_to_idx_map[m["key"]] = i
-        resolve_class_idx = lambda fig: class_to_idx_map[fig["objectKey"]]
-    elif "id" in objects_map[0]:
-        for i, m in enumerate(objects_map):
-            class_to_idx_map[m["id"]] = i
-        resolve_class_idx = lambda fig: class_to_idx_map[fig["objectId"]]
+  
+    objects_class_id_key_name = None
+    figures_class_id_key_name = None
+    if "key" in objects_list[0]:
+        objects_class_id_key_name = "key"
+        figures_class_id_key_name = "objectKey"
+    elif "id" in objects_list[0]:
+        objects_class_id_key_name = "id"
+        figures_class_id_key_name = "objectId"
     else:
         raise ValueError("The JSON annotations file is expected to have either objects[...].key identifier, or objects[...].id")
 
-    # Each DataFrame in dfs will correspond to 1 bounding box
-    dfs = [] 
+    class_to_idx_map = {m[objects_class_id_key_name]: i for i, m in enumerate(objects_list)}
+
+    def resolve_class_idx(fig):
+        return class_to_idx_map[fig[figures_class_id_key_name]]
+
+    # Each element in datas will correspond to 1 bounding box
+    datas = []
     (width, height) = annotations["size"]["width"], annotations["size"]["height"]
 
     idx = 0
@@ -72,13 +81,93 @@ def convert_to_normalized_bounding_boxes(source: Union[str|dict]) -> pd.DataFram
             box_arr = np.array([x1, y1, x2, y2], dtype='float')
             box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
 
-            data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index, object_key=fig.get("objectKey",""), x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
-            #data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
-            dfs.append(pd.DataFrame([data]))
+            data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index, object_key=fig.get("objectKey", ""), x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
+            # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
+            datas.append(data)
             idx += 1
 
+    return pd.DataFrame(datas)
+
+
+def convert_images_annotations_folder(source: Union[str, JSONGenerator], meta_file: Union[str, dict]) -> pd.DataFrame:
+    """
+    Convert a Supervisely image annotations within a folder to normalized bounding boxes.
+
+    Args:
+        source (str|JSONGenerator): path to the root folder containing JSON annotation files, 
+            or a dictionary (keyed by file name) containing Callables that generate JSON annotation content as dict
+        meta_file (str|dict): path to the meta.json file, or the JSON content of the meta file as dict
+    """
+    # Each DataFrame in dfs will correspond to bounding boxes from 1 image
+    dfs = []
+
+    annotations_generators = None
+    if source is None:
+        raise ValueError("source argument is mandatory")
+    elif isinstance(source, str):
+        if not os.path.isdir(source) or not os.path.exists(source):
+            raise ValueError("If source is passed as string, it needs to represent an existing directory")
+        annotations_generators = {
+            file: (lambda: _read_json_content(source, file))
+                for file in os.listdir(source) 
+                if os.path.isfile(os.path.join(source, file))}
+    elif isinstance(source, dict):
+        if not all([isinstance(o, Callable) for o in source.values()]):
+            raise ValueError("If source is passed as a dict, it needs to be a dict (keyed by file name) of callables returning JSON dicts")
+        annotations_generators = source
+    else:
+        raise ValueError("Unsupported type of source argument")
+    
+    meta_file_content = None
+    if isinstance(meta_file, str):
+        with open(meta_file, 'r') as f:
+            meta_file_content = json.load(f)
+    elif isinstance(meta_file, dict):
+        meta_file_content = meta_file
+    else:
+        raise ValueError("meta_file needs to be a str or a JSON dict")
+            
+    meta_map = {m["id"]: i for i, m in enumerate(meta_file_content["classes"])}
+
+    for key, annotations_gen in annotations_generators.items():
+        dfs.append(convert_single_image_annotation_file(annotations_gen(), key, meta_map))
     return pd.concat(dfs, axis=0)
 
+
+def convert_single_image_annotation_file(annotations: dict, frame_key: str, meta_map: dict) -> pd.DataFrame:
+    """
+    Convert a Supervisely annotation for a single image to normalized bounding boxes.
+    Args:
+        annotations (dict): content of JSON annotation file
+        frame_key (str): frame number or name
+        meta_map (dict): mapping between detection class ids to indexes
+    """
+    # Each element in datas correspond to 1 bounding box
+    datas = []
+    (width, height) = annotations["size"]["width"], annotations["size"]["height"]
+
+    def resolve_class_idx(fig):
+        return meta_map[fig["classId"]]
+
+    idx = 0
+    for detected in annotations["objects"]:
+        # Skip non-rectangular annotations - they don't map to bounding boxes
+        if detected["geometryType"] != 'rectangle':
+            continue
+
+        class_id = resolve_class_idx(detected)
+            
+        (x1, y1) = detected["points"]["exterior"][0]
+        (x2, y2) = detected["points"]["exterior"][1]
+
+        box_arr = np.array([x1, y1, x2, y2], dtype='float')
+        box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
+
+        data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_key, object_key="", x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
+        # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
+        datas.append(data)
+        idx += 1
+    return pd.DataFrame(datas)
 
 def _xyxy2xywhn(x, w=640, h=640, clip=False, eps=0.0):
     """
@@ -101,3 +190,7 @@ def _xyxy2xywhn(x, w=640, h=640, clip=False, eps=0.0):
     y[..., 2] = (x[..., 2] - x[..., 0]) / w  # width
     y[..., 3] = (x[..., 3] - x[..., 1]) / h  # height
     return y
+
+def _read_json_content(root, filename):
+    with open(os.path.join(root, filename)) as f:
+        return json.load(f)
