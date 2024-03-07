@@ -3,3 +3,6 @@ kedro-datasets==2.1.0
 pandas==2.1.4
 numpy==1.26.4
 supervisely==6.73.42
+pillow==10.2.0
+python-dotenv==1.0.0
+tqdm==4.66.2
