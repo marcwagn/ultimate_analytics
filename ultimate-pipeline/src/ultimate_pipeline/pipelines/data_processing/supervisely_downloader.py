@@ -41,7 +41,7 @@ def helper_download_image_dataset_from_supervisely(params: t.Dict) -> t.Tuple[t.
         img_data = Image.fromarray(api.image.download_np(image.id))
         images_dict[image_name] = img_data
 
-        image_ann_json = api.annotation.download(image.id)
+        image_ann_json = api.annotation.download(image.id).annotation
         annotations_dict[image_name] = image_ann_json
 
     return metadata, annotations_dict, images_dict
