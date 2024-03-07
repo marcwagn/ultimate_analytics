@@ -15,16 +15,6 @@ In order to get the best out of the template:
 * Don't commit data to your repository
 * Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
 
-## How to install dependencies
-
-Declare any dependencies in `requirements.txt` for `pip` installation.
-
-To install them, run:
-
-```
-pip install -r requirements.txt
-```
-
 ## How to run your Kedro pipeline
 
 You can run your Kedro project with:
@@ -38,17 +28,50 @@ kedro run
 Have a look at the file `src/tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
 
 ```
-pytest
+python -m pytest
 ```
 
 You can configure the coverage threshold in your project's `pyproject.toml` file under the `[tool.coverage.report]` section.
 
+# Development
 
-## Project dependencies
+## Dev machine setup
+### Supervisely
+Create `.env` file (or`~/supervisely.env`) with Supervisely API key:
+```
+SERVER_ADDRESS="https://app.supervise.ly"
+API_TOKEN="<secret_api_key>
+```
+### Installing development/build dependencies
 
-To see and update the dependency requirements for your project use `requirements.txt`. You can install the project requirements with `pip install -r requirements.txt`.
+## Managing project dependencies
+
+TL;DR: Declare **direct** dependencies in `requirements.txt` for `pip` installation. Then use [pip-tools](https://github.com/jazzband/pip-tools) to generate the lock file with indirect depencies.
+
+### Adding a new runtime dependency
+1. Install the dependency with pip/pipx
+2. If this is a direct project runtime dependency (and its modules are being imported in some project files), add the package requirement along with the version specification to `requirements.txt`
+e.g. `supervisely==6.73.42`
+3. Run `pip-compile requirements.txt -o requirements.lock` to generate full list of project dependencies, including transitive dependencies.
+4. Commit both `requirements.txt` and `requirements.lock` to Git.
 
 [Further information about project dependencies](https://docs.kedro.org/en/stable/kedro_project_setup/dependencies.html#project-specific-dependencies)
+
+### Adding a new dev dependency
+To add a new development/build dependency, edit `project.optional-dependencies` section in `pyproject.toml`file.
+
+### Installing project runtime dependencies
+1. (/Only in dev environment/) Activate your Python environment (e.g. with `conda activate <envname>`)
+2. Run `pip install -r requirements.lock`
+
+### Troubleshooting dependencies
+
+You can use `pipdeptree` to visualise pip dependencies:
+```
+pip install pipdeptree
+pipdeptree
+```
+
 
 ## How to work with Kedro and notebooks
 
