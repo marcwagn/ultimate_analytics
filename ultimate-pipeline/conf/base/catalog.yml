@@ -20,7 +20,7 @@ yolo_annotation_txt:
       sep: " "
       decimal: .
 
-dataset_metadata_json:
+supervisely_images_metadata:
   type: json.JSONDataset
   filepath: data/raw/meta.json
 

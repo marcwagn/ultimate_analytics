@@ -8,7 +8,7 @@ import pandas as pd
 
 import logging
 
-from .supervisely_converter import convert_to_normalized_bounding_boxes
+from .supervisely_converter import convert_images_annotations_folder
 from .supervisely_downloader import helper_download_image_dataset_from_supervisely
 
 logger = logging.getLogger(__name__)
