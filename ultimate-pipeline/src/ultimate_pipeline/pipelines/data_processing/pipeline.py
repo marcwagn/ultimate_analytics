@@ -14,16 +14,16 @@ def create_pipeline(**kwargs) -> Pipeline:
             outputs=["dataset_metadata_json", "supervisely_images_annotation", "supervisely_images"],
             name="download_image_dataset_from_supervisely_node",
         ),
-        #node(
-        #    convert_supervisely_to_dataframe,
-        #    inputs=["supervisely_video_annotations"],
-        #    outputs="yolo_annotation_csv",
-        #    name="convert_supervisely_to_dataframe_node",
-        #),
-        #node(
-        #    create_yolo_frame_partitions, 
-        #    inputs=["yolo_annotation_csv"], 
-        #    outputs="yolo_annotation_txt", 
-        #    name="split_yolo_data_node"
-        #),
+        node(
+            convert_supervisely_images_annotations_to_dataframe, 
+            inputs=["supervisely_images_annotation", "supervisely_images_metadata"], 
+            outputs="yolo_dataframe_variable", 
+            name="convert_supervisely_images_annotations_to_dataframe_node"
+        ),
+        node(
+            create_yolo_dataframe_partitions, 
+            inputs=["yolo_dataframe_variable"], 
+            outputs="yolo_annotation_txt", 
+            name="split_yolo_dataframe_into_partitions_node"
+        ),
     ])

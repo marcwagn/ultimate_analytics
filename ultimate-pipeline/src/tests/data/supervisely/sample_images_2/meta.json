@@ -1,0 +1,220 @@
+{
+    "classes": [
+        {
+            "title": "Person",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#D0021B",
+            "geometry_config": {},
+            "id": 12632176,
+            "hotkey": "P"
+        },
+        {
+            "title": "Disc",
+            "description": "",
+            "shape": "rectangle",
+            "color": "#000000",
+            "geometry_config": {},
+            "id": 12632177,
+            "hotkey": "D"
+        },
+        {
+            "title": "Field",
+            "description": "",
+            "shape": "graph",
+            "color": "#F8E71C",
+            "geometry_config": {
+                "edges": [
+                    {
+                        "dst": "9d13de17-a972-48e4-9430-f584b0dbb751",
+                        "src": "ae303625-93ad-4643-8025-dde7e93f661a",
+                        "label": ""
+                    },
+                    {
+                        "dst": "f24d0a91-4562-4115-9699-8d8dcf704af5",
+                        "src": "9d13de17-a972-48e4-9430-f584b0dbb751",
+                        "label": ""
+                    },
+                    {
+                        "dst": "c1f83d1a-5c29-43c0-b793-a3e269a138db",
+                        "src": "f24d0a91-4562-4115-9699-8d8dcf704af5",
+                        "label": ""
+                    },
+                    {
+                        "dst": "ae303625-93ad-4643-8025-dde7e93f661a",
+                        "src": "c1f83d1a-5c29-43c0-b793-a3e269a138db",
+                        "label": ""
+                    },
+                    {
+                        "dst": "8d12753f-cba4-4ecb-b14f-9f1d5c804bd4",
+                        "src": "f24d0a91-4562-4115-9699-8d8dcf704af5",
+                        "label": ""
+                    },
+                    {
+                        "dst": "59ed1620-91c6-4254-8a61-f212a0d3a879",
+                        "src": "8d12753f-cba4-4ecb-b14f-9f1d5c804bd4",
+                        "label": ""
+                    },
+                    {
+                        "dst": "1c5dbd44-4166-4dde-adae-d7f235ad060c",
+                        "src": "59ed1620-91c6-4254-8a61-f212a0d3a879",
+                        "label": ""
+                    },
+                    {
+                        "dst": "8d12753f-cba4-4ecb-b14f-9f1d5c804bd4",
+                        "src": "c56d97f1-2e71-4b3c-b523-d3b4fe0376ce",
+                        "label": ""
+                    },
+                    {
+                        "dst": "1c5dbd44-4166-4dde-adae-d7f235ad060c",
+                        "src": "c56d97f1-2e71-4b3c-b523-d3b4fe0376ce",
+                        "label": ""
+                    },
+                    {
+                        "dst": "c56d97f1-2e71-4b3c-b523-d3b4fe0376ce",
+                        "src": "c1f83d1a-5c29-43c0-b793-a3e269a138db",
+                        "label": ""
+                    },
+                    {
+                        "dst": "1ee00ada-6791-4715-90d5-c41dadb73ede",
+                        "src": "d6d02ce3-4940-40ec-9818-2fcecdfc2c25",
+                        "label": ""
+                    },
+                    {
+                        "dst": "c3eddaeb-e11d-457f-9892-d137815fd3e6",
+                        "src": "1ee00ada-6791-4715-90d5-c41dadb73ede",
+                        "label": ""
+                    },
+                    {
+                        "dst": "92c55ce5-a71b-4274-bd61-538749bdd34e",
+                        "src": "c3eddaeb-e11d-457f-9892-d137815fd3e6",
+                        "label": ""
+                    },
+                    {
+                        "dst": "bec10553-b53f-4257-92bb-9ec429519cb7",
+                        "src": "92c55ce5-a71b-4274-bd61-538749bdd34e",
+                        "label": ""
+                    }
+                ],
+                "nodes": {
+                    "ae303625-93ad-4643-8025-dde7e93f661a": {
+                        "label": "TLC",
+                        "color": "#F8E71C",
+                        "loc": [
+                            5,
+                            0
+                        ]
+                    },
+                    "9d13de17-a972-48e4-9430-f584b0dbb751": {
+                        "label": "TRC",
+                        "color": "#F8E71C",
+                        "loc": [
+                            591,
+                            5
+                        ]
+                    },
+                    "d6d02ce3-4940-40ec-9818-2fcecdfc2c25": {
+                        "label": "TEC",
+                        "color": "#F8E71C",
+                        "loc": [
+                            297,
+                            80
+                        ]
+                    },
+                    "c1f83d1a-5c29-43c0-b793-a3e269a138db": {
+                        "label": "TLF",
+                        "color": "#F8E71C",
+                        "loc": [
+                            3,
+                            159
+                        ]
+                    },
+                    "f24d0a91-4562-4115-9699-8d8dcf704af5": {
+                        "label": "TRF",
+                        "color": "#F8E71C",
+                        "loc": [
+                            581,
+                            180
+                        ]
+                    },
+                    "1ee00ada-6791-4715-90d5-c41dadb73ede": {
+                        "label": "TMB",
+                        "color": "#F8E71C",
+                        "loc": [
+                            295,
+                            256
+                        ]
+                    },
+                    "c3eddaeb-e11d-457f-9892-d137815fd3e6": {
+                        "label": "C",
+                        "color": "#F8E71C",
+                        "loc": [
+                            288,
+                            345
+                        ]
+                    },
+                    "92c55ce5-a71b-4274-bd61-538749bdd34e": {
+                        "label": "BMB",
+                        "color": "#F8E71C",
+                        "loc": [
+                            294,
+                            445
+                        ]
+                    },
+                    "c56d97f1-2e71-4b3c-b523-d3b4fe0376ce": {
+                        "label": "BLF",
+                        "color": "#F8E71C",
+                        "loc": [
+                            5,
+                            535
+                        ]
+                    },
+                    "8d12753f-cba4-4ecb-b14f-9f1d5c804bd4": {
+                        "label": "BRF",
+                        "color": "#F8E71C",
+                        "loc": [
+                            575,
+                            557
+                        ]
+                    },
+                    "1c5dbd44-4166-4dde-adae-d7f235ad060c": {
+                        "label": "BLC",
+                        "color": "#F8E71C",
+                        "loc": [
+                            0,
+                            648
+                        ]
+                    },
+                    "59ed1620-91c6-4254-8a61-f212a0d3a879": {
+                        "label": "BRC",
+                        "color": "#F8E71C",
+                        "loc": [
+                            571,
+                            664
+                        ]
+                    },
+                    "bec10553-b53f-4257-92bb-9ec429519cb7": {
+                        "label": "BEC",
+                        "color": "#F8E71C",
+                        "loc": [
+                            269,
+                            606
+                        ]
+                    }
+                }
+            },
+            "id": 12632178,
+            "hotkey": "F"
+        }
+    ],
+    "tags": [],
+    "projectType": "images",
+    "projectSettings": {
+        "multiView": {
+            "enabled": false,
+            "tagName": null,
+            "tagId": null,
+            "isSynced": false
+        }
+    }
+}

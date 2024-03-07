@@ -7,18 +7,9 @@ supervisely_video_annotations:
   type: json.JSONDataset
   filepath: data/raw/annotations/sockeye_vs_rhino_slam_pool_004.json
 
-yolo_annotation_csv:
-  type: pandas.CSVDataset
-  filepath: data/processed/annotations/sockeye_vs_rhino_slam_pool_004.csv
-  save_args:
-    columns: ["cls","x","y","w","h","frame"]
-    index: False
-    sep: ","
-    decimal: .
-
 yolo_annotation_txt: 
   type: partitions.PartitionedDataset
-  path: data/processed/annotations/sockeye_vs_rhino_slam_pool_004/  # path to the location of partitions
+  path: data/processed/mini_test_set/annotations/  # path to the location of partitions
   filename_suffix: '.txt'
   dataset: 
     type: pandas.CSVDataset  # shorthand notation for the dataset which will handle individual partitions
