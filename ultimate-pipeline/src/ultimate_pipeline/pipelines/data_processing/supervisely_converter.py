@@ -187,7 +187,7 @@ def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, f
     datas = []
     (width, height) = annotations["size"]["width"], annotations["size"]["height"]
 
-    graph_classes = filter(lambda c: c["shape"] == "graph", meta_file["classes"])
+    graph_classes = list(filter(lambda c: c["shape"] == "graph", meta_file["classes"]))
     graph_id_to_idx = {}
     graph_id_to_nodes = {}
     for idx, g in enumerate(graph_classes):
@@ -206,20 +206,53 @@ def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, f
         class_id = detected["classId"]
         class_idx = graph_id_to_idx[class_id]
         
+        min_x, min_y, max_x, max_y = 0, 0, width, height
         detected_nodes = detected["nodes"]
-        output_coords = np.zeros(size=3*len(graph_classes[class_id]), dtype='float')
+        for key, node in detected_nodes.items():
+            if "disabled" in node:
+                continue
+            min_x = min(min_x, node["loc"][0])
+            max_x = min(max_x, node["loc"][0])
+            min_y = min(min_y, node["loc"][1])
+            max_y = max(max_y, node["loc"][1])
+
+        def scale_point(x,y):
+            return (x-min_x)/width, (y-min_y)/height
+
+        num_nodes = len(graph_id_to_nodes[class_id])
+        # A matrix (num_classes * 3) of key points
+        # Each row represents a triplet: (x, y, visibility), where x and y are scaled
+        output_coords_3d = np.zeros(shape=(num_nodes, 3), dtype='float')
         for i, node_key in enumerate(graph_id_to_nodes[class_id]):
             if node_key in detected_nodes:
-                output_coords[i] = detected_nodes[node_key]["loc"][0]
-                output_coords[i+1] = detected_nodes[node_key]["loc"][1]
-                output_coords[i+1] = 1 if "disabled" in detected_nodes[node_key] else 2
+                # visibility: 0 if absent, 1 if disabled, 2 if visible
+                visibility =  1 if "disabled" in detected_nodes[node_key] else 2
+                scaled_x, scaled_y = scale_point(x=detected_nodes[node_key]["loc"][0], y=detected_nodes[node_key]["loc"][1])
+                output_coords_3d[i] = np.array([scaled_x, scaled_y, visibility])
 
-        # box_arr = np.array([x1, y1, x2, y2], dtype='float')
-        # box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
+        output_coords_flattened = np.reshape(output_coords_3d, (num_nodes*3))
 
-        data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_key, object_key="", x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
+        box_scaled_arr = _xyxy2xywhn(np.array([min_x, min_y, max_x, max_y]), h=height, w=width)
+
+        vector = np.concatenate((np.array([class_idx]), box_scaled_arr, output_coords_flattened), axis=0)
+        matrix = np.reshape(vector, (1, len(vector)))
+
+        def generate_column_names():
+            yield "cls"
+            yield "x"
+            yield "y"
+            yield "w"
+            yield "h"
+            for i in range(len(output_coords_3d)):
+                yield f"px{i}"
+                yield f"py{i}"
+                yield f"p{i}_vis"
+            #yield "frame"
+
+        df = pd.DataFrame(matrix, columns=list(generate_column_names()))
+        #data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_key, object_key="", x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
         # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
-        datas.append(data)
+        datas.append(df)
         idx += 1
     return pd.DataFrame(datas)
 
