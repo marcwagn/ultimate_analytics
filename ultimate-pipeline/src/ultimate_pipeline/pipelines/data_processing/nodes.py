@@ -38,8 +38,15 @@ def convert_supervisely_images_annotations_to_dataframe(
         meta_file (dict) - JSON content of meta.json
     """
     logger.info("Reading folder data")
-    logger.info(f"annotation_partitions type: {type(annotation_partitions)}")
-    logger.info(f"meta_file type: {type(meta_file)}")
+    annotation_partitions_without_extension = {}
+    for filename, content_generator in annotation_partitions.items():
+        filename_without_extension = filename[:filename.rfind(".")]
+        annotation_partitions_without_extension[filename_without_extension] = content_generator
 
-    return convert_images_annotations_folder(source=annotation_partitions, meta_file=meta_file)
+    return convert_images_annotations_folder(source=annotation_partitions_without_extension, meta_file=meta_file)
+
+def copy_dataset_items(items: list):
+    """Copy data between datasets"""
+    return items
+
     
