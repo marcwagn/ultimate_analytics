@@ -2,8 +2,6 @@
 This is a boilerplate pipeline 'data_processing'
 generated using Kedro 0.19.3
 """
-import os
-import sys
 from typing import Callable, Any
 import pandas as pd
 
