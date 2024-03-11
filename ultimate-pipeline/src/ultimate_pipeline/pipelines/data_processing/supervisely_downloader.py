@@ -1,5 +1,6 @@
 import supervisely as sly
 import typing as t
+import numpy as np
 
 import os
 import logging
@@ -56,7 +57,7 @@ def download_image_lazy(image: sly.api.image_api.ImageInfo, api: sly.api):
         Returns:
             A function that downloads the image
     """
-    def download_image():
+    def download_image() -> np.ndarray:
         logger.info(f"Start downloading image {image.name} from Supervisely")
         return Image.fromarray(api.image.download_np(image.id))
     
@@ -67,12 +68,12 @@ def download_annotation_lazy(image: sly.api.image_api.ImageInfo, api: sly.api):
     """ Download annotation from Supervisely lazily
     
         Args: 
-            annotation: The annotation to download
+            image: image for which the annotation should be downloaded
             api: The Supervisely API
         Returns:
             A function that downloads the annotation
     """
-    def download_annotation():
+    def download_annotation()-> t.Dict[str, t.Any]:
         logger.info(f"Start downloading annotation for image {image.name} from Supervisely")
         return api.annotation.download(image.id).annotation
     
