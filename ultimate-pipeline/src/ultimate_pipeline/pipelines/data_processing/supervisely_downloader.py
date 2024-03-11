@@ -2,11 +2,14 @@ import supervisely as sly
 import typing as t
 
 import os
+import logging
 
 from dotenv import load_dotenv
 from PIL import Image
 from pathlib import Path
-from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
+
 
 def helper_download_image_dataset_from_supervisely(params: t.Dict) -> t.Tuple[t.Dict, t.Dict, t.Dict]:
     """ Download image dataset from Supervisely
@@ -34,14 +37,43 @@ def helper_download_image_dataset_from_supervisely(params: t.Dict) -> t.Tuple[t.
     annotations_dict = {}
     images_dict = {}
 
-    for image in tqdm(image_info_list):
+    for image in image_info_list:
 
         image_name = Path(image.name).stem
 
-        img_data = Image.fromarray(api.image.download_np(image.id))
-        images_dict[image_name] = img_data
-
-        image_ann_json = api.annotation.download(image.id).annotation
-        annotations_dict[image.name] = image_ann_json
+        images_dict[image_name] = download_image_lazy(image, api)
+        annotations_dict[image.name] = download_annotation_lazy(image, api)
 
     return metadata, annotations_dict, images_dict
+
+
+def download_image_lazy(image: sly.api.image_api.ImageInfo, api: sly.api):
+    """ Download image from Supervisely lazily
+    
+        Args: 
+            image: The image to download
+            api: The Supervisely API
+        Returns:
+            A function that downloads the image
+    """
+    def download_image():
+        logger.info(f"Start downloading image {image.name} from Supervisely")
+        return Image.fromarray(api.image.download_np(image.id))
+    
+    return download_image
+
+
+def download_annotation_lazy(image: sly.api.image_api.ImageInfo, api: sly.api):
+    """ Download annotation from Supervisely lazily
+    
+        Args: 
+            annotation: The annotation to download
+            api: The Supervisely API
+        Returns:
+            A function that downloads the annotation
+    """
+    def download_annotation():
+        logger.info(f"Start downloading annotation for image {image.name} from Supervisely")
+        return api.annotation.download(image.id).annotation
+    
+    return download_annotation
