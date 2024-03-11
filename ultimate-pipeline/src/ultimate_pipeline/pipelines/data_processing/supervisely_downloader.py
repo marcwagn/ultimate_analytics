@@ -64,7 +64,7 @@ def download_image_lazy(image: sly.api.image_api.ImageInfo, api: sly.api):
     return download_image
 
 
-def download_annotation_lazy(image: sly.api.image_api.ImageInfo, api: sly.api):
+def download_annotation_lazy(image: sly.api.image_api.ImageInfo, api: sly.api) -> t.Callable[[], np.ndarray]:
     """ Download annotation from Supervisely lazily
     
         Args: 
