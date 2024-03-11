@@ -1,0 +1,14 @@
+datasets_dir: ../../data/processed
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+path: . # dataset root dir
+train: ./ultimate_detect/images/train # train images; NB - YOLO convention expects that labels are placed in a path derived by replacing 'images' with 'labels'
+# TODO - create a separate folder for validation images and labels
+val: ./ultimate_detect/images/train # val images
+test: # test images (optional)
+
+# Classes
+names:
+  0: Player
+  1: Disc
+  2: Field
+  3: Referee

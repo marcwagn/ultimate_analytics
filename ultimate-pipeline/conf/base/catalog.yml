@@ -9,7 +9,7 @@ supervisely_video_annotations:
 
 yolo_annotation_txt: 
   type: partitions.PartitionedDataset
-  path: data/processed/ultimate-detect/labels/train/  # path to the location of partitions
+  path: data/processed/ultimate_detect/labels/train/  # path to the location of partitions
   filename_suffix: '.txt'
   dataset: 
     type: pandas.CSVDataset  # shorthand notation for the dataset which will handle individual partitions
@@ -40,7 +40,7 @@ supervisely_images:
 
 yolo_images:
   type: partitions.PartitionedDataset
-  path: data/processed/ultimate-detect/images/train/
+  path: data/processed/ultimate_detect/images/train/
   filename_suffix: '.jpg'
   dataset: 
     type: pillow.ImageDataset
