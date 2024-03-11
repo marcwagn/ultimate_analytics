@@ -3,28 +3,12 @@
 # Documentation for this file format can be found in "The Data Catalog"
 # Link: https://docs.kedro.org/en/stable/data/data_catalog.html
 
-supervisely_video_annotations:
-  type: json.JSONDataset
-  filepath: data/raw/annotations/sockeye_vs_rhino_slam_pool_004.json
 
-yolo_annotation_txt: 
-  type: partitions.PartitionedDataset
-  path: data/processed/ultimate_detect/labels/train/  # path to the location of partitions
-  filename_suffix: '.txt'
-  dataset: 
-    type: pandas.CSVDataset  # shorthand notation for the dataset which will handle individual partitions
-    save_args:
-      columns: ["cls","x","y","w","h"]
-      header: False
-      index: False
-      sep: " "
-      decimal: .
-
-supervisely_images_metadata:
+supervisely_metadata:
   type: json.JSONDataset
   filepath: data/raw/meta.json
 
-supervisely_images_annotation:
+supervisely_annotation:
   type: partitions.PartitionedDataset
   path: data/raw/mini_test_set/annotations/
   filename_suffix: '.json'
@@ -38,9 +22,25 @@ supervisely_images:
   dataset: 
     type: pillow.ImageDataset
 
-yolo_images:
+# YOLO Object Detection
+# The following datasets are used to train a YOLO model for object detection
+
+yolo_detect_images:
   type: partitions.PartitionedDataset
   path: data/processed/ultimate_detect/images/train/
   filename_suffix: '.jpg'
   dataset: 
     type: pillow.ImageDataset
+
+yolo_detect_annotation: 
+  type: partitions.PartitionedDataset
+  path: data/processed/ultimate_detect/labels/train/  # path to the location of partitions
+  filename_suffix: '.txt'
+  dataset: 
+    type: pandas.CSVDataset  # shorthand notation for the dataset which will handle individual partitions
+    save_args:
+      columns: ["cls","x","y","w","h"]
+      header: False
+      index: False
+      sep: " "
+      decimal: .

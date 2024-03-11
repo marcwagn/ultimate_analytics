@@ -11,25 +11,25 @@ def create_pipeline(**kwargs) -> Pipeline:
         node(
             download_image_dataset_from_supervisely,
             inputs=["params:image_dataset"],
-            outputs=["supervisely_images_metadata", "supervisely_images_annotation", "supervisely_images"],
+            outputs=["supervisely_metadata", "supervisely_annotation", "supervisely_images"],
             name="download_image_dataset_from_supervisely_node",
         ),
         node(
             convert_supervisely_images_annotations_to_dataframe, 
-            inputs=["supervisely_images_annotation", "supervisely_images_metadata"], 
+            inputs=["supervisely_annotation", "supervisely_metadata"], 
             outputs="yolo_dataframe_variable", 
             name="convert_supervisely_images_annotations_to_dataframe_node"
         ),
         node(
             create_yolo_dataframe_partitions, 
             inputs=["yolo_dataframe_variable"], 
-            outputs="yolo_annotation_txt", 
+            outputs="yolo_detect_annotation", 
             name="split_yolo_dataframe_into_partitions_node"
         ),
         node(
             copy_dataset_items, 
             inputs=["supervisely_images"], 
-            outputs="yolo_images", 
+            outputs="yolo_detect_images", 
             name="copy_images_to_processed_folder_node"
         ),
     ])
