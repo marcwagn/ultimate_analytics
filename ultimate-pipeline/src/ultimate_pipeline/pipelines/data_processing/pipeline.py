@@ -4,7 +4,7 @@ generated using Kedro 0.19.3
 """
 
 from kedro.pipeline import Pipeline, pipeline, node
-from .nodes import download_image_dataset_from_supervisely, convert_supervisely_images_annotations_to_dataframe, create_yolo_dataframe_partitions
+from .nodes import download_image_dataset_from_supervisely, convert_supervisely_images_annotations_to_dataframe, create_yolo_dataframe_partitions, copy_dataset_items
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline([
@@ -25,5 +25,11 @@ def create_pipeline(**kwargs) -> Pipeline:
             inputs=["yolo_dataframe_variable"], 
             outputs="yolo_annotation_txt", 
             name="split_yolo_dataframe_into_partitions_node"
+        ),
+        node(
+            copy_dataset_items, 
+            inputs=["supervisely_images"], 
+            outputs="yolo_images", 
+            name="copy_images_to_processed_folder_node"
         ),
     ])

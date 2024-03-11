@@ -32,7 +32,7 @@ jobs:
     - name: Lint with ruff
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        ruff --config=ultimate-pipeline/pyproject.toml ultimate-pipeline
+        ruff check --config=ultimate-pipeline/pyproject.toml --output-format github ultimate-pipeline
     - name: Test with pytest
       run: |
         cd ultimate-pipeline && python -m pytest src/tests
