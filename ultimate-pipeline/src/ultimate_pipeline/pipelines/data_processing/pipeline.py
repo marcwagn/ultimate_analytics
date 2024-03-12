@@ -4,7 +4,9 @@ generated using Kedro 0.19.3
 """
 
 from kedro.pipeline import Pipeline, pipeline, node
-from .nodes import download_image_dataset_from_supervisely, convert_supervisely_images_annotations_to_dataframe, create_yolo_dataframe_partitions, copy_dataset_items
+from .nodes import (download_image_dataset_from_supervisely, 
+                    convert_supervisely_annotations_to_yolo_format_dataframe, 
+                    partion_dataframe_into_dict, train_val_split)
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline([
@@ -15,21 +17,26 @@ def create_pipeline(**kwargs) -> Pipeline:
             name="download_image_dataset_from_supervisely_node",
         ),
         node(
-            convert_supervisely_images_annotations_to_dataframe, 
+            convert_supervisely_annotations_to_yolo_format_dataframe, 
             inputs=["supervisely_annotation", "supervisely_metadata"], 
-            outputs="yolo_dataframe_variable", 
+            outputs="yolo_detect_annotation_dataframe",
             name="convert_supervisely_images_annotations_to_dataframe_node"
         ),
         node(
-            create_yolo_dataframe_partitions, 
-            inputs=["yolo_dataframe_variable"], 
+            partion_dataframe_into_dict, 
+            inputs=["yolo_detect_annotation_dataframe"], 
             outputs="yolo_detect_annotation", 
-            name="split_yolo_dataframe_into_partitions_node"
+            name="create_yolo_detect_annotation_node"
         ),
         node(
-            copy_dataset_items, 
-            inputs=["supervisely_images"], 
-            outputs="yolo_detect_images", 
-            name="copy_images_to_processed_folder_node"
+            train_val_split,
+            inputs=["params:ultimate_object_detect",
+                    "supervisely_images",
+                    "yolo_detect_annotation"],
+            outputs=["yolo_detect_images_train",
+                     "yolo_detect_images_val",
+                     "yolo_detect_annotation_train",
+                     "yolo_detect_annotation_val"],
+            name="train_val_split_detect_node",
         ),
     ])

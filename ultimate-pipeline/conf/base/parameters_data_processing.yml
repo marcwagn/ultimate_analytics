@@ -7,3 +7,7 @@
 image_dataset:
   project_id: 290921
   dataset_id: 924169 # mini_test_set [set_0000_0099: 924250]
+
+ultimate_object_detect:
+  train_split: 0.8      # data percentage used for training
+  seed: 42              # Seed data shuffling for reproducibility or None
