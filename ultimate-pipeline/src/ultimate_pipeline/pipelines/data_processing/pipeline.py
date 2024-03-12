@@ -6,7 +6,7 @@ generated using Kedro 0.19.3
 from kedro.pipeline import Pipeline, pipeline, node
 from .nodes import (download_image_dataset_from_supervisely, 
                     convert_supervisely_annotations_to_yolo_format_dataframe, 
-                    partion_dataframe_into_dict, train_val_split)
+                    partition_dataframe_into_dict, train_val_split)
 
 def create_pipeline(**kwargs) -> Pipeline:
     return pipeline([
@@ -23,7 +23,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             name="convert_supervisely_images_annotations_to_dataframe_node"
         ),
         node(
-            partion_dataframe_into_dict, 
+            partition_dataframe_into_dict, 
             inputs=["yolo_detect_annotation_dataframe"], 
             outputs="yolo_detect_annotation", 
             name="create_yolo_detect_annotation_node"

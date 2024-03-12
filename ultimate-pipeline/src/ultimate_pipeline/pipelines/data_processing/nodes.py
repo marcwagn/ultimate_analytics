@@ -20,7 +20,7 @@ def download_image_dataset_from_supervisely(params: dict[str, Any]) -> dict[str,
     return helper_download_image_dataset_from_supervisely(params)
 
 
-def partion_dataframe_into_dict(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
+def partition_dataframe_into_dict(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """
     Split the DataFrame by 'frame' column into a dictionary of partitioned data frames 
     keyed by 'frame' (which corresponds to a video frame number or name). 
