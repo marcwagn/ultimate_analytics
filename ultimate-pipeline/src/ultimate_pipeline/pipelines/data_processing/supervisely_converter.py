@@ -88,10 +88,9 @@ def convert_video_annotations(source: Union[str, dict]) -> pd.DataFrame:
 
     return pd.DataFrame(datas)
 
-
-def convert_images_annotations_folder(source: Union[str, JSONGenerator], meta_file: Union[str, dict]) -> pd.DataFrame:
+def convert_images_annotations_folder(source: Union[str, dict[str, JSONGenerator]], meta_file: Union[str, dict]) -> pd.DataFrame:
     """
-    Convert a Supervisely image annotations within a folder to normalized bounding boxes.
+    Convert a Supervisely image annotations in a folder to normalized bounding boxes.
 
     Args:
         source (str|JSONGenerator): path to the root folder containing JSON annotation files, 
@@ -101,27 +100,10 @@ def convert_images_annotations_folder(source: Union[str, JSONGenerator], meta_fi
     # Each DataFrame in dfs will correspond to bounding boxes from 1 image
     dfs = []
 
-    annotations_generators = None
-    if source is None:
-        raise ValueError("source argument is mandatory")
-    elif isinstance(source, str):
-        if not os.path.isdir(source) or not os.path.exists(source):
-            raise ValueError("If source is passed as string, it needs to represent an existing directory")
-        annotations_generators = {
-            file: (lambda: _read_json_content(source, file))
-                for file in os.listdir(source) 
-                if os.path.isfile(os.path.join(source, file))}
-    elif isinstance(source, dict):
-        if not all([isinstance(o, Callable) for o in source.values()]):
-            raise ValueError("If source is passed as a dict, it needs to be a dict (keyed by file name) of callables returning JSON dicts")
-        annotations_generators = source
-    else:
-        raise ValueError("Unsupported type of source argument")
+    annotations_generators = _source_to_annotation_generators(source)
     
-    meta_file_content = None
     if isinstance(meta_file, str):
-        with open(meta_file, 'r') as f:
-            meta_file_content = json.load(f)
+        meta_file_content = _read_json_content(meta_file)
     elif isinstance(meta_file, dict):
         meta_file_content = meta_file
     else:
@@ -169,7 +151,32 @@ def convert_single_image_annotation_file(annotations: dict, frame_key: str, meta
         idx += 1
     return pd.DataFrame(datas)
 
-def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, frame_key: str, meta_file: dict) -> pd.DataFrame:
+def convert_images_annotations_folder_to_pose_estimation(source: Union[str, JSONGenerator], meta_file: Union[str, dict]) -> pd.DataFrame:
+    """
+    Convert a Supervisely image annotations in a folder to to pose estimation DataFrame.
+
+    Args:
+        source (str|JSONGenerator): path to the root folder containing JSON annotation files, 
+            or a dictionary (keyed by file name) containing Callables that generate JSON annotation content as dict
+        meta_file (str|dict): path to the meta.json file, or the JSON content of the meta file as dict
+    """
+    # Each DataFrame in dfs will correspond to bounding boxes from 1 image
+    dfs = []
+
+    annotations_generators = _source_to_annotation_generators(source)
+
+    if isinstance(meta_file, str):
+        meta_file_content = _read_json_content(meta_file)
+    elif isinstance(meta_file, dict):
+        meta_file_content = meta_file
+    else:
+        raise ValueError("meta_file needs to be a str or a JSON dict")
+    
+    for key, annotations_gen in annotations_generators.items():
+        dfs.append(convert_single_image_annotation_file_to_pose_estimation(annotations_gen(), key, meta_map=meta_file_content))
+    return pd.concat(dfs, axis=0)
+
+def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, frame_key: str, meta_map: dict) -> pd.DataFrame:
     """
     Convert a Supervisely annotation for a single image to pose estimation DataFrame.
 
@@ -183,11 +190,14 @@ def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, f
         <class-index> <x> <y> <width> <height> <px1> <py1> <px2> <py2> ... <pxn> <pyn>
         <class-index> <x> <y> <width> <height> <px1> <py1> <p1-visibility> <px2> <py2> <p2-visibility> <pxn> <pyn> <pn-visibility>
     """
+    if annotations is None or not isinstance(annotations, dict):
+        raise ValueError("")
+
     # Each element in datas correspond to 1 bounding box
     datas = []
     (width, height) = annotations["size"]["width"], annotations["size"]["height"]
 
-    graph_classes = list(filter(lambda c: c["shape"] == "graph", meta_file["classes"]))
+    graph_classes = list(filter(lambda c: c["shape"] == "graph", meta_map["classes"]))
     graph_id_to_idx = {}
     graph_id_to_nodes = {}
     for idx, g in enumerate(graph_classes):
@@ -247,6 +257,7 @@ def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, f
             #yield "frame"
 
         df = pd.DataFrame(matrix, columns=list(generate_column_names()))
+        df["frame"] = frame_key
         #data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_key, object_key="", x1=x1, x2=x2, y1=y1, y2=y2, idx=idx)
         # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
         datas.append(df)
@@ -275,6 +286,37 @@ def _xyxy2xywhn(x, w=640, h=640, clip=False, eps=0.0):
     y[..., 3] = (x[..., 3] - x[..., 1]) / h  # height
     return y
 
-def _read_json_content(root, filename):
-    with open(os.path.join(root, filename)) as f:
+def _source_to_annotation_generators(source: Union[str, dict[str, JSONGenerator]]) -> dict[str, JSONGenerator]:
+    """
+    Convert source to a dictionary of JSON generators.
+
+    Args:
+        source (str|JSONGenerator):  path to the root folder containing JSON annotation files, 
+            or a dictionary (keyed by file name) containing Callables that generate JSON annotation content as dict
+    """
+    def list_files_only(folder):
+        for file in os.listdir(folder):
+            if os.path.isfile(os.path.join(folder, file)):
+                yield file
+
+    if source is None:
+        raise ValueError("source argument is mandatory")
+    elif isinstance(source, str):
+        if not os.path.isdir(source) or not os.path.exists(source):
+            raise ValueError("If source is passed as string, it needs to represent an existing directory")
+        annotations_generators = {file: (lambda: _read_json_content(file, root=source)) for file in list_files_only(source)}
+    elif isinstance(source, dict):
+        if not all([isinstance(o, Callable) for o in source.values()]):
+            raise ValueError("If source is passed as a dict, it needs to be a dict (keyed by file name) of callables returning JSON dicts")
+        annotations_generators = source
+    else:
+        raise ValueError("Unsupported type of source argument")
+    return annotations_generators
+
+def _read_json_content(file_path, root=None):
+    """Read a JSON file"""
+
+    filepath = file_path if root is None else os.path.join(root, file_path)
+    with open(filepath, 'r') as f:
         return json.load(f)
+        

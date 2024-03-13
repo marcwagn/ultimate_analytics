@@ -115,7 +115,7 @@ def test_convert_single_image_annotation_file_to_pose_estimation():
 
     with open(metadata_file, 'r') as f:
         metadata = json.load(f)
-    df = sc.convert_single_image_annotation_file_to_pose_estimation(annotations, "machine_vs_condors_pool_006_0.jpg", meta_file=metadata)
+    df = sc.convert_single_image_annotation_file_to_pose_estimation(annotations, "machine_vs_condors_pool_006_0.jpg", meta_map=metadata)
 
     # Derived from the respective annotation json
     width = 3840.0
@@ -148,7 +148,28 @@ def test_convert_single_image_annotation_file_to_pose_estimation():
     assert actual_row["w"] == expected_object_width
     assert actual_row["h"] == expected_object_height
 
-    actual_keypoint_coords = actual_row[5:].to_numpy()
+    actual_keypoint_coords = actual_row[5:-1].to_numpy()
     expected_keypoint_coords = np.array(list(generateExpectedKeypointsSequence()))
     assert len(actual_keypoint_coords) ==  len(expected_keypoint_coords)
     assert_array_equal(actual_keypoint_coords, expected_keypoint_coords)
+
+    assert actual_row["frame"] == "machine_vs_condors_pool_006_0.jpg"
+
+
+def test_convert_image_annotation_folder_to_pose_estimation():
+    prefix = "./src/tests/data/supervisely/sample_images_2"
+    annotations_folder = path.join(prefix, "mini_test_set/ann")
+    metadata_file = path.join(prefix, "meta.json")
+
+    df = sc.convert_images_annotations_folder_to_pose_estimation(annotations_folder, meta_file=metadata_file)
+
+    assert df is not None
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 5
+    assert len(df.groupby("frame")) == 5
+
+    fixed_column_list = ["cls", "x", "y", "w", "h", "frame"]
+    for c in fixed_column_list:
+        del df[c]
+
+    assert len(df.columns) == 13*3
