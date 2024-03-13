@@ -8,7 +8,7 @@ test: # test images (optional)
 
 # Keypoints
 kpt_shape: [13, 3]  # number of keypoints, number of dims (2 for x,y or 3 for x,y,visible)
-flip_idx: [1, 0, 2, 4, 3, 5, 6, 7, 9, 8, 12, 11, 10]
+flip_idx: [1, 0, 2, 4, 3, 5, 6, 7, 9, 8, 12, 11, 10] # tells YOLO the sequence of keypoints if the image is flipped
 
 # Classes dictionary
 names:
