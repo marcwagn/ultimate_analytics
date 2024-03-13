@@ -65,7 +65,24 @@ yolo_detect_annotation_val:
       sep: " "
       decimal: .
 
-yolo_keypoints_annotation_train: 
+# YOLO Pose/Keypoints Estimation
+# The following datasets are used to train a YOLO model for pose estimation
+
+yolo_keypoints_images_train:
+  type: partitions.PartitionedDataset
+  path: data/processed/ultimate_keypoints/images/train/
+  filename_suffix: '.jpg'
+  dataset: 
+    type: pillow.ImageDataset
+
+yolo_keypoints_images_val:
+  type: partitions.PartitionedDataset
+  path: data/processed/ultimate_keypoints/images/val/
+  filename_suffix: '.jpg'
+  dataset: 
+    type: pillow.ImageDataset
+
+yolo_keypoints_annotation_train:
   type: partitions.PartitionedDataset
   path: data/processed/ultimate_keypoints/labels/train/  # path to the location of partitions
   filename_suffix: '.txt'

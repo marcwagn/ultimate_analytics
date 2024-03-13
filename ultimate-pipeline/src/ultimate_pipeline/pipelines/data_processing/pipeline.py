@@ -49,7 +49,18 @@ def create_pipeline(**kwargs) -> Pipeline:
         node(
             partition_dataframe_into_dict, 
             inputs=["yolo_pose_annotation_dataframe"], 
-            outputs="yolo_keypoints_annotation_train", 
-            name="create_partitioned_dataframe_pose_node"
+            outputs="yolo_keypoints_annotation", 
+            name="create_yolo_keypoint_annotation_node"
+        ),
+        node(
+            train_val_split,
+            inputs=["params:ultimate_object_detect",
+                    "supervisely_images",
+                    "yolo_keypoints_annotation"],
+            outputs=["yolo_keypoints_images_train",
+                     "yolo_keypoints_images_val",
+                     "yolo_keypoints_annotation_train",
+                     "yolo_keypoints_annotation_val"],
+            name="train_val_split_keypoints_node",
         ),
     ])
