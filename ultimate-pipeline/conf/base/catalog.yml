@@ -64,3 +64,27 @@ yolo_detect_annotation_val:
       index: False
       sep: " "
       decimal: .
+
+yolo_keypoints_annotation_train: 
+  type: partitions.PartitionedDataset
+  path: data/processed/ultimate_keypoints/labels/train/  # path to the location of partitions
+  filename_suffix: '.txt'
+  dataset: 
+    type: pandas.CSVDataset  # shorthand notation for the dataset which will handle individual partitions
+    save_args:
+      header: False
+      index: False
+      sep: " "
+      decimal: .
+
+yolo_keypoints_annotation_val: 
+  type: partitions.PartitionedDataset
+  path: data/processed/ultimate_keypoints/labels/val/  # path to the location of partitions
+  filename_suffix: '.txt'
+  dataset: 
+    type: pandas.CSVDataset  # shorthand notation for the dataset which will handle individual partitions
+    save_args:
+      header: False
+      index: False
+      sep: " "
+      decimal: .

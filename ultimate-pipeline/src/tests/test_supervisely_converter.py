@@ -68,7 +68,7 @@ def test_convert_single_image_annotation():
         metadata = json.load(f)
         meta_map = { m["id"]: i for i, m in enumerate(metadata["classes"])}
     
-    df = sc.convert_single_image_annotation_file(annotations, frame_key=0, meta_map=meta_map)
+    df = sc.convert_single_image_annotation_to_detect_data(annotations, frame_key=0, meta_map=meta_map)
 
     assert df is not None
     assert isinstance(df, pd.DataFrame)
@@ -91,14 +91,14 @@ def test_convert_image_annotation_folder_nonexistent():
     metadata_file = path.join(prefix, "meta.json")
 
     with pytest.raises(ValueError, match="If source is passed as string, it needs to represent an existing directory"):
-        sc.convert_images_annotations_folder(annotations_folder, meta_file=metadata_file)
+        sc.convert_images_annotations_folder_to_detect_data(annotations_folder, meta_file=metadata_file)
 
 def test_convert_image_annotation_folder():
     prefix = "./src/tests/data/supervisely/sample_images_1"
     annotations_folder = path.join(prefix, "test/ann")
     metadata_file = path.join(prefix, "meta.json")
 
-    df = sc.convert_images_annotations_folder(annotations_folder, meta_file=metadata_file)
+    df = sc.convert_images_annotations_folder_to_detect_data(annotations_folder, meta_file=metadata_file)
 
     assert df is not None
     assert isinstance(df, pd.DataFrame)
@@ -161,7 +161,7 @@ def test_convert_image_annotation_folder_to_pose_estimation():
     annotations_folder = path.join(prefix, "mini_test_set/ann")
     metadata_file = path.join(prefix, "meta.json")
 
-    df = sc.convert_images_annotations_folder_to_pose_estimation(annotations_folder, meta_file=metadata_file)
+    df = sc.convert_images_annotations_folder_to_pose_data(annotations_folder, meta_file=metadata_file)
 
     assert df is not None
     assert isinstance(df, pd.DataFrame)

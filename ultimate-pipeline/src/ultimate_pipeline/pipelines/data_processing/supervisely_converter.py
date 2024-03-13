@@ -105,7 +105,7 @@ def convert_video_annotations(source: Union[str, dict]) -> pd.DataFrame:
     return pd.DataFrame(datas)
 
 
-def convert_images_annotations_folder(
+def convert_images_annotations_folder_to_detect_data(
     source: Union[str, dict[str, JSONGenerator]], meta_file: Union[str, dict]
 ) -> pd.DataFrame:
     """
@@ -132,12 +132,12 @@ def convert_images_annotations_folder(
 
     for key, annotations_gen in annotations_generators.items():
         dfs.append(
-            convert_single_image_annotation_file(annotations_gen(), key, meta_map)
+            convert_single_image_annotation_to_detect_data(annotations_gen(), key, meta_map)
         )
     return pd.concat(dfs, axis=0)
 
 
-def convert_single_image_annotation_file(
+def convert_single_image_annotation_to_detect_data(
     annotations: dict, frame_key: str, meta_map: dict
 ) -> pd.DataFrame:
     """
@@ -187,7 +187,7 @@ def convert_single_image_annotation_file(
     return pd.DataFrame(datas)
 
 
-def convert_images_annotations_folder_to_pose_estimation(
+def convert_images_annotations_folder_to_pose_data(
     source: Union[str, JSONGenerator], meta_file: Union[str, dict]
 ) -> pd.DataFrame:
     """
