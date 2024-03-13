@@ -194,9 +194,6 @@ def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, f
         graph_id_to_idx[g["id"]] = idx
         graph_id_to_nodes[g["id"]] = g["geometry_config"]["nodes"]
 
-    for idx, id in enumerate(graph_id_to_nodes):
-        graph_id_to_nodes[id]["idx"] = idx
-
     idx = 0
     for detected in annotations["objects"]:
         # Skip non-rectangular annotations - they don't map to bounding boxes
@@ -206,33 +203,33 @@ def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, f
         class_id = detected["classId"]
         class_idx = graph_id_to_idx[class_id]
         
-        min_x, min_y, max_x, max_y = 0, 0, width, height
+        min_x, min_y, max_x, max_y = width, height, 0, 0
         detected_nodes = detected["nodes"]
         for key, node in detected_nodes.items():
             if "disabled" in node:
                 continue
             min_x = min(min_x, node["loc"][0])
-            max_x = min(max_x, node["loc"][0])
+            max_x = max(max_x, node["loc"][0])
             min_y = min(min_y, node["loc"][1])
             max_y = max(max_y, node["loc"][1])
 
         def scale_point(x,y):
-            return (x-min_x)/width, (y-min_y)/height
+            return x/width, y/height
 
         num_nodes = len(graph_id_to_nodes[class_id])
         # A matrix (num_classes * 3) of key points
         # Each row represents a triplet: (x, y, visibility), where x and y are scaled
-        output_coords_3d = np.zeros(shape=(num_nodes, 3), dtype='float')
+        output_coords_triplets = np.zeros(shape=(num_nodes, 3), dtype='float')
         for i, node_key in enumerate(graph_id_to_nodes[class_id]):
             if node_key in detected_nodes:
                 # visibility: 0 if absent, 1 if disabled, 2 if visible
                 visibility =  1 if "disabled" in detected_nodes[node_key] else 2
                 scaled_x, scaled_y = scale_point(x=detected_nodes[node_key]["loc"][0], y=detected_nodes[node_key]["loc"][1])
-                output_coords_3d[i] = np.array([scaled_x, scaled_y, visibility])
+                output_coords_triplets[i] = np.array([scaled_x, scaled_y, visibility])
 
-        output_coords_flattened = np.reshape(output_coords_3d, (num_nodes*3))
+        output_coords_flattened = np.reshape(output_coords_triplets, (num_nodes*3))
 
-        box_scaled_arr = _xyxy2xywhn(np.array([min_x, min_y, max_x, max_y]), h=height, w=width)
+        box_scaled_arr = _xyxy2xywhn(np.array([min_x, min_y, max_x, max_y], dtype='float'), h=height, w=width)
 
         vector = np.concatenate((np.array([class_idx]), box_scaled_arr, output_coords_flattened), axis=0)
         matrix = np.reshape(vector, (1, len(vector)))
@@ -243,7 +240,7 @@ def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, f
             yield "y"
             yield "w"
             yield "h"
-            for i in range(len(output_coords_3d)):
+            for i in range(len(output_coords_triplets)):
                 yield f"px{i}"
                 yield f"py{i}"
                 yield f"p{i}_vis"
@@ -254,7 +251,7 @@ def convert_single_image_annotation_file_to_pose_estimation(annotations: dict, f
         # data = dict(cls=class_id, x=box_scaled[0], y=box_scaled[1], w=box_scaled[2], h=box_scaled[3], frame=frame_index)
         datas.append(df)
         idx += 1
-    return pd.DataFrame(datas)
+    return pd.concat(datas)
 
 def _xyxy2xywhn(x, w=640, h=640, clip=False, eps=0.0):
     """

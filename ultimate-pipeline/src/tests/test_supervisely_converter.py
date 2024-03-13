@@ -124,18 +124,15 @@ def test_convert_single_image_annotation_file_to_pose_estimation():
     leftX = 55.0
     rightX = 3829.0
     topY = 424.0
-    bottomY = 1193.0
+    bottomY = 1494.0
     expected_object_width = (rightX-leftX)/width
     expected_object_height = (bottomY-topY)/height
     expected_centre_x = (rightX+leftX)/2/width
     expected_centre_y = (bottomY+topY)/2/height
 
-    def scalePoint(x,y):
-        return ((x-leftX)/expected_object_width, (y-topY)/expected_object_height)
-
-    def generateExpectedSequence():
+    def generateExpectedKeypointsSequence():
         for (x, y, vis) in expected_unscaled_triplets:
-            scaled_x, scaled_y = scalePoint(x, y)
+            scaled_x, scaled_y = x/width, y/height
             yield scaled_x
             yield scaled_y
             yield vis
@@ -152,5 +149,6 @@ def test_convert_single_image_annotation_file_to_pose_estimation():
     assert actual_row["h"] == expected_object_height
 
     actual_keypoint_coords = actual_row[5:].to_numpy()
-    expected_keypoint_coords = np.array(list(generateExpectedSequence))
+    expected_keypoint_coords = np.array(list(generateExpectedKeypointsSequence()))
+    assert len(actual_keypoint_coords) ==  len(expected_keypoint_coords)
     assert_array_equal(actual_keypoint_coords, expected_keypoint_coords)
