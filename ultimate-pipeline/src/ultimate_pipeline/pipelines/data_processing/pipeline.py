@@ -19,12 +19,12 @@ def create_pipeline(**kwargs) -> Pipeline:
         node(
             convert_supervisely_annotations_to_yolo_detect_dataframe, 
             inputs=["supervisely_annotation", "supervisely_metadata"], 
-            outputs="df_yolo_detect_annotation",
+            outputs="yolo_detect_annotation_dataframe",
             name="convert_supervisely_annotations_to_yolo_detect_dataframe_node"
         ),
         node(
             partition_dataframe_into_dict, 
-            inputs=["df_yolo_detect_annotation"], 
+            inputs=["yolo_detect_annotation_dataframe"], 
             outputs="yolo_detect_annotation", 
             name="create_yolo_detect_annotation_node"
         ),
@@ -42,12 +42,12 @@ def create_pipeline(**kwargs) -> Pipeline:
         node(
             convert_supervisely_annotations_to_yolo_pose_dataframe, 
             inputs=["supervisely_annotation", "supervisely_metadata"], 
-            outputs="df_yolo_pose_annotation",
+            outputs="yolo_pose_annotation_dataframe",
             name="convert_supervisely_annotations_to_yolo_pose_dataframe_node"
         ),
         node(
             partition_dataframe_into_dict, 
-            inputs=["df_yolo_pose_annotation"], 
+            inputs=["yolo_pose_annotation_dataframe"], 
             outputs="yolo_keypoints_annotation", 
             name="create_yolo_keypoint_annotation_node"
         ),
