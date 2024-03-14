@@ -47,7 +47,9 @@ def convert_supervisely_annotations_to_yolo_detect_dataframe(
         filename_without_extension = filename[:filename.rfind(".")]
         annotation_partitions_without_extension[filename_without_extension] = content_generator
 
-    return convert_images_annotations_folder_to_detect_data(source=annotation_partitions_without_extension, meta_file=meta_file)
+    yolo_detect_df = convert_images_annotations_folder_to_detect_data(source=annotation_partitions_without_extension, meta_file=meta_file)
+    columns_to_include = ["cls", "x", "y", "w", "h", "frame"]
+    return yolo_detect_df[columns_to_include]
 
 def convert_supervisely_annotations_to_yolo_pose_dataframe(
         annotation_partitions: dict[str, Callable[[], dict[str, Any]]], 

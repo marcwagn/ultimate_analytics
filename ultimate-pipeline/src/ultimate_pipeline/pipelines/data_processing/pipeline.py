@@ -19,12 +19,12 @@ def create_pipeline(**kwargs) -> Pipeline:
         node(
             convert_supervisely_annotations_to_yolo_detect_dataframe, 
             inputs=["supervisely_annotation", "supervisely_metadata"], 
-            outputs="yolo_detect_annotation_dataframe",
+            outputs="df_yolo_detect_annotation",
             name="convert_supervisely_annotations_to_yolo_detect_dataframe_node"
         ),
         node(
             partition_dataframe_into_dict, 
-            inputs=["yolo_detect_annotation_dataframe"], 
+            inputs=["df_yolo_detect_annotation"], 
             outputs="yolo_detect_annotation", 
             name="create_yolo_detect_annotation_node"
         ),
@@ -35,19 +35,19 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "yolo_detect_annotation"],
             outputs=["yolo_detect_images_train",
                      "yolo_detect_images_val",
-                     "yolo_detect_annotation_train",
-                     "yolo_detect_annotation_val"],
+                     "yolo_detect_annotation_txt_train",
+                     "yolo_detect_annotation_txt_val"],
             name="train_val_split_detect_node",
         ),
         node(
             convert_supervisely_annotations_to_yolo_pose_dataframe, 
             inputs=["supervisely_annotation", "supervisely_metadata"], 
-            outputs="yolo_pose_annotation_dataframe",
+            outputs="df_yolo_pose_annotation",
             name="convert_supervisely_annotations_to_yolo_pose_dataframe_node"
         ),
         node(
             partition_dataframe_into_dict, 
-            inputs=["yolo_pose_annotation_dataframe"], 
+            inputs=["df_yolo_pose_annotation"], 
             outputs="yolo_keypoints_annotation", 
             name="create_yolo_keypoint_annotation_node"
         ),
@@ -58,8 +58,8 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "yolo_keypoints_annotation"],
             outputs=["yolo_keypoints_images_train",
                      "yolo_keypoints_images_val",
-                     "yolo_keypoints_annotation_train",
-                     "yolo_keypoints_annotation_val"],
+                     "yolo_keypoints_annotation_txt_train",
+                     "yolo_keypoints_annotation_txt_val"],
             name="train_val_split_keypoints_node",
         ),
     ])
