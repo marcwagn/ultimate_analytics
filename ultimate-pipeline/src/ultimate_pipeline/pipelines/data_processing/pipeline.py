@@ -1,6 +1,5 @@
 """
-This is a boilerplate pipeline 'data_processing'
-generated using Kedro 0.19.3
+'data_processing' pipeline for Ultimate, processing annotations and images for YOLO training.
 """
 
 from kedro.pipeline import Pipeline, pipeline, node

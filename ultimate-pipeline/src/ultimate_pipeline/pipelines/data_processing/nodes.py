@@ -1,6 +1,5 @@
 """
-This is a boilerplate pipeline 'data_processing'
-generated using Kedro 0.19.3
+Kedro nodes for 'data_processing' pipeline.
 """
 from typing import Callable, Any
 import pandas as pd
@@ -100,11 +99,3 @@ def train_val_split(
     val_annotations = {k: annotations[k] for k in val_files}
 
     return train_images, val_images,  train_annotations, val_annotations
-
-
-#
-#def copy_dataset_items(items: dict[str, Any]) -> dict[str, Any]:
-#    """Copy data between datasets"""
-#    return items
-#
-#    
