@@ -22,44 +22,26 @@ supervisely_images:
   dataset: 
     type: pillow.ImageDataset
 
-# YOLO Object Detection
-# The following datasets are used to train a YOLO model for object detection
-
-yolo_detect_images_train:
+# Images for YOLO training
+#   ds_variant - detect|keypoints
+#   ds_split - train|val
+yolo_{ds_variant}_images_{ds_split}:
   type: partitions.PartitionedDataset
-  path: data/processed/ultimate_detect/images/train/
+  path: data/processed/ultimate_{ds_variant}/images/{ds_split}/
   filename_suffix: '.jpg'
   dataset: 
     type: pillow.ImageDataset
 
-yolo_detect_images_val:
+# Annotations for YOLO training
+#   ds_variant - detect|keypoints
+#   ds_split - train|val
+yolo_{ds_variant}_annotation_txt_{ds_split}: 
   type: partitions.PartitionedDataset
-  path: data/processed/ultimate_detect/images/val/
-  filename_suffix: '.jpg'
-  dataset: 
-    type: pillow.ImageDataset
-
-yolo_detect_annotation_train: 
-  type: partitions.PartitionedDataset
-  path: data/processed/ultimate_detect/labels/train/  # path to the location of partitions
+  path: data/processed/ultimate_{ds_variant}/labels/{ds_split}/  # path to the location of partitions
   filename_suffix: '.txt'
   dataset: 
     type: pandas.CSVDataset  # shorthand notation for the dataset which will handle individual partitions
     save_args:
-      columns: ["cls","x","y","w","h"]
-      header: False
-      index: False
-      sep: " "
-      decimal: .
-
-yolo_detect_annotation_val: 
-  type: partitions.PartitionedDataset
-  path: data/processed/ultimate_detect/labels/val/  # path to the location of partitions
-  filename_suffix: '.txt'
-  dataset: 
-    type: pandas.CSVDataset  # shorthand notation for the dataset which will handle individual partitions
-    save_args:
-      columns: ["cls","x","y","w","h"]
       header: False
       index: False
       sep: " "

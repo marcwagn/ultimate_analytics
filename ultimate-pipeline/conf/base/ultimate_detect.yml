@@ -3,7 +3,7 @@ datasets_dir: ../../data/processed
 path: . # dataset root dir
 train: ./ultimate_detect/images/train # train images; NB - YOLO convention expects that labels are placed in a path derived by replacing 'images' with 'labels'
 # TODO - create a separate folder for validation images and labels
-val: ./ultimate_detect/images/train # val images
+val: ./ultimate_detect/images/val # val images
 test: # test images (optional)
 
 # Classes

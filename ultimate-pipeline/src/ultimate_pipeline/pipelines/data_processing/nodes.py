@@ -1,6 +1,5 @@
 """
-This is a boilerplate pipeline 'data_processing'
-generated using Kedro 0.19.3
+Kedro nodes for 'data_processing' pipeline.
 """
 from typing import Callable, Any
 import pandas as pd
@@ -8,7 +7,7 @@ import pandas as pd
 import logging
 import random
 
-from .supervisely_converter import convert_images_annotations_folder
+from .supervisely_converter import convert_images_annotations_folder_to_detect_data, convert_images_annotations_folder_to_pose_data
 from .supervisely_downloader import helper_download_image_dataset_from_supervisely
 
 logger = logging.getLogger(__name__)
@@ -24,11 +23,16 @@ def partition_dataframe_into_dict(df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """
     Split the DataFrame by 'frame' column into a dictionary of partitioned data frames 
     keyed by 'frame' (which corresponds to a video frame number or name). 
+    Note: The 'frame' column is removed from the output DataFrame.
     """
     grouped = df.groupby(by="frame")
-    return { str(frame): data for frame, data in grouped }
+    def remove_frame_column(data_frame: pd.DataFrame) -> pd.DataFrame:
+        del data_frame["frame"]
+        return data_frame
 
-def convert_supervisely_annotations_to_yolo_format_dataframe(
+    return { str(frame): remove_frame_column(data) for frame, data in grouped }
+
+def convert_supervisely_annotations_to_yolo_detect_dataframe(
         annotation_partitions: dict[str, Callable[[], dict[str, Any]]], 
         meta_file: dict) -> pd.DataFrame:
     """
@@ -37,13 +41,32 @@ def convert_supervisely_annotations_to_yolo_format_dataframe(
         annotation_partitions (dict) - a dictionary (keyed by file names) containing content generator functions (Callables generating JSON annotation content as dict)
         meta_file (dict) - JSON content of meta.json
     """
-    logger.info("Reading folder data")
+    logger.info("Reading supervisely annotations folder data for detect data extraction")
     annotation_partitions_without_extension = {}
     for filename, content_generator in annotation_partitions.items():
         filename_without_extension = filename[:filename.rfind(".")]
         annotation_partitions_without_extension[filename_without_extension] = content_generator
 
-    return convert_images_annotations_folder(source=annotation_partitions_without_extension, meta_file=meta_file)
+    yolo_detect_df = convert_images_annotations_folder_to_detect_data(source=annotation_partitions_without_extension, meta_file=meta_file)
+    columns_to_include = ["cls", "x", "y", "w", "h", "frame"]
+    return yolo_detect_df[columns_to_include]
+
+def convert_supervisely_annotations_to_yolo_pose_dataframe(
+        annotation_partitions: dict[str, Callable[[], dict[str, Any]]], 
+        meta_file: dict) -> pd.DataFrame:
+    """
+    Convert Supervisely image annotations from a given folder to a DataFrame containing pose/keypoint estimation information.
+    Args:
+        annotation_partitions (dict) - a dictionary (keyed by file names) containing content generator functions (Callables generating JSON annotation content as dict)
+        meta_file (dict) - JSON content of meta.json
+    """
+    logger.info("Reading supervisely annotations folder data for pose/keypoint extraction")
+    annotation_partitions_without_extension = {}
+    for filename, content_generator in annotation_partitions.items():
+        filename_without_extension = filename[:filename.rfind(".")]
+        annotation_partitions_without_extension[filename_without_extension] = content_generator
+
+    return convert_images_annotations_folder_to_pose_data(source=annotation_partitions_without_extension, meta_file=meta_file)
 
 def train_val_split(
         params: dict[str, Any],
@@ -78,11 +101,3 @@ def train_val_split(
     val_annotations = {k: annotations[k] for k in val_files}
 
     return train_images, val_images,  train_annotations, val_annotations
-
-
-#
-#def copy_dataset_items(items: dict[str, Any]) -> dict[str, Any]:
-#    """Copy data between datasets"""
-#    return items
-#
-#    

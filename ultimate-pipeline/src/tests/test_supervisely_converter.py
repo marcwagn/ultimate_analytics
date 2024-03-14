@@ -68,7 +68,7 @@ def test_convert_single_image_annotation():
         metadata = json.load(f)
         meta_map = { m["id"]: i for i, m in enumerate(metadata["classes"])}
     
-    df = sc.convert_single_image_annotation_file(annotations, frame_key=0, meta_map=meta_map)
+    df = sc.convert_single_image_annotation_to_detect_data(annotations, frame_key=0, meta_map=meta_map)
 
     assert df is not None
     assert isinstance(df, pd.DataFrame)
@@ -91,16 +91,85 @@ def test_convert_image_annotation_folder_nonexistent():
     metadata_file = path.join(prefix, "meta.json")
 
     with pytest.raises(ValueError, match="If source is passed as string, it needs to represent an existing directory"):
-        sc.convert_images_annotations_folder(annotations_folder, meta_file=metadata_file)
+        sc.convert_images_annotations_folder_to_detect_data(annotations_folder, meta_file=metadata_file)
 
 def test_convert_image_annotation_folder():
     prefix = "./src/tests/data/supervisely/sample_images_1"
     annotations_folder = path.join(prefix, "test/ann")
     metadata_file = path.join(prefix, "meta.json")
 
-    df = sc.convert_images_annotations_folder(annotations_folder, meta_file=metadata_file)
+    df = sc.convert_images_annotations_folder_to_detect_data(annotations_folder, meta_file=metadata_file)
 
     assert df is not None
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 780
     assert len(df.groupby("frame")) == 30
+
+def test_convert_single_image_annotation_file_to_pose_estimation():
+    prefix = "./src/tests/data/supervisely/sample_images_2"
+    annotations_file = path.join(prefix, "mini_test_set/ann", "machine_vs_condors_pool_006_0.jpg.json")
+    metadata_file = path.join(prefix, "meta.json")
+
+    with open(annotations_file, 'r') as f:
+        annotations = json.load(f)
+
+    with open(metadata_file, 'r') as f:
+        metadata = json.load(f)
+    df = sc.convert_single_image_annotation_file_to_pose_estimation(annotations, "machine_vs_condors_pool_006_0.jpg", meta_map=metadata)
+
+    # Derived from the respective annotation json
+    width = 3840.0
+    height = 2160.0
+    expected_unscaled_triplets = [(1260, 432, 2), (2568, 424, 2), (1913, 462, 2), (1148, 502, 2), (2682, 494, 2), (1921, 594,2), (1923, 692, 2), (1929, 841, 2), (55, 1193, 2), (3829, 1173, 2), (0, 0, 0), (0, 0, 0), (1952, 1494, 2)]
+    leftX = 55.0
+    rightX = 3829.0
+    topY = 424.0
+    bottomY = 1494.0
+    expected_object_width = (rightX-leftX)/width
+    expected_object_height = (bottomY-topY)/height
+    expected_centre_x = (rightX+leftX)/2/width
+    expected_centre_y = (bottomY+topY)/2/height
+
+    def generateExpectedKeypointsSequence():
+        for (x, y, vis) in expected_unscaled_triplets:
+            scaled_x, scaled_y = x/width, y/height
+            yield scaled_x
+            yield scaled_y
+            yield vis
+
+    assert df is not None
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 1
+    actual_row = df.iloc[0,:]
+
+    assert actual_row["cls"] == 0
+    assert actual_row["x"] == expected_centre_x
+    assert actual_row["y"] == expected_centre_y
+    assert actual_row["w"] == expected_object_width
+    assert actual_row["h"] == expected_object_height
+
+    actual_keypoint_coords = actual_row[5:-1].to_numpy()
+    expected_keypoint_coords = np.array(list(generateExpectedKeypointsSequence()))
+    assert len(actual_keypoint_coords) ==  len(expected_keypoint_coords)
+    assert_array_equal(actual_keypoint_coords, expected_keypoint_coords)
+
+    assert actual_row["frame"] == "machine_vs_condors_pool_006_0.jpg"
+
+
+def test_convert_image_annotation_folder_to_pose_estimation():
+    prefix = "./src/tests/data/supervisely/sample_images_2"
+    annotations_folder = path.join(prefix, "mini_test_set/ann")
+    metadata_file = path.join(prefix, "meta.json")
+
+    df = sc.convert_images_annotations_folder_to_pose_data(annotations_folder, meta_file=metadata_file)
+
+    assert df is not None
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 5
+    assert len(df.groupby("frame")) == 5
+
+    fixed_column_list = ["cls", "x", "y", "w", "h", "frame"]
+    for c in fixed_column_list:
+        del df[c]
+
+    assert len(df.columns) == 13*3
