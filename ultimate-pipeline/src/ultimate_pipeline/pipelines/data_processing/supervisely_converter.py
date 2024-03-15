@@ -256,11 +256,17 @@ def convert_single_image_annotation_file_to_pose_estimation(
             continue
 
         class_id = detected["classId"]
+
         class_idx = graph_id_to_idx[class_id]
 
         min_x, min_y, max_x, max_y = width, height, 0, 0
-        detected_nodes = detected["nodes"]
-        for key, node in detected_nodes.items():
+
+        # Filter by nodes defined in meta.json
+        #detected_nodes_filtered = { key: detected["nodes"][key] for key in graph_id_to_nodes[class_id] }
+        detected_nodes_filtered = { key: node for (key, node) in detected["nodes"].items() if key in graph_id_to_nodes[class_id] }
+        detected_nodes = detected_nodes_filtered
+
+        for _, node in detected_nodes.items():
             if "disabled" in node:
                 continue
             min_x = min(min_x, node["loc"][0])
