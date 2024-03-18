@@ -3,7 +3,7 @@
 import json
 import pandas as pd
 import numpy as np
-from typing import Callable, Union, TypeAlias
+from typing import Callable, Generator, Tuple, Union, TypeAlias
 import os
 import logging
 
@@ -106,7 +106,7 @@ def convert_video_annotations(source: Union[str, dict]) -> pd.DataFrame:
 
 
 def convert_images_annotations_folder_to_detect_data(
-    source: Union[str, dict[str, JSONGenerator]], meta_file: Union[str, dict]
+    source: Union[str, dict[str, JSONGenerator]], meta_file: Union[str, dict], keypoints_bboxes_generation: Tuple[bool, int, int]=(False,0,0)
 ) -> pd.DataFrame:
     """
     Convert a Supervisely image annotations in a folder to normalized bounding boxes.
@@ -115,6 +115,8 @@ def convert_images_annotations_folder_to_detect_data(
         source (str|JSONGenerator): path to the root folder containing JSON annotation files,
             or a dictionary (keyed by file name) containing Callables that generate JSON annotation content as dict
         meta_file (str|dict): path to the meta.json file, or the JSON content of the meta file as dict
+        keypoints_bboxes_generation (bool,int,int): settings for optional generation of bounding boxes around keypoints
+
     """
     # Each DataFrame in dfs will correspond to bounding boxes from 1 image
     dfs = []
@@ -128,62 +130,111 @@ def convert_images_annotations_folder_to_detect_data(
     else:
         raise ValueError("meta_file needs to be a str or a JSON dict")
 
-    meta_map = {m["id"]: i for i, m in enumerate(meta_file_content["classes"])}
-
     for key, annotations_gen in annotations_generators.items():
         dfs.append(
-            convert_single_image_annotation_to_detect_data(annotations_gen(), key, meta_map)
+            convert_single_image_annotation_to_detect_data(
+                annotations=annotations_gen(), 
+                frame_key=key, 
+                meta_file=meta_file_content,
+                keypoints_bboxes_generation=keypoints_bboxes_generation
+                )
         )
     return pd.concat(dfs, axis=0)
 
 
 def convert_single_image_annotation_to_detect_data(
-    annotations: dict, frame_key: str, meta_map: dict
+    annotations: dict, frame_key: str, meta_file: dict, keypoints_bboxes_generation: Tuple[bool, int, int]=(False,0,0)
 ) -> pd.DataFrame:
     """
     Convert a Supervisely annotation for a single image to normalized bounding boxes.
     Args:
         annotations (dict): content of JSON annotation file
         frame_key (str): frame number or name
-        meta_map (dict): mapping between detection class ids to indexes
+        meta_file (dict): content of meta.json
+        keypoints_bboxes_generation (bool,int,int): settings for optional generation of bounding boxes around keypoints
     """
+
+    meta_map = {m["id"]: i for i, m in enumerate(meta_file["classes"])}
+
     # Each element in datas correspond to 1 bounding box
     datas = []
     (width, height) = annotations["size"]["width"], annotations["size"]["height"]
 
-    def resolve_class_idx(fig):
-        return meta_map[fig["classId"]]
+    graph_classes = list(filter(lambda c: c["shape"] == "graph", meta_file["classes"]))
+    graph_id_to_idx = {}
+    graph_id_to_nodes = {}
+    for idx, g in enumerate(graph_classes):
+        graph_id_to_idx[g["id"]] = idx
+        graph_id_to_nodes[g["id"]] = g["geometry_config"]["nodes"]
+    
+    def extract_box_from_rectangle(detected:dict) -> Tuple[int, np.ndarray, np.ndarray]:
+        def resolve_class_idx(fig):
+            return meta_map[fig["classId"]]
 
-    idx = 0
-    for detected in annotations["objects"]:
-        # Skip non-rectangular annotations - they don't map to bounding boxes
-        if detected["geometryType"] != "rectangle":
-            continue
-
-        class_id = resolve_class_idx(detected)
+        class_idx = resolve_class_idx(detected)
 
         (x1, y1) = detected["points"]["exterior"][0]
         (x2, y2) = detected["points"]["exterior"][1]
 
         box_arr = np.array([x1, y1, x2, y2], dtype="float")
         box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
+        return class_idx, box_scaled, box_arr
+    
+    def extract_boxes_from_graph(detected:dict) -> Generator[Tuple[int, np.ndarray, np.ndarray], None, None]:
+        _, padding_x, padding_y = keypoints_bboxes_generation
+        class_id = detected["classId"]
 
-        data = dict(
-            cls=class_id,
-            x=box_scaled[0],
-            y=box_scaled[1],
-            w=box_scaled[2],
-            h=box_scaled[3],
-            frame=frame_key,
-            object_key="",
-            x1=x1,
-            x2=x2,
-            y1=y1,
-            y2=y2,
-            idx=idx,
-        )
-        datas.append(data)
-        idx += 1
+        detected_nodes_filtered = { key: node for (key, node) in detected["nodes"].items() if key in graph_id_to_nodes[class_id] }
+        detected_nodes = detected_nodes_filtered
+
+        for i, node_key in enumerate(graph_id_to_nodes[class_id]):
+            if node_key in detected_nodes:
+                if "disabled" in detected_nodes[node_key]:
+                    continue
+                x_mid=detected_nodes[node_key]["loc"][0]
+                y_mid=detected_nodes[node_key]["loc"][1]
+                (x1, y1) = max(x_mid-padding_x, 0), max(y_mid-padding_y, 0)
+                (x2, y2) = min(x_mid+padding_x, width), min(y_mid+padding_y, height)
+                box_arr = np.array([x1, y1, x2, y2], dtype='float')
+                box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
+
+                #class_idx = graph_id_to_idx[class_id]
+                # HACK - hardcoded index start
+                class_idx = 31 + i
+
+                yield class_idx, box_scaled, box_arr
+
+    generate_boxes_around_keypoints_flag, _, _ = keypoints_bboxes_generation
+    obj_idx = 0
+
+    for detected in annotations["objects"]:
+        boxes = [] # (class_id, box_scaled, box_arr)
+        if detected["geometryType"] == "rectangle":
+            boxes = [ extract_box_from_rectangle(detected) ]
+        elif detected["geometryType"] == "graph" and generate_boxes_around_keypoints_flag:
+            boxes = list(extract_boxes_from_graph(detected))
+        else:
+            # Unsupported geometry type, skip
+            continue
+
+        for i, box in enumerate(boxes):
+            class_id, box_scaled, box_arr = box
+            data = dict(
+                cls=class_id,
+                x=box_scaled[0],
+                y=box_scaled[1],
+                w=box_scaled[2],
+                h=box_scaled[3],
+                frame=frame_key,
+                object_key="",
+                x1=box_arr[0],
+                x2=box_arr[2],
+                y1=box_arr[1],
+                y2=box_arr[2],
+                idx=obj_idx+i,
+            )
+            datas.append(data)
+        obj_idx += 1
     return pd.DataFrame(datas)
 
 
@@ -213,14 +264,14 @@ def convert_images_annotations_folder_to_pose_data(
     for key, annotations_gen in annotations_generators.items():
         dfs.append(
             convert_single_image_annotation_file_to_pose_estimation(
-                annotations_gen(), key, meta_map=meta_file_content
+                annotations_gen(), key, meta_file=meta_file_content
             )
         )
     return pd.concat(dfs, axis=0)
 
 
 def convert_single_image_annotation_file_to_pose_estimation(
-    annotations: dict, frame_key: str, meta_map: dict
+    annotations: dict, frame_key: str, meta_file: dict
 ) -> pd.DataFrame:
     """
     Convert a Supervisely annotation for a single image to pose estimation DataFrame.
@@ -242,7 +293,7 @@ def convert_single_image_annotation_file_to_pose_estimation(
     datas = []
     (width, height) = annotations["size"]["width"], annotations["size"]["height"]
 
-    graph_classes = list(filter(lambda c: c["shape"] == "graph", meta_map["classes"]))
+    graph_classes = list(filter(lambda c: c["shape"] == "graph", meta_file["classes"]))
     graph_id_to_idx = {}
     graph_id_to_nodes = {}
     for idx, g in enumerate(graph_classes):
@@ -251,7 +302,7 @@ def convert_single_image_annotation_file_to_pose_estimation(
 
     idx = 0
     for detected in annotations["objects"]:
-        # Skip non-rectangular annotations - they don't map to bounding boxes
+        # Skip rectangular annotations - they don't map to keypoints for pose estimation
         if detected["geometryType"] != "graph":
             continue
 
@@ -262,7 +313,6 @@ def convert_single_image_annotation_file_to_pose_estimation(
         min_x, min_y, max_x, max_y = width, height, 0, 0
 
         # Filter by nodes defined in meta.json
-        #detected_nodes_filtered = { key: detected["nodes"][key] for key in graph_id_to_nodes[class_id] }
         detected_nodes_filtered = { key: node for (key, node) in detected["nodes"].items() if key in graph_id_to_nodes[class_id] }
         detected_nodes = detected_nodes_filtered
 
@@ -319,7 +369,29 @@ def convert_single_image_annotation_file_to_pose_estimation(
         idx += 1
     return pd.concat(datas)
 
+# def _convert_graph_keypoins_to_boxes(detected: dict, padding_x: int, padding_y: int, width: int, height: int) -> pd.DataFrame:
+#     class_id = detected["classId"]
 
+#     detected_nodes_filtered = { key: node for (key, node) in detected["nodes"].items() if key in graph_id_to_nodes[class_id] }
+#     detected_nodes = detected_nodes_filtered
+
+#     num_nodes = len(graph_id_to_nodes[class_id])
+#     bounding_boxes_in_graph = []
+#     # A matrix (num_classes * 3) of key points
+#     # Each row represents a triplet: (x, y, visibility), where x and y are scaled
+#     for i, node_key in enumerate(graph_id_to_nodes[class_id]):
+#         if node_key in detected_nodes:
+#             if "disabled" in detected_nodes[node_key]:
+#                 continue
+#             x_mid=detected_nodes[node_key]["loc"][0]
+#             y_mid=detected_nodes[node_key]["loc"][1]
+#             (x1, y1) = x_mid-padding_x, y_mid-padding_y
+#             (x2, y2) = x_mid+padding_x, y_mid+padding_y
+#             bbox = np.array([x1, y1, x2, y2], dtype='float')
+#             bbox_scaled = _xyxy2xywhn(bbox)
+#             bounding_boxes_in_graph(bbox_scaled)
+
+    
 def _xyxy2xywhn(x, w=640, h=640, clip=False, eps=0.0):
     """
     Convert bounding box coordinates from (x1, y1, x2, y2) format to (x, y, width, height, normalized) format. x, y,

@@ -47,7 +47,21 @@ def convert_supervisely_annotations_to_yolo_detect_dataframe(
         filename_without_extension = filename[:filename.rfind(".")]
         annotation_partitions_without_extension[filename_without_extension] = content_generator
 
-    yolo_detect_df = convert_images_annotations_folder_to_detect_data(source=annotation_partitions_without_extension, meta_file=meta_file)
+    # Arbitrary padding for bounding box generation around keypoints (graphs in Supervisely annotations)
+    padding_x, padding_y = 20, 20
+
+    yolo_detect_df = convert_images_annotations_folder_to_detect_data(
+        source=annotation_partitions_without_extension, 
+        meta_file=meta_file,
+        keypoints_bboxes_generation=(True, padding_x, padding_y))
+
+    # Fix up certain class ids to align with COCO class ids from the pre-trained model
+    # - frisbee: 29
+    # - referee: 30 (overriding existing COCO class id)
+    # (see https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/datasets/coco.yaml)
+    fixup = {1: 29, 3: 30}
+    yolo_detect_df['cls'] = yolo_detect_df['cls'].apply(lambda c: fixup.get(c, c))
+    
     columns_to_include = ["cls", "x", "y", "w", "h", "frame"]
     return yolo_detect_df[columns_to_include]
 

@@ -66,9 +66,8 @@ def test_convert_single_image_annotation():
 
     with open(metadata_file, 'r') as f:
         metadata = json.load(f)
-        meta_map = { m["id"]: i for i, m in enumerate(metadata["classes"])}
     
-    df = sc.convert_single_image_annotation_to_detect_data(annotations, frame_key=0, meta_map=meta_map)
+    df = sc.convert_single_image_annotation_to_detect_data(annotations, frame_key=0, meta_file=metadata)
 
     assert df is not None
     assert isinstance(df, pd.DataFrame)
@@ -77,13 +76,52 @@ def test_convert_single_image_annotation():
 
     actualFirstRow = df.iloc[0, 0:5].to_numpy()
     expectedClassIdPerson = 13
-    expectedFirstRow = np.array([expectedClassIdPerson, (464+327)/2/width, (1283+1106)/2/height, (464-327)/width, (1283-1106)/height])
+    expectedFirstRow = np.array([expectedClassIdPerson, (464+327)/2/width, (1283+1106)/2/height, (464-327)/width, (1283-1106)/height], dtype='float')
     assert_array_equal(actualFirstRow, expectedFirstRow)
 
     actualLastRow = df.iloc[-1, 0:5].to_numpy()
     expectedClassIdBrf = 6
-    expectedLastRow = np.array([expectedClassIdBrf, (3796+3755)/2/width, (1185+1144)/2/height, (3796-3755)/width, (1185-1144)/height])
+    expectedLastRow = np.array([expectedClassIdBrf, (3796+3755)/2/width, (1185+1144)/2/height, (3796-3755)/width, (1185-1144)/height], dtype='float')
     assert_array_equal(actualLastRow, expectedLastRow)
+
+def test_convert_single_image_annotation_with_generation_of_bounding_boxes_around_keypoints():
+    prefix = "./src/tests/data/supervisely/sample_images_2"
+    annotations_file = path.join(prefix, "mini_test_set/ann", "machine_vs_condors_pool_006_0.jpg.json")
+    metadata_file = path.join(prefix, "meta.json")
+
+    with open(annotations_file, 'r') as f:
+        annotations = json.load(f)
+
+    with open(metadata_file, 'r') as f:
+        metadata = json.load(f)
+    
+    padding_x, padding_y = 20, 20
+    keypoints_bboxes_generation = True, padding_x, padding_y
+    df = sc.convert_single_image_annotation_to_detect_data(annotations, frame_key=0, meta_file=metadata, keypoints_bboxes_generation=keypoints_bboxes_generation)
+    assert df is not None
+    assert isinstance(df, pd.DataFrame)
+    width = 3840.0
+    height = 2160.0
+
+    expected_keypoints_bounding_boxes_len = 11
+    expected_objects_bounding_boxes = 17
+    assert len(df) == expected_objects_bounding_boxes+expected_keypoints_bounding_boxes_len
+
+    assert len(df[df["cls"] <= 30]) == expected_objects_bounding_boxes
+    assert len(df[df["cls"] > 30]) == expected_keypoints_bounding_boxes_len
+
+    actualFirstRow = df.iloc[0, 0:5].to_numpy()
+    expectedFirstRow = np.array([31.0, 1260.0/width, 432.0/height, 2*padding_x/width, 2*padding_y/height], dtype='float')
+    assert_array_equal(actualFirstRow, expectedFirstRow)
+
+    actualSecondRow = df.iloc[1, 0:5].to_numpy()
+    expectedSecondRow = np.array([32.0, 2568.0/width, 424.0/height, 2*padding_x/width, 2*padding_y/height], dtype='float')
+    assert_array_equal(actualSecondRow, expectedSecondRow)
+
+    # Verify that all values are scaled
+    assert len(df[(df["x"] < 0) | (df["x"] > 1.0)]) == 0
+    assert len(df[(df["y"] < 0) | (df["y"] > 1.0)]) == 0
+
 
 def test_convert_image_annotation_folder_nonexistent():
     prefix = "./src/tests/data/supervisely/sample_images_nonexistent"
@@ -115,7 +153,7 @@ def test_convert_single_image_annotation_file_to_pose_estimation():
 
     with open(metadata_file, 'r') as f:
         metadata = json.load(f)
-    df = sc.convert_single_image_annotation_file_to_pose_estimation(annotations, "machine_vs_condors_pool_006_0.jpg", meta_map=metadata)
+    df = sc.convert_single_image_annotation_file_to_pose_estimation(annotations, "machine_vs_condors_pool_006_0.jpg", meta_file=metadata)
 
     # Derived from the respective annotation json
     width = 3840.0

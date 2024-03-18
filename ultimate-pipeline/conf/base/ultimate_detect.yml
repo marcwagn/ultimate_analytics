@@ -2,13 +2,52 @@ datasets_dir: ../../data/processed
 # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
 path: . # dataset root dir
 train: ./ultimate_detect/images/train # train images; NB - YOLO convention expects that labels are placed in a path derived by replacing 'images' with 'labels'
-# TODO - create a separate folder for validation images and labels
 val: ./ultimate_detect/images/val # val images
 test: # test images (optional)
 
 # Classes
 names:
-  0: Player
-  1: Disc
-  2: Field
-  3: Referee
+  0: person
+  1: bicycle
+  2: car
+  3: motorcycle
+  4: airplane
+  5: bus
+  6: train
+  7: truck
+  8: boat
+  9: traffic light
+  10: fire hydrant
+  11: stop sign
+  12: parking meter
+  13: bench
+  14: bird
+  15: cat
+  16: dog
+  17: horse
+  18: sheep
+  19: cow
+  20: elephant
+  21: bear
+  22: zebra
+  23: giraffe
+  24: backpack
+  25: umbrella
+  26: handbag
+  27: tie
+  28: suitcase
+  29: frisbee
+  30: referee
+  31: TLC
+  32: TRC
+  33: TEC
+  34: TLF
+  35: TRF
+  36: TMB
+  37: C
+  38: BMB
+  39: BLF
+  40: BRF
+  41: BLC
+  42: BRC
+  43: BEC
