@@ -369,29 +369,6 @@ def convert_single_image_annotation_file_to_pose_estimation(
         idx += 1
     return pd.concat(datas)
 
-# def _convert_graph_keypoins_to_boxes(detected: dict, padding_x: int, padding_y: int, width: int, height: int) -> pd.DataFrame:
-#     class_id = detected["classId"]
-
-#     detected_nodes_filtered = { key: node for (key, node) in detected["nodes"].items() if key in graph_id_to_nodes[class_id] }
-#     detected_nodes = detected_nodes_filtered
-
-#     num_nodes = len(graph_id_to_nodes[class_id])
-#     bounding_boxes_in_graph = []
-#     # A matrix (num_classes * 3) of key points
-#     # Each row represents a triplet: (x, y, visibility), where x and y are scaled
-#     for i, node_key in enumerate(graph_id_to_nodes[class_id]):
-#         if node_key in detected_nodes:
-#             if "disabled" in detected_nodes[node_key]:
-#                 continue
-#             x_mid=detected_nodes[node_key]["loc"][0]
-#             y_mid=detected_nodes[node_key]["loc"][1]
-#             (x1, y1) = x_mid-padding_x, y_mid-padding_y
-#             (x2, y2) = x_mid+padding_x, y_mid+padding_y
-#             bbox = np.array([x1, y1, x2, y2], dtype='float')
-#             bbox_scaled = _xyxy2xywhn(bbox)
-#             bounding_boxes_in_graph(bbox_scaled)
-
-    
 def _xyxy2xywhn(x, w=640, h=640, clip=False, eps=0.0):
     """
     Convert bounding box coordinates from (x1, y1, x2, y2) format to (x, y, width, height, normalized) format. x, y,
