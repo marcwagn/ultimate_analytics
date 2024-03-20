@@ -1,0 +1,60 @@
+#+TITLE: Ultimate Frisbee Keypoints
+
+Notes on Ultimate Frisbee pitch keypoints
+
+* Ultimate Frisbee pitch
+See [[https://tactical-board.com/uk/ultimate-frisbee][Ultimate Frisbee tactical board]]
+
+** Keypoints
+| TLC |     | TRC |
+|     | TEC |     |
+| TLF |     | TRF |
+|     | TMB |     |
+|     | C   |     |
+|     | BMB |     |
+| BLF |     | BRF |
+|     | BEC |     |
+| BLC |     | BRC |
+
+*** Index sequence
+0. TLC
+1. TRC
+2. TEC
+3. TLF
+4. TRF
+5. TMB
+6. C
+7. BMB
+8. BLF
+9. BRF
+10. BLC
+11. BRC
+12. BEC
+
+*** Keypoints as indexes
+|  0 |    |  1 |
+|    |  2 |    |
+|  3 |    |  4 |
+|    |  5 |    |
+|    |  6 |    |
+|    |  7 |    |
+|  8 |    |  9 |
+|    | 12 |    |
+| 10 |    | 11 |
+
+** Keypoints rotated around the centre
+| BRF | BEC | BLF |
+|     | BMB |     |
+|     | C   |     |
+| TRF | TMB | TLF |
+| TRC | TEC | TLC |
+
+** Keypoints flipped around the middle axis
+| TRC | TEC | TLC |
+| TRF | TMB | TLF |
+|     | C   |     |
+|     | BMB |     |
+| BRF | BEC | BLF |
+
+*** References
+[[https://github.com/ultralytics/ultralytics/issues/2052][Ultralytics issue #2052]] - description of ~flip_idx~ element in YOLO dataset YAML
