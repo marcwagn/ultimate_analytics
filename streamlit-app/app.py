@@ -1,8 +1,8 @@
 import streamlit as st
-import cv2
-import tempfile
 import os
-from PIL import Image
+
+from src.video_object import VideoObject
+
 
 def main():
     st.set_page_config(page_title="Frisbee dashboard", layout="wide")
@@ -10,44 +10,41 @@ def main():
 
     with st.sidebar:
         st.title("Configuration")
+
         st.subheader("Video uploader")
-
         uploaded_video = st.file_uploader("Choose a video file", type=["mp4"])
-        track_bar = st.sidebar.progress(0.0,text="Progressbar for tracking")
-    
-    frame_count = 0
+        st.subheader("Model uploader")
+        uploaded_model = st.file_uploader("Choose a model file", type=["pt"])
 
-    if uploaded_video is not None:
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            temp_file.write(uploaded_video.read())
-            vf = cv2.VideoCapture(temp_file.name)
+    if uploaded_video is not None and uploaded_model is not None:
 
-            tmp_folder = tempfile.mkdtemp()
+        os.makedirs('data/videos', exist_ok=True)
+        os.makedirs('data/models', exist_ok=True)
 
-            while frame_count < 100:
-                ret, frame = vf.read()
+        video_path = f'data/videos/{uploaded_video.name}'
+        model_path = f'data/models/{uploaded_model.name}'
 
-                if not ret:
-                    break
-                
-                frame_path = os.path.join(tmp_folder, f"frame_{frame_count}.jpg")
-                print(frame_path)
-                cv2.imwrite(frame_path, frame) 
-                frame_count += 1
-
-                track_bar.progress(frame_count/100.0)
-
-            vf.release()
-
-    if frame_count == 100:
-        st.write("Video uploaded successfully")
-        frame_num = st.slider('Which frame should be shown', 0, 100, 1)
-        frame_path = os.path.join(tmp_folder, f"frame_{frame_num}.jpg")
-        st.image(frame_path, caption="Uploaded video", use_column_width=True)
+        if not os.path.exists(video_path):
+            with open(video_path, 'wb') as out_file:
+                out_file.write(uploaded_video.read())
         
-        
+        if not os.path.exists(model_path):
+            with open(model_path, 'wb') as out_file:
+                out_file.write(uploaded_model.read())
 
+        video_object = VideoObject(video_path)   
 
+        frame_idx = st.slider("Select Frame index", 
+                              min_value=0, 
+                              max_value=video_object.get_num_frames() - 1 , 
+                              value=50)
+
+        frame = video_object.get_frame(frame_idx)
+
+        col1, col2 = st.columns(2)
+
+        col1.image(frame[... , ::-1], caption="Original Frame")
+        col2.image(frame[... , ::-1], caption="Processed Frame")
 
 
 if __name__ == "__main__":
