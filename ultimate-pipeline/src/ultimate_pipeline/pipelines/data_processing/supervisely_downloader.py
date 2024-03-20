@@ -44,14 +44,16 @@ def helper_download_image_dataset_from_supervisely(params: t.Dict) -> t.Tuple[t.
 
     metadata = api.project.get_meta(params["project_id"])
 
-    image_info_list = api.image.get_list(params["dataset_id"])
-
     annotations_dict = {}
     images_dict = {}
 
-    for image in image_info_list:
-        image_name = Path(image.name).stem
-        images_dict[image_name] = partial(download_image, image, api)
-        annotations_dict[image.name] = partial(download_annotation, image, api)
+    for dataset_id in params["dataset_ids"]:
+        
+        image_info_list = api.image.get_list(dataset_id)
+
+        for image in image_info_list:
+            image_name = Path(image.name).stem
+            images_dict[image_name] = partial(download_image, image, api)
+            annotations_dict[image.name] = partial(download_annotation, image, api)
 
     return metadata, annotations_dict, images_dict
