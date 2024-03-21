@@ -2,6 +2,7 @@ import streamlit as st
 import os
 
 from src.video_object import VideoObject
+from src.model_detect import ModelDetect
 
 
 def main():
@@ -11,10 +12,14 @@ def main():
     with st.sidebar:
         st.title("Configuration")
 
+        predict_type = st.radio("What type of prediction would you like to see?",
+                                ["default", "team"],
+                                 captions=["Default YOLO [player,referee, disc]", "Team Detection [dark, bright]"])
+
         st.subheader("Video uploader")
         uploaded_video = st.file_uploader("Choose a video file", type=["mp4"])
         st.subheader("Model uploader")
-        uploaded_model = st.file_uploader("Choose a model file", type=["pt"])
+        uploaded_model = st.file_uploader("Choose a model file", type=None)
 
     if uploaded_video is not None and uploaded_model is not None:
 
@@ -32,19 +37,25 @@ def main():
             with open(model_path, 'wb') as out_file:
                 out_file.write(uploaded_model.read())
 
-        video_object = VideoObject(video_path)   
+        video_object = VideoObject(video_path)
+        model_detect = ModelDetect(model_path)   
 
         frame_idx = st.slider("Select Frame index", 
                               min_value=0, 
                               max_value=video_object.get_num_frames() - 1 , 
-                              value=50)
+                              value=0)
 
         frame = video_object.get_frame(frame_idx)
+
+        if predict_type == "default":
+            pred = model_detect.default_predict(frame)
+        elif predict_type == "team":
+            pred = model_detect.team_predict(frame)
 
         col1, col2 = st.columns(2)
 
         col1.image(frame[... , ::-1], caption="Original Frame")
-        col2.image(frame[... , ::-1], caption="Processed Frame")
+        col2.image(pred[... , ::-1], caption="Processed Frame")
 
 
 if __name__ == "__main__":
