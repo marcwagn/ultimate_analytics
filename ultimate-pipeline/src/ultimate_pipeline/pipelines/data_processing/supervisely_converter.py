@@ -191,6 +191,14 @@ def convert_single_image_annotation_to_detect_data(
             if node_key in detected_nodes:
                 if "disabled" in detected_nodes[node_key]:
                     continue
+
+                #class_idx = graph_id_to_idx[class_id]
+                # HACK - hardcoded index start
+                class_idx = 31 + i
+                # Cosmological constant :)
+                fudge_factor = 1.5 if class_idx >= 38 else 1.0
+                padding_x, padding_y = padding_x*fudge_factor, padding_y*fudge_factor
+
                 x_mid=detected_nodes[node_key]["loc"][0]
                 y_mid=detected_nodes[node_key]["loc"][1]
                 (x1, y1) = max(x_mid-padding_x, 0), max(y_mid-padding_y, 0)
@@ -198,9 +206,6 @@ def convert_single_image_annotation_to_detect_data(
                 box_arr = np.array([x1, y1, x2, y2], dtype='float')
                 box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
 
-                #class_idx = graph_id_to_idx[class_id]
-                # HACK - hardcoded index start
-                class_idx = 31 + i
 
                 yield class_idx, box_scaled, box_arr
 
