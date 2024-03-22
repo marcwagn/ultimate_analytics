@@ -58,15 +58,6 @@ class KeypointsExtractor:
 
     _candidate_clsid_pairs = np.array([line["cls_ids"] for _, line in _lines_to_keypoints_map.items()])
 
-    def get_number_of_keypoint_pairs(self, group: pd.DataFrame) -> int:
-        candidate_cls_df = self._filter_and_augment_with_keypoint_columns(group)
-        keypoint_counts = candidate_cls_df.groupby("keypoint_line")["cls"].aggregate("count")
-        return len(keypoint_counts[keypoint_counts >= 2])
-
-    def get_ratio_of_frames_with_fewer_than_2x2_keypoints(self, df: pd.DataFrame, n: int=2, conf_threshold=conf_threshold) -> float:
-        df_filtered = df.groupby('frame').filter(lambda g: self.get_number_of_keypoint_pairs(g) < n)
-        return len(df_filtered['frame'].unique())/len(df['frame'].unique())
-
     def get_4_best_keypoint_pairs(self, df: pd.DataFrame, frame_no: int) -> Union[KeypointQuad, None]:
         """
         Calculate 4 best keypoint pairs.
@@ -76,14 +67,12 @@ class KeypointsExtractor:
         """
         # Augment the data with additional keypoint-specific columns
         df_augmented = self._filter_and_augment_with_keypoint_columns(df)
-        # First, sort the keypoints by our preference (bottom-up, as those closer are more precise) and begin-or-end flag
-        #df_sorted = df_augmented.sort_values(by=["keypoint_line_pref", "keypoint_line_lr"], ascending=True)
         # Count the number of keypoints in each keypoint line group
         df_agg = df_augmented.groupby("keypoint_line").agg(count=("keypoint_line", "count")).reset_index()
         df_agg["keypoint_line_pref"] = df_agg["keypoint_line"].apply(lambda c: self._lines_to_keypoints_map[c]["pref"])
+        # Sort the keypoint lines by number of keypoints present and preference
         s_keypoints_by_count_and_pref = df_agg.sort_values(by=["count", "keypoint_line_pref"]).set_index("keypoint_line")["count"]
-        #s_keypoints_by_count = df_sorted.groupby("keypoint_line").aggregate("count").sort_values(by=["keypoint_line_pref", "keypoint_line_lr"])
-
+        
         # Sanity check - a situation with multiple keypoints instances of the same class may indicate a problem with the model
         if len(s_keypoints_by_count_and_pref[s_keypoints_by_count_and_pref >=3]) > 0:
             raise ValueError(f"Detected more than 3 keypoints of same type in frame {frame_no}")
