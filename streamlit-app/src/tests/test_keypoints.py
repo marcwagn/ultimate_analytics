@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from numpy.testing import assert_array_equal
-from src.keypoints_helper import get_4_best_keypoint_pairs
+from src.keypoints import KeypointsExtractor
 
 def _read_predictions_and_filter_keypoints(file_path: Path, is_tracking: bool=True, frame_no: int=0):
     columns=["cls", "x", "y", "w", "h", "conf", "id"] if is_tracking else ["cls", "x", "y", "w", "h", "conf"]
@@ -18,7 +18,8 @@ def test_get_4_best_keypoint_pairs_choose_TF_TC():
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1107.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
 
-    result = get_4_best_keypoint_pairs(df, frame_no=1107)
+    sut = KeypointsExtractor(0.6)
+    result = sut.get_4_best_keypoint_pairs(df, frame_no=1107)
     assert result is not None
     assert result.keypoint_line_keys is not None
     print(result.keypoint_line_keys)
@@ -42,7 +43,8 @@ def test_get_4_best_keypoint_pairs_choose_BF_TF():
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_2191.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
 
-    result = get_4_best_keypoint_pairs(df, frame_no=2191)
+    sut = KeypointsExtractor(0.6)
+    result = sut.get_4_best_keypoint_pairs(df, frame_no=2191)
     assert result is not None
     assert result.keypoint_line_keys is not None
     print(result.keypoint_line_keys)
@@ -67,7 +69,8 @@ def test_get_4_best_keypoint_pairs_not_enough_keypoints_and_no_fallback_possible
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1_not_enough_kp.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
 
-    result = get_4_best_keypoint_pairs(df, frame_no=1)
+    sut = KeypointsExtractor(0.6)
+    result = sut.get_4_best_keypoint_pairs(df, frame_no=1)
     assert result is None
 
 def test_get_4_best_keypoint_pairs_duplicate_keypoints():
@@ -75,6 +78,7 @@ def test_get_4_best_keypoint_pairs_duplicate_keypoints():
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1_duplicate.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
 
+    sut = KeypointsExtractor(0.6)
     with pytest.raises(ValueError, match="Detected more than 3 keypoints of same type in frame 1"):
-        get_4_best_keypoint_pairs(df, frame_no=1)
+        sut.get_4_best_keypoint_pairs(df, frame_no=1)
   
