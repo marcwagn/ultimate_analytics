@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 from src.video_object import VideoObject
-from src.model_detect import ModelDetect
+from src.image_handler import ImageHandler
 
 
 def main():
@@ -37,8 +37,7 @@ def main():
             with open(model_path, 'wb') as out_file:
                 out_file.write(uploaded_model.read())
 
-        video_object = VideoObject(video_path)
-        model_detect = ModelDetect(model_path)   
+        video_object = VideoObject(video_path)  
 
         frame_idx = st.slider("Select Frame index", 
                               min_value=0, 
@@ -47,10 +46,14 @@ def main():
 
         frame = video_object.get_frame(frame_idx)
 
+        frame_analyzer = ImageHandler(model_path, frame) 
+
+        default_prediction = frame_analyzer.predict()
+
         if predict_type == "default":
-            pred = model_detect.default_predict(frame)
+            pred = default_prediction
         elif predict_type == "team":
-            pred = model_detect.team_predict(frame)
+            pred = frame_analyzer.predict_teams()
 
         col1, col2 = st.columns(2)
 
