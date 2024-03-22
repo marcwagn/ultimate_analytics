@@ -1,0 +1,43 @@
+/* CSS files add styling rules to your content */
+
+body {
+    font-family: helvetica, arial, sans-serif;
+    margin: 2em;
+  }
+  
+#title {
+    font-style: italic;
+    color: black;
+    text-align: center;
+  }
+
+#videoUploader {
+    display: block;
+    margin: 20px auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #333;
+    font-size: 1em;
+  }
+
+#videoPlayer {
+    width: 50vw;
+    height: 50vh;
+    display: none;
+  }
+
+#dashboard {
+    display: flex;
+  }
+  
+  #videoPlayer, #tacticalBoard {
+    flex: 1;
+  }
+
+ #tacticalBoard {
+    background-color: black;
+    margin-left: 20px;
+    display: none;
+  }

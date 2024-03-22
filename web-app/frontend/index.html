@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>requestVideoFrameCallback Demo</title>
+    
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <script>if (location.protocol !== 'https:') { location.protocol = 'https:'; }</script>
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="./css/style.css" />
+    <!-- import the webpage's javascript file -->
+    <script src="./js/myscript.js" defer></script>
+
+  </head>
+
+  <body>
+    <h1 id="title">Ultimate Frisbee tactical dashboard</h1>
+
+    <input type="file" id="videoUploader" accept="video/*">
+    <progress id="progressBar" value="0" max="100"></progress>
+    
+    <div id="dashboard">
+        <video id="videoPlayer"  controls playsinline> </video>
+        <canvas id="tacticalBoard" > </canvas>
+    </div>
+
+    <!-- <p><span id="fps-info">0</span>fps</p>
+    <p><pre id="metadata-info"></pre></p> -->
+  </body>
+
+</html>
