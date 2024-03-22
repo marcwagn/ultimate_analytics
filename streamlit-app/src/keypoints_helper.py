@@ -34,19 +34,35 @@ def get_ratio_of_frames_with_fewer_than_2x2_keypoints(df: pd.DataFrame, n: int=2
     df_filtered = df.groupby('frame').filter(lambda g: get_number_of_keypoint_pairs(g) < n)
     return len(df_filtered['frame'].unique())/len(df['frame'].unique())
 
-class KeypointDetectionResult:
+class KeypointQuad:
     """
-    Initialize KeypointDetectionResult.
+    Contains information about 4 keypoints forming a quadrangle.
     Args:
         keypoint_line_keys (list[str]): list of keypoint line identifiers (e.g. "TC", "BF")
         keypoints (np.ndarray): an numpy array of shape (4,2) consisting of keypoint coordinates in YOLO normalized format
         keypoints_real_pitch_coords (np.ndarray): an numpy array of shape (4,2) consisting of coordinates of the real Ultimate pitch that correspond to keypoints
+        cls_ids (list[int]): a list of class ids identifying specific keypoints (length=4)
     """
-    def __init__(self, keypoint_line_keys: list[str], keypoints: np.ndarray):
-        self.keypoint_line_keys = keypoint_line_keys
-        self.keypoints = keypoints
+    def __init__(self, keypoint_line_keys: list[str], keypoints: np.ndarray, cls_ids: list[int]):
+        self._keypoint_line_keys = keypoint_line_keys
+        self._keypoints = keypoints
+        self._cls_ids = cls_ids
 
-def get_4_best_keypoint_pairs(df: pd.DataFrame, frame_no: int) -> Union[KeypointDetectionResult, None]:
+    """Keypoint line identifiers (e.g. "TC", "BF")"""
+    @property
+    def keypoint_line_keys(self):
+        return self._keypoint_line_keys
+    
+    """Keypoints as numpy array of shape (4,2)"""
+    @property
+    def keypoints(self):
+        return self._keypoints
+    
+    @property
+    def cls_ids(self):
+        return self._cls_ids
+
+def get_4_best_keypoint_pairs(df: pd.DataFrame, frame_no: int) -> Union[KeypointQuad, None]:
     """
     Calculate 4 best keypoint pairs.
     Args:
@@ -73,14 +89,19 @@ def get_4_best_keypoint_pairs(df: pd.DataFrame, frame_no: int) -> Union[Keypoint
         return None
     keypoint_line_keys_top_2 = list(s_at_least_2.keys())[0:2]
     keypoint_coords_list = []
+    keypoint_cls_ids = []
     for key in keypoint_line_keys_top_2:
         for clsid in lines_to_keypoints_map[key]["cls_ids"]:
             index_mask = df_augmented["cls"]==clsid
             coords = np.float32(df_augmented.loc[index_mask, "x":"y"]).squeeze()
             keypoint_coords_list.append(coords)
+            keypoint_cls_ids.append(clsid)
         #keypoints_real_pitch_coords_list.append(lines_to_keypoints_map[key]["real_pitch_coords"])
 
-    return KeypointDetectionResult(keypoint_line_keys=keypoint_line_keys_top_2, keypoints=np.stack(keypoint_coords_list))
+    return KeypointQuad(
+        keypoint_line_keys=keypoint_line_keys_top_2, 
+        keypoints=np.stack(keypoint_coords_list),
+        cls_ids=keypoint_cls_ids)
 
 def _filter_and_augment_with_keypoint_columns(df: pd.DataFrame) -> pd.DataFrame:
     """

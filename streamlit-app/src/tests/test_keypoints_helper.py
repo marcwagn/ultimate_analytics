@@ -27,13 +27,15 @@ def test_get_4_best_keypoint_pairs_choose_TF_TC():
     assert result.keypoints is not None
     assert isinstance(result.keypoints, np.ndarray)
     assert result.keypoints.shape == (4,2)
-    print(result.keypoints)
     expected_keypoints = np.float32([
         [0.152733, 0.375162],
         [0.825292, 0.372376],
         [0.230659, 0.288993],
         [0.753578, 0.285994]])
     assert_array_equal(result.keypoints, expected_keypoints)
+
+    assert result.cls_ids is not None
+    assert result.cls_ids == [34,35,31,32]
 
 def test_get_4_best_keypoint_pairs_choose_BF_TF():
     prefix = "./src/tests/data/tracking_set_1"
@@ -46,16 +48,19 @@ def test_get_4_best_keypoint_pairs_choose_BF_TF():
     print(result.keypoint_line_keys)
 
     assert result.keypoint_line_keys == ["BF", "TF"]
+
     assert result.keypoints is not None
     assert isinstance(result.keypoints, np.ndarray)
     assert result.keypoints.shape == (4,2)
-    print(result.keypoints)
     expected_keypoints = np.float32([
         [0.0338198, 0.615392],
         [0.933916, 0.615022],
         [0.323212, 0.236336],
         [0.734717, 0.235054]])
     assert_array_equal(result.keypoints, expected_keypoints)
+
+    assert result.cls_ids is not None
+    assert result.cls_ids == [39,40,34,35]
 
 def test_get_4_best_keypoint_pairs_not_enough_keypoints_and_no_fallback_possible():
     prefix = "./src/tests/data/tracking_set_1"
