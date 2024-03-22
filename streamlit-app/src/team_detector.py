@@ -1,15 +1,61 @@
-import typing as t
 import numpy as np
+import cv2
 
 from sklearn.cluster import KMeans
-from PIL import Image
 
+class TeamDetector:
+    def __init__(self, img: np.ndarray, detector_results: list) -> None:
+        """
+        Initialize the TeamDetector object.
+        Args:
+            img (np.ndarray): The input image.
+            detector_results (list['ultralytics.engine.results.Results']): 
+        Returns:
+            None
+        """
+        self.img = img
+        self.results = detector_results
+        self.player_info = []
+        for result in self.results:
+            for cls, box in zip(result.boxes.cls.tolist(), result.boxes.xyxy.tolist()):
+                if cls == 0:
+                    x1, y1, x2, y2 = map(int, box)
+                    cropped_img = cv2.resize(self.img[y1:y2, x1:x2], (128, 256))
+                    self.player_info.append({"img": cropped_img, "box": box})
 
-class TeamDetector():
-    def __init__(self) -> None:
-        pass
+    def predict_teams(self) -> np.ndarray:
+        """
+        Perform a team prediction on image.
 
-    def predict_teams(self, player_imgs: t.List[Image.Image]) -> t.List[int]:
+        Returns:
+            np.ndarray: The prediction results.
+        """
+            
+        player_imgs = self.get_player_images()
+        player_labels = self.predict_player_clusters(player_imgs)
+
+        team_img = np.copy(self.img)
+
+        for player, label in zip(self.player_info, player_labels):
+            box = player["box"]
+            if label == 0:
+                cv2.rectangle(team_img, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (0, 0, 0), 3)
+            if label == 1:
+                cv2.rectangle(team_img, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (255, 255, 255), 3)
+
+        return team_img
+
+    def get_player_images(self) -> list[np.ndarray]:
+        """
+        Get list of player images.
+
+        Returns:
+            List[Image.Image]: A list of player images.
+        """
+    
+        return [player["img"] for player in self.player_info]
+    
+    def predict_player_clusters(self, player_imgs: list[np.ndarray]) -> np.ndarray:
         """
         Predicts the team labels for a list of player images.
 
@@ -20,7 +66,7 @@ class TeamDetector():
             List[int]: A list of predicted team labels for each player image.
         """
          
-        player_imgs_format = np.array([np.array(img).flatten() for img in player_imgs])
+        player_imgs_format = np.array([img.flatten() for img in player_imgs])
 
         kmeans = KMeans(n_clusters=2)
         pred_labels_kmeans = kmeans.fit_predict(player_imgs_format)
@@ -50,13 +96,14 @@ class TeamDetector():
             class_1_selected_indices = np.where(samples_class_1)[0]
             class_0_selected_indices = np.where(samples_class_0)[0]
 
-        pred_labels = np.empty(len(self.player_imgs))
+        pred_labels = np.empty(len(player_imgs))
         pred_labels[class_1_selected_indices] = 1
         pred_labels[class_0_selected_indices] = 0
 
         return pred_labels.tolist()
-
-    def _select_n_closest_samples(class_id, class_indices, cluster_distances, n=7):
+    
+    @staticmethod
+    def _select_n_closest_samples(class_id, class_indices, cluster_distances, n):
         """
         Selects the n closest samples to the cluster center of the given class.
 
@@ -73,11 +120,3 @@ class TeamDetector():
         selected_indices = class_indices_sorted_by_distance[:n]
 
         return selected_indices
-
-
-if __name__ == "__main__":
-
-    from ultralytics import YOLO
-
-
-    

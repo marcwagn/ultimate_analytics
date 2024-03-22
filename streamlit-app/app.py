@@ -1,8 +1,10 @@
 import streamlit as st
 import os
 
+from ultralytics import YOLO
+
 from src.video_object import VideoObject
-from src.image_handler import ImageHandler
+from src.team_detector import TeamDetector
 
 
 def main():
@@ -46,14 +48,17 @@ def main():
 
         frame = video_object.get_frame(frame_idx)
 
-        frame_analyzer = ImageHandler(model_path, frame) 
+        object_detector = YOLO(model_path)
+        object_detector_results = object_detector.predict(frame)
 
-        default_prediction = frame_analyzer.predict()
+        team_detector = TeamDetector(frame, object_detector_results)
+
+        default_prediction = object_detector_results[0].plot()
 
         if predict_type == "default":
             pred = default_prediction
         elif predict_type == "team":
-            pred = frame_analyzer.predict_teams()
+            pred = team_detector.predict_teams()
 
         col1, col2 = st.columns(2)
 
