@@ -27,7 +27,6 @@ body {
     font-size: 3em;
   }
 
-
 /* CSS for the video uploader and progress bar */
 
 #progressbar {
@@ -55,15 +54,20 @@ body {
 
 #video-container, #controls-container {
   display: flex;
-  flex: 1;
   height: 100%;
+}
+#video-container, #controls-container {
+  width: 45%;
   align-items: center;
   justify-content: center; 
 }
-  
+
+/* format video player left side */ 
 #videoplayer {
   width: 100%;
 }
+
+/* format tacticalboard and drawable on right side */
 
 #tacticalboard {
   display: flex;
@@ -72,5 +76,52 @@ body {
   background-color: white;
   height: 700px;
   width: 500px;
-  
+}
+#drawable{
+  position: absolute;
+  height: 700px;
+  width: 500px;
+}
+ /* format toolbar */
+
+#toolbar {
+  display: inline-flex;
+  flex-direction: column;
+  padding: 5px;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(133, 132, 132, 0.575);
+  border-radius: 10px;
+  border: 2px solid rgba(56, 56, 56, 0.575);  
+}
+
+#tools {
+  display: flex;
+  flex-direction: column;
+  width: 70px;
+  align-items: center;
+}
+
+#toolbar * {
+  margin-bottom: 6px;
+}
+
+#toolbar label {
+  font-size: 13px;
+}
+
+#toolbar input {
+  width: 100%;
+}
+
+#toolbar button {
+  background-color: #1565c0;
+  border: none;
+  border-radius: 4px;
+  color:white;
+  padding: 2px;
+}
+
+.hidden {
+  visibility: hidden;
 }

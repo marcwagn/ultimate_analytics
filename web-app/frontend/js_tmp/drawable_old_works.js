@@ -53,26 +53,13 @@ function sketch(event){
 if (!paint) return; 
 drawable_ctx.beginPath(); 
 
-toolbar.addEventListener('click', e => {
-    if (e.target.id === 'clear') {
-        drawable_ctx.clearRect(0, 0, drawable_ctx.canvas.width, drawable_ctx.canvas.height);
-    }
-});
-
-toolbar.addEventListener('change', e => {
-    if(e.target.id === 'stroke') {
-        drawable_ctx.strokeStyle = e.target.value;
-    }
-
-    if(e.target.id === 'lineWidth') {
-        drawable_ctx.lineWidth = e.target.value;
-    }
-    
-});
+drawable_ctx.lineWidth = 5; 
 
 // Sets the end of the lines drawn 
 // to a round shape. 
 drawable_ctx.lineCap = 'round'; 
+	
+drawable_ctx.strokeStyle = 'green'; 
 	
 // The cursor to start drawing 
 // moves to this coordinate 

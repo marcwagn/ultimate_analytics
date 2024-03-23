@@ -26,9 +26,9 @@ const startDrawing = () => {
         video.src = url;
         video.style.display = 'block';
 
-        //display drawable
-        
-        //drawable.style.display = 'block';
+        //show hidden elements
+        document.getElementById('dashboard-container').classList.remove('hidden');
+
 
         let width = tacticalBoard.width;
         let height = tacticalBoard.height;
