@@ -1,9 +1,6 @@
 import cv2
 import numpy as np
-#from enum import Enum
 from src.keypoints import KeypointQuad
-
-#class CoordinatesType
 
 keypoints_to_known_coordinates_map = {
     31: dict(real_pitch=np.float32([0,0])),
