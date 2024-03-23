@@ -22,6 +22,12 @@ def upload_file():
     video_path = os.path.join(temp_dir, file.filename)
 
     file.save(video_path)
+
+    #web worker [async]
+    # scedule a task to process the video
+    # 1. pulling approach [client ask server for the status of the video processing] 
+    # 2. demo for websocket [duplex communication]
+
     print(f'File saved at {video_path}')
 
     return jsonify({'message': 'File uploaded successfully'}), 200

@@ -13,23 +13,32 @@
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="./css/style.css" />
     <!-- import the webpage's javascript file -->
-    <script src="./js/myscript.js" defer></script>
+    <script src="./js/video_display.js" defer></script>
+    <!-- <script src="./js/drawable.js" defer></script> -->
 
   </head>
 
   <body>
-    <h1 id="title">Ultimate Frisbee tactical dashboard</h1>
-
-    <input type="file" id="videoUploader" accept="video/*">
-    <progress id="progressBar" value="0" max="100"></progress>
+    <div id="header-container">
+      <h1 id="title">Ultimate Frisbee tactical dashboard</h1>
     
-    <div id="dashboard">
-        <video id="videoPlayer"  controls playsinline> </video>
-        <canvas id="tacticalBoard" > </canvas>
+      <div id="upload-container">
+        <input type="file"  id="video-uploader" accept="video/*" />
+        <progress id="progressbar" value="0" max="100"></progress>
+      </div>
+    </div>
+    
+    
+    <div id="dashboard-container">
+      <div id="video-container">
+        <video id="videoplayer"  controls playsinline> </video>
+      </div>
+      <div id="controls-container">
+        <canvas id="tacticalboard" > </canvas> 
+        <!-- <canvas id="drawable"></canvas> -->
+      </div>
     </div>
 
-    <!-- <p><span id="fps-info">0</span>fps</p>
-    <p><pre id="metadata-info"></pre></p> -->
   </body>
 
 </html>
