@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
+from .config import create_app
+
 import os
 import tempfile
 
-app = Flask(__name__)
+app = create_app()
 CORS(app)
 
 @app.route('/')

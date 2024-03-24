@@ -1,92 +1,58 @@
-// wait for the content of the window element 
-// to load, then performs the operations. 
-// This is considered best practice. 
-window.addEventListener('load', ()=>{ 
-		
-	resize(); // Resizes the drawable once the window loads 
-	document.addEventListener('mousedown', startPainting); 
-	document.addEventListener('mouseup', stopPainting); 
-	document.addEventListener('mousemove', sketch); 
-	//window.addEventListener('resize', resize); 
-}); 
-	
-const drawable = document.querySelector('#drawable'); 
-// Context for the drawable for 2 dimensional operations 
-const drawable_ctx = drawable.getContext('2d'); 
+const canvas = document.getElementById('drawable');
 const toolbar = document.getElementById('toolbar');
+const ctx = canvas.getContext('2d');
 
+const canvasOffsetX = canvas.offsetLeft;
+const canvasOffsetY = canvas.offsetTop;
 
+let style = getComputedStyle(drawable);
+ctx.canvas.width = parseInt(style.width);
+ctx.canvas.height = parseInt(style.height); 
 
-// Resizes the drawable to the available size of the window. 
-function resize(){ 
-    let style = getComputedStyle(drawable);
-    drawable_ctx.canvas.width = parseInt(style.width);
-    drawable_ctx.canvas.height = parseInt(style.height); 
-} 
-	
-// Stores the initial position of the cursor 
-let coord = {x:0 , y:0}; 
-
-// This is the flag that we are going to use to 
-// trigger drawing 
-let paint = false; 
-	
-// Updates the coordianates of the cursor when 
-// an event e is triggered to the coordinates where 
-// the said event is triggered. 
-function getPosition(event){ 
-    coord.x = event.clientX - drawable.offsetLeft; 
-    coord.y = event.clientY - drawable.offsetTop; 
-} 
-
-// The following functions toggle the flag to start 
-// and stop drawing 
-function startPainting(event){ 
-    paint = true; 
-    getPosition(event); 
-} 
-function stopPainting(){ 
-    paint = false; 
-} 
-	
-function sketch(event){ 
-if (!paint) return; 
-drawable_ctx.beginPath(); 
+let isPainting = false;
+let lineWidth = 5;
+let startX;
+let startY;
 
 toolbar.addEventListener('click', e => {
     if (e.target.id === 'clear') {
-        drawable_ctx.clearRect(0, 0, drawable_ctx.canvas.width, drawable_ctx.canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 });
 
 toolbar.addEventListener('change', e => {
     if(e.target.id === 'stroke') {
-        drawable_ctx.strokeStyle = e.target.value;
+        ctx.strokeStyle = e.target.value;
     }
 
     if(e.target.id === 'lineWidth') {
-        drawable_ctx.lineWidth = e.target.value;
+        lineWidth = e.target.value;
     }
     
 });
 
-// Sets the end of the lines drawn 
-// to a round shape. 
-drawable_ctx.lineCap = 'round'; 
-	
-// The cursor to start drawing 
-// moves to this coordinate 
-drawable_ctx.moveTo(coord.x, coord.y); 
+const draw = (e) => {
+    if(!isPainting) {
+        return;
+    }
 
-// The position of the cursor 
-// gets updated as we move the 
-// mouse around. 
-getPosition(event); 
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
 
-// A line is traced from start 
-// coordinate to this coordinate 
-drawable_ctx.lineTo(coord.x , coord.y); 
-	
-// Draws the line. 
-drawable_ctx.stroke(); 
+    ctx.lineTo(e.clientX - canvasOffsetX, e.clientY - canvasOffsetY);
+    ctx.stroke();
 }
+
+canvas.addEventListener('mousedown', (e) => {
+    isPainting = true;
+    startX = e.clientX;
+    startY = e.clientY;
+});
+
+canvas.addEventListener('mouseup', e => {
+    isPainting = false;
+    ctx.stroke();
+    ctx.beginPath();
+});
+
+canvas.addEventListener('mousemove', draw);
