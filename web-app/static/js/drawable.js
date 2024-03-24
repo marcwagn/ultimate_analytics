@@ -2,8 +2,8 @@ const canvas = document.getElementById('drawable');
 const toolbar = document.getElementById('toolbar');
 const ctx = canvas.getContext('2d');
 
-const canvasOffsetX = canvas.offsetLeft;
-const canvasOffsetY = canvas.offsetTop;
+canvasOffsetX = canvas.offsetLeft;
+canvasOffsetY = canvas.offsetTop;
 
 let style = getComputedStyle(drawable);
 ctx.canvas.width = parseInt(style.width);
@@ -13,6 +13,17 @@ let isPainting = false;
 let lineWidth = 5;
 let startX;
 let startY;
+
+window.addEventListener('resize', resize);
+
+function resize(){ 
+    let style = getComputedStyle(drawable);
+    ctx.canvas.width = parseInt(style.width);
+    ctx.canvas.height = parseInt(style.height);
+
+    canvasOffsetX = canvas.offsetLeft;
+    canvasOffsetY = canvas.offsetTop;
+} 
 
 toolbar.addEventListener('click', e => {
     if (e.target.id === 'clear') {
