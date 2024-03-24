@@ -11,10 +11,11 @@
     <script>if (location.protocol !== 'https:') { location.protocol = 'https:'; }</script>
 
     <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
+
     <!-- import the webpage's javascript file -->
-    <script src="./js/video_display.js" defer></script>
-    <script src="./js/drawable.js" defer></script>
+    <script src="{{url_for('static', filename='js/video_display.js')}}" defer></script>
+    <script src="{{url_for('static', filename='js/drawable.js')}}" defer></script>
 
   </head>
 

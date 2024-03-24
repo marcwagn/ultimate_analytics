@@ -14,9 +14,10 @@ const startDrawing = () => {
         var formData = new FormData();
         formData.append('file', file);
 
-        fetch('http://localhost:5000/upload', {
-          method: 'POST',
-          body: formData
+        fetch('https://localhost:5000/upload', {
+            mode: "cors",
+            method: 'POST',
+            body: formData
       })
       .then(response => response.json())
       .then(data => console.log(data.message))

@@ -1,17 +1,18 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import render_template
 
-from .config import create_app
+from flask_cors import CORS
+#from .config import create_app
 
 import os
 import tempfile
 
-app = create_app()
+app = Flask(__name__)
 CORS(app)
 
-@app.route('/')
-def home():
-    return "Server is running!!"
+@app.route("/")
+def index() -> str:
+    return render_template("index.html")
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -35,4 +36,4 @@ def upload_file():
     return jsonify({'message': 'File uploaded successfully'}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, ssl_context='adhoc')
