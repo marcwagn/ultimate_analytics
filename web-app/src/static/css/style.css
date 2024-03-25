@@ -29,19 +29,30 @@ body {
 
 /* CSS for the video uploader and progress bar */
 
-#progressbar {
-  margin: 20px ;
-}
-
 #upload-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
   background-color: rgba(235, 144, 148, 0.5);
 }
-#video-uploader {
-  font-size: 1.1em;
+
+#video-upload-form, #progressbar {
+  width: 30%;
+}
+
+#video-upload-form  {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+#progressbar {
+  margin-top: 20px ;
+  margin-bottom: 20px;
+  accent-color: black;
 }
 
 /* CSS for the video player and drawable canvas */

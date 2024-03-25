@@ -3,9 +3,14 @@ const taskForm = (formName, doPoll, report) => {
       event.preventDefault()
 
       const fileInput = document.querySelector('input[type="file"]');
+      const video = document.querySelector("#videoplayer");
       
       const formData = new FormData(event.target)
       formData.append('file', fileInput.files[0]);
+
+      var url = URL.createObjectURL(fileInput.files[0]);
+      video.src = url;
+      video.style.display = 'block';
 
       fetch(event.target.action, {
         method: "POST",
@@ -37,16 +42,18 @@ const taskForm = (formName, doPoll, report) => {
   }
 
   taskForm("video-upload-form", true, data => {
-    const el = document.getElementById("process-result")
+    const progressbar = document.getElementById("progressbar")
 
     if (data === null) {
-      el.innerText = "submitted"
+      console.log("uploading...")
     } else if (!data["ready"]) {
-      el.innerText = `${data["value"]["current"]} / ${data["value"]["total"]}`
+      progressbar.value = data["value"]["status"]
     } else if (!data["successful"]) {
-      el.innerText = "error, check console"
+      console.log("error, check console")
     } else {
-      el.innerText = "✅ done"
+      progressbar.value = 1;
+      document.getElementById('dashboard-container').classList.remove('hidden')
+
     }
     console.log(data)
   })

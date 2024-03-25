@@ -32,6 +32,6 @@ def upload():
     file.save(video_path)
     print(f"File samed to {video_path}")
 
-    result = tasks.upload.delay(video_path=video_path)
+    result = tasks.video_analysis.delay(video_path=video_path)
 
     return {"result_id": result.id}
