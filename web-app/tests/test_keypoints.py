@@ -9,14 +9,12 @@ def _read_predictions_and_filter_keypoints(file_path: Path, is_tracking: bool=Tr
     df = pd.read_csv(file_path, sep=" ", header=None, names=columns)
     df["frame"] = frame_no
     df["filename"] = file_path.stem
-    keypoints_df = df[df["cls"] >= 31]
-    return keypoints_df
+    return df
 
 def test_get_4_best_keypoint_pairs_choose_TF_TC():
     prefix = "./tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1107.txt"
-    df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
-    df["frame"] = 1107
+    df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True, frame_no=1107)
 
     sut = KeypointsExtractor(df, 0.6)
     result = sut.get_4_best_keypoint_pairs(frame_no=1107)
@@ -41,8 +39,7 @@ def test_get_4_best_keypoint_pairs_choose_TF_TC():
 def test_get_4_best_keypoint_pairs_choose_BF_TF():
     prefix = "./tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_2191.txt"
-    df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
-    df["frame"] = 2191
+    df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True, frame_no=2191)
 
     sut = KeypointsExtractor(df, 0.6)
     result = sut.get_4_best_keypoint_pairs(frame_no=2191)
@@ -68,8 +65,7 @@ def test_get_4_best_keypoint_pairs_choose_BF_TF():
 def test_get_4_best_keypoint_pairs_not_enough_keypoints_and_no_fallback_possible():
     prefix = "./tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1_not_enough_kp.txt"
-    df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
-    df["frame"] = 1
+    df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True, frame_no=1)
 
     sut = KeypointsExtractor(df, 0.6)
     result = sut.get_4_best_keypoint_pairs(frame_no=1)
@@ -78,8 +74,7 @@ def test_get_4_best_keypoint_pairs_not_enough_keypoints_and_no_fallback_possible
 def test_get_4_best_keypoint_pairs_duplicate_keypoints():
     prefix = "./tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_108_duplicate.txt"
-    df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
-    df["frame"] = 108
+    df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True, frame_no=108)
 
     sut = KeypointsExtractor(df, 0.6)
     result = sut.get_4_best_keypoint_pairs(108)
@@ -89,14 +84,11 @@ def test_get_4_best_keypoint_pairs_duplicate_keypoints():
 def test_get_4_best_keypoint_pairs_only_one_keypoint_but_fallback_to_previous_frames_possible():
     prefix = "./tests/data/tracking_set_1"
     file_path296 = Path(prefix)/"pony_vs_the_killjoys_pool_004_296_only_one_kp.txt"
-    df296 = _read_predictions_and_filter_keypoints(file_path296, is_tracking=True)
-    df296["frame"] = 296
+    df296 = _read_predictions_and_filter_keypoints(file_path296, is_tracking=True, frame_no=296)
     file_path295 = Path(prefix)/"pony_vs_the_killjoys_pool_004_295_not_enough_with_fallback.txt"
-    df295 = _read_predictions_and_filter_keypoints(file_path295, is_tracking=True)
-    df295["frame"] = 295
+    df295 = _read_predictions_and_filter_keypoints(file_path295, is_tracking=True, frame_no=295)
     file_path294 = Path(prefix)/"pony_vs_the_killjoys_pool_004_294.txt"
-    df294 = _read_predictions_and_filter_keypoints(file_path294, is_tracking=True)
-    df294["frame"] = 294
+    df294 = _read_predictions_and_filter_keypoints(file_path294, is_tracking=True, frame_no=294)
     df = pd.concat([df294, df295, df296])
 
     sut = KeypointsExtractor(df, 0.6)
@@ -121,11 +113,9 @@ def test_get_4_best_keypoint_pairs_only_one_keypoint_but_fallback_to_previous_fr
 def test_get_4_best_keypoint_pairs_not_enough_keypoints_but_fallback_to_previous_frames_possible():
     prefix = "./tests/data/tracking_set_1"
     file_path295 = Path(prefix)/"pony_vs_the_killjoys_pool_004_295_not_enough_with_fallback.txt"
-    df295 = _read_predictions_and_filter_keypoints(file_path295, is_tracking=True)
-    df295["frame"] = 295
+    df295 = _read_predictions_and_filter_keypoints(file_path295, is_tracking=True, frame_no=295)
     file_path294 = Path(prefix)/"pony_vs_the_killjoys_pool_004_294.txt"
-    df294 = _read_predictions_and_filter_keypoints(file_path294, is_tracking=True)
-    df294["frame"] = 294
+    df294 = _read_predictions_and_filter_keypoints(file_path294, is_tracking=True, frame_no=294)
     df = pd.concat([df294, df295])
 
     sut = KeypointsExtractor(df, 0.6)
