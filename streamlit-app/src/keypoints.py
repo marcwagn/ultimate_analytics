@@ -40,6 +40,7 @@ class KeypointsExtractor:
     def __init__(self, all_frames_df: pd.DataFrame, conf_threshold:float=0.6, max_lookback:int=15):
         self._conf_threshold = conf_threshold
         self._max_lookback = max_lookback
+        # Filter and augment the prediction data with additional keypoint-specific columns
         self._all_frames_augmented_df = self._filter_and_augment_with_keypoint_columns(all_frames_df)
 
     @property 
@@ -70,23 +71,29 @@ class KeypointsExtractor:
 
     _candidate_clsid_pairs = np.array([line["cls_ids"] for _, line in _lines_to_keypoints_map.items()])
 
-    # def _get_keypoints_from_previous(self, requested_cls_ids: list[int], frame_no: int) -> np.ndarray:
-    #     # Assumption: df is already augmented
-    #     df = self._all_frames_df
-    #     filtered_df = df[(df["cls"].isin(requested_cls_ids)) & ((frame_no - self.max_lookback) < df["frame"] < frame_no) & (df["conf"] > self.conf_threshold)]
-    #     #filtered_df
-
     def get_4_best_keypoint_pairs(self, frame_no: int) -> Union[KeypointQuad, None]:
         """
         Calculate 4 best keypoint pairs.
         Args:
-            df (pd.DataFrame): DataFrame containing prediction data for a single image/video frame
             frame_no (int): image/video frame number
         """
-        # Augment the data with additional keypoint-specific columns
-        df_augmented = self._all_frames_augmented_df[self._all_frames_augmented_df["frame"]==frame_no]
+        # No eligible lines forming the 4 corner keypoints were found. Try to look back.
+        for frame_to_look in range(frame_no, frame_no-self.max_lookback, -1):
+            df = self._all_frames_augmented_df[self._all_frames_augmented_df["frame"]==frame_to_look]
+            result = self._get_4_best_keypoint_pairs_internal(df, frame_no=frame_to_look)
+            if result is not None:
+                return result
+
+
+    def _get_4_best_keypoint_pairs_internal(self, df: pd.DataFrame, frame_no: int) -> Union[KeypointQuad, None]:
+        """
+        Calculate 4 best keypoint pairs.
+        Args:
+            df (pd.DataFrame): DataFrame containing prediction data for a single image/video frame (possibly augmented)
+            frame_no (int): image/video frame number
+        """
         # Count the number of keypoints in each keypoint line group
-        df_agg = df_augmented.groupby("keypoint_line").agg(count=("keypoint_line", "count")).reset_index()
+        df_agg = df.groupby("keypoint_line").agg(count=("keypoint_line", "count")).reset_index()
         df_agg["keypoint_line_pref"] = df_agg["keypoint_line"].apply(lambda c: self._lines_to_keypoints_map[c]["pref"])
         # Sort the keypoint lines by number of keypoints present and preference
         s_keypoints_by_count_and_pref = df_agg.sort_values(by=["count", "keypoint_line_pref"]).set_index("keypoint_line")["count"]
@@ -100,14 +107,18 @@ class KeypointsExtractor:
             # Not enough keypoint candidates
             # Found 0 eligible lines - run the whole algorith on the previous dataframe
             # Found 1 eligible line - find 1 or 2 missing keypoints in previous dataframes
+            # have_line = s_keypoints_by_count_and_pref[0,"keypoint_line"]
+            # requested_keypoints = self._lines_to_keypoints_map[have_line]["cls_ids"]
+            # _get_keypoints_from_previous(requested_keypoints)
             return None
         keypoint_line_keys_top_2 = list(s_at_least_2.keys())[0:2]
         keypoint_coords_list = []
         keypoint_cls_ids = []
         for key in keypoint_line_keys_top_2:
             for clsid in self._lines_to_keypoints_map[key]["cls_ids"]:
-                index_mask = df_augmented["cls"]==clsid
-                coords = np.float32(df_augmented.loc[index_mask, "x":"y"]).squeeze()
+                # NB - the assumption is that there's only 1 cls in a given dataframe for a single frame
+                index_mask = df["cls"]==clsid
+                coords = np.float32(df.loc[index_mask, "x":"y"]).squeeze()
                 keypoint_coords_list.append(coords)
                 keypoint_cls_ids.append(clsid)
 

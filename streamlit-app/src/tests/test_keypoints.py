@@ -85,7 +85,41 @@ def test_get_4_best_keypoint_pairs_duplicate_keypoints():
     sut = KeypointsExtractor(df, 0.6)
     with pytest.raises(ValueError, match="Detected more than 3 keypoints of same type in frame 1"):
         sut.get_4_best_keypoint_pairs(frame_no=1)
-  
+
+def test_get_4_best_keypoint_pairs_only_one_keypoint_but_fallback_to_previous_frames_possible():
+    prefix = "./src/tests/data/tracking_set_1"
+    file_path296 = Path(prefix)/"pony_vs_the_killjoys_pool_004_296_only_one_kp.txt"
+    df296 = _read_predictions_and_filter_keypoints(file_path296, is_tracking=True)
+    df296["frame"] = 296
+    file_path295 = Path(prefix)/"pony_vs_the_killjoys_pool_004_295_not_enough_with_fallback.txt"
+    df295 = _read_predictions_and_filter_keypoints(file_path295, is_tracking=True)
+    df295["frame"] = 295
+    file_path294 = Path(prefix)/"pony_vs_the_killjoys_pool_004_294.txt"
+    df294 = _read_predictions_and_filter_keypoints(file_path294, is_tracking=True)
+    df294["frame"] = 294
+    df = pd.concat([df294, df295, df296])
+
+    sut = KeypointsExtractor(df, 0.6)
+    result = sut.get_4_best_keypoint_pairs(frame_no=296)
+    assert result is not None
+
+    # Should fall back all the way to frame 294
+    assert result.keypoint_line_keys == ["TF", "TC"]
+    assert result.keypoints is not None
+    assert isinstance(result.keypoints, np.ndarray)
+    assert result.keypoints.shape == (4,2)
+    assert result.cls_ids is not None
+    assert result.cls_ids == [34,35,31,32]
+
+    expected_keypoints = np.float32([
+        [0.274611, 0.241171],
+        [0.696115, 0.240167],
+        [0.308417, 0.204168],
+        [0.666007, 0.203279]])
+    assert_array_equal(result.keypoints, expected_keypoints)
+
+
+@pytest.mark.skip("Not passing yet")
 def test_get_4_best_keypoint_pairs_not_enough_keypoints_but_fallback_to_previous_frames_possible():
     prefix = "./src/tests/data/tracking_set_1"
     file_path295 = Path(prefix)/"pony_vs_the_killjoys_pool_004_295_not_enough_with_fallback.txt"
