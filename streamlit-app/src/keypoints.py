@@ -30,12 +30,25 @@ class KeypointQuad:
         return self._cls_ids
 
 class KeypointsExtractor:
-    def __init__(self, conf_threshold:float):
+    """
+    Initialize KeypointsExtractor.
+    Args:
+        all_frames_df (pd.DataFrame): DataFrame with keypoint predictions for all video frames/images
+        conf_threshold (float): confidence threshold to recognize a keypoint as valid
+        max_lookback (int): how many video frames/images to look back if we don't have enough keypoints in current frame
+    """
+    def __init__(self, all_frames_df: pd.DataFrame, conf_threshold:float=0.6, max_lookback:int=15):
         self._conf_threshold = conf_threshold
+        self._max_lookback = max_lookback
+        self._all_frames_augmented_df = self._filter_and_augment_with_keypoint_columns(all_frames_df)
 
     @property 
     def conf_threshold(self):
         return self._conf_threshold
+    
+    @property 
+    def max_lookback(self):
+        return self._max_lookback
 
     _keypoints_to_lines_map = {
         31: dict(name="TLC", line="TC", lr=0, pref=3),
@@ -57,7 +70,13 @@ class KeypointsExtractor:
 
     _candidate_clsid_pairs = np.array([line["cls_ids"] for _, line in _lines_to_keypoints_map.items()])
 
-    def get_4_best_keypoint_pairs(self, df: pd.DataFrame, frame_no: int) -> Union[KeypointQuad, None]:
+    # def _get_keypoints_from_previous(self, requested_cls_ids: list[int], frame_no: int) -> np.ndarray:
+    #     # Assumption: df is already augmented
+    #     df = self._all_frames_df
+    #     filtered_df = df[(df["cls"].isin(requested_cls_ids)) & ((frame_no - self.max_lookback) < df["frame"] < frame_no) & (df["conf"] > self.conf_threshold)]
+    #     #filtered_df
+
+    def get_4_best_keypoint_pairs(self, frame_no: int) -> Union[KeypointQuad, None]:
         """
         Calculate 4 best keypoint pairs.
         Args:
@@ -65,7 +84,7 @@ class KeypointsExtractor:
             frame_no (int): image/video frame number
         """
         # Augment the data with additional keypoint-specific columns
-        df_augmented = self._filter_and_augment_with_keypoint_columns(df)
+        df_augmented = self._all_frames_augmented_df[self._all_frames_augmented_df["frame"]==frame_no]
         # Count the number of keypoints in each keypoint line group
         df_agg = df_augmented.groupby("keypoint_line").agg(count=("keypoint_line", "count")).reset_index()
         df_agg["keypoint_line_pref"] = df_agg["keypoint_line"].apply(lambda c: self._lines_to_keypoints_map[c]["pref"])
@@ -79,6 +98,8 @@ class KeypointsExtractor:
         s_at_least_2 = s_keypoints_by_count_and_pref[s_keypoints_by_count_and_pref == 2]
         if len(s_at_least_2) < 2:
             # Not enough keypoint candidates
+            # Found 0 eligible lines - run the whole algorith on the previous dataframe
+            # Found 1 eligible line - find 1 or 2 missing keypoints in previous dataframes
             return None
         keypoint_line_keys_top_2 = list(s_at_least_2.keys())[0:2]
         keypoint_coords_list = []

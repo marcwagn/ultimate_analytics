@@ -17,9 +17,10 @@ def test_get_4_best_keypoint_pairs_choose_TF_TC():
     prefix = "./src/tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1107.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
+    df["frame"] = 1107
 
-    sut = KeypointsExtractor(0.6)
-    result = sut.get_4_best_keypoint_pairs(df, frame_no=1107)
+    sut = KeypointsExtractor(df, 0.6)
+    result = sut.get_4_best_keypoint_pairs(frame_no=1107)
     assert result is not None
     assert result.keypoint_line_keys is not None
     print(result.keypoint_line_keys)
@@ -42,9 +43,10 @@ def test_get_4_best_keypoint_pairs_choose_BF_TF():
     prefix = "./src/tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_2191.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
+    df["frame"] = 2191
 
-    sut = KeypointsExtractor(0.6)
-    result = sut.get_4_best_keypoint_pairs(df, frame_no=2191)
+    sut = KeypointsExtractor(df, 0.6)
+    result = sut.get_4_best_keypoint_pairs(frame_no=2191)
     assert result is not None
     assert result.keypoint_line_keys is not None
     print(result.keypoint_line_keys)
@@ -68,17 +70,32 @@ def test_get_4_best_keypoint_pairs_not_enough_keypoints_and_no_fallback_possible
     prefix = "./src/tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1_not_enough_kp.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
+    df["frame"] = 1
 
-    sut = KeypointsExtractor(0.6)
-    result = sut.get_4_best_keypoint_pairs(df, frame_no=1)
+    sut = KeypointsExtractor(df, 0.6)
+    result = sut.get_4_best_keypoint_pairs(frame_no=1)
     assert result is None
 
 def test_get_4_best_keypoint_pairs_duplicate_keypoints():
     prefix = "./src/tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1_duplicate.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
+    df["frame"] = 1
 
-    sut = KeypointsExtractor(0.6)
+    sut = KeypointsExtractor(df, 0.6)
     with pytest.raises(ValueError, match="Detected more than 3 keypoints of same type in frame 1"):
-        sut.get_4_best_keypoint_pairs(df, frame_no=1)
+        sut.get_4_best_keypoint_pairs(frame_no=1)
   
+def test_get_4_best_keypoint_pairs_not_enough_keypoints_but_fallback_to_previous_frames_possible():
+    prefix = "./src/tests/data/tracking_set_1"
+    file_path295 = Path(prefix)/"pony_vs_the_killjoys_pool_004_295_not_enough_with_fallback.txt"
+    df295 = _read_predictions_and_filter_keypoints(file_path295, is_tracking=True)
+    df295["frame"] = 295
+    file_path294 = Path(prefix)/"pony_vs_the_killjoys_pool_004_294.txt"
+    df294 = _read_predictions_and_filter_keypoints(file_path294, is_tracking=True)
+    df294["frame"] = 294
+    df = pd.concat([df294, df295])
+
+    sut = KeypointsExtractor(df, 0.6)
+    result = sut.get_4_best_keypoint_pairs(frame_no=295)
+    assert result is not None
