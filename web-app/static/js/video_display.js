@@ -14,7 +14,7 @@ const startDrawing = () => {
         var formData = new FormData();
         formData.append('file', file);
 
-        fetch('https://localhost:5000/upload', {
+        fetch('{{ url_for("tasks.upload") }}', {
             mode: "cors",
             method: 'POST',
             body: formData

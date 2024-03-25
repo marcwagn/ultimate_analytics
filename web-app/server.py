@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
 from flask import render_template
-
+from celery.result import AsyncResult
 from flask_cors import CORS
-#from .config import create_app
+
+from .import tasks
 
 import os
 import tempfile
@@ -26,14 +27,20 @@ def upload_file():
 
     file.save(video_path)
 
-    #web worker [async]
-    # scedule a task to process the video
-    # 1. pulling approach [client ask server for the status of the video processing] 
-    # 2. demo for websocket [duplex communication]
-
-    print(f'File saved at {video_path}')
+    result = tasks.video_analysis.delay(video_path=video_path)
 
     return jsonify({'message': 'File uploaded successfully'}), 200
 
+@app.route('/result/<id>', methods=['GET'])  
+def result(id: str) -> dict[str, object]:
+    result = AsyncResult(id)
+    ready = result.ready()
+    return {
+        "ready": ready,
+        "successful": result.successful() if ready else None,
+        "value": result.get() if ready else result.result,
+    }
+
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context='adhoc')
+    app.run(debug=True)
+    #, ssl_context='adhoc'

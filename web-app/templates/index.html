@@ -2,19 +2,19 @@
 <html lang="en">
 
   <head>
-    <title>requestVideoFrameCallback Demo</title>
+    <title>Ultimate Frisbee</title>
     
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     
-    <script>if (location.protocol !== 'https:') { location.protocol = 'https:'; }</script>
+    <!-- <script>if (location.protocol !== 'https:') { location.protocol = 'https:'; }</script> -->
 
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
 
     <!-- import the webpage's javascript file -->
-    <script src="{{url_for('static', filename='js/video_display.js')}}" defer></script>
+    <script src="{{url_for('static', filename='js/video_analysis.js')}}" defer></script>
     <script src="{{url_for('static', filename='js/drawable.js')}}" defer></script>
 
   </head>
@@ -24,7 +24,14 @@
       <h1 id="title">Ultimate Frisbee tactical dashboard</h1>
     
       <div id="upload-container">
-        <input type="file"  id="video-uploader" accept="video/*" />
+        <form id=video-upload-form method=post action="{{ url_for("tasks.upload") }}">
+          <label>Video upload <input type=file id=video-file accept="video/*"></label><br>
+          <input type=submit>
+        </form>
+
+        <p id=process-result></p>
+
+        <!-- <input type="file"  id="video-uploader" accept="video/*" /> -->
         <progress id="progressbar" value="0" max="100"></progress>
       </div>
     </div>
