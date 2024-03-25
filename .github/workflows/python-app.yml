@@ -36,11 +36,11 @@ jobs:
     - name: Test ultimate-pipeline with pytest
       run: |
         cd ultimate-pipeline && python -m pytest src/tests
-    - name: Install dependencies for streamlit-app
+    - name: Install dependencies for web-app
       run: |
-          cd streamlit-app
+          cd web-app
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Test streamlit-app with pytest
+    - name: Test web-app with pytest
       run: |
-        cd streamlit-app && python -m pytest src/tests
+        cd web-app && python -m pytest tests

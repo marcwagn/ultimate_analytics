@@ -13,7 +13,7 @@ def _read_predictions_and_filter_keypoints(file_path: Path, is_tracking: bool=Tr
     return keypoints_df
 
 def test_get_4_best_keypoint_pairs_choose_TF_TC():
-    prefix = "./src/tests/data/tracking_set_1"
+    prefix = "./tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1107.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
     df["frame"] = 1107
@@ -39,7 +39,7 @@ def test_get_4_best_keypoint_pairs_choose_TF_TC():
     assert result.cls_ids == [34,35,31,32]
 
 def test_get_4_best_keypoint_pairs_choose_BF_TF():
-    prefix = "./src/tests/data/tracking_set_1"
+    prefix = "./tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_2191.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
     df["frame"] = 2191
@@ -66,7 +66,7 @@ def test_get_4_best_keypoint_pairs_choose_BF_TF():
     assert result.cls_ids == [39,40,34,35]
 
 def test_get_4_best_keypoint_pairs_not_enough_keypoints_and_no_fallback_possible():
-    prefix = "./src/tests/data/tracking_set_1"
+    prefix = "./tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1_not_enough_kp.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
     df["frame"] = 1
@@ -76,7 +76,7 @@ def test_get_4_best_keypoint_pairs_not_enough_keypoints_and_no_fallback_possible
     assert result is None
 
 def test_get_4_best_keypoint_pairs_duplicate_keypoints():
-    prefix = "./src/tests/data/tracking_set_1"
+    prefix = "./tests/data/tracking_set_1"
     file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_108_duplicate.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
     df["frame"] = 108
@@ -87,7 +87,7 @@ def test_get_4_best_keypoint_pairs_duplicate_keypoints():
     assert result is not None
 
 def test_get_4_best_keypoint_pairs_only_one_keypoint_but_fallback_to_previous_frames_possible():
-    prefix = "./src/tests/data/tracking_set_1"
+    prefix = "./tests/data/tracking_set_1"
     file_path296 = Path(prefix)/"pony_vs_the_killjoys_pool_004_296_only_one_kp.txt"
     df296 = _read_predictions_and_filter_keypoints(file_path296, is_tracking=True)
     df296["frame"] = 296
@@ -119,7 +119,7 @@ def test_get_4_best_keypoint_pairs_only_one_keypoint_but_fallback_to_previous_fr
     assert_array_equal(result.keypoints, expected_keypoints)
 
 def test_get_4_best_keypoint_pairs_not_enough_keypoints_but_fallback_to_previous_frames_possible():
-    prefix = "./src/tests/data/tracking_set_1"
+    prefix = "./tests/data/tracking_set_1"
     file_path295 = Path(prefix)/"pony_vs_the_killjoys_pool_004_295_not_enough_with_fallback.txt"
     df295 = _read_predictions_and_filter_keypoints(file_path295, is_tracking=True)
     df295["frame"] = 295
