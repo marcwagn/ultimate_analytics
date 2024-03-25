@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -78,13 +77,14 @@ def test_get_4_best_keypoint_pairs_not_enough_keypoints_and_no_fallback_possible
 
 def test_get_4_best_keypoint_pairs_duplicate_keypoints():
     prefix = "./src/tests/data/tracking_set_1"
-    file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_1_duplicate.txt"
+    file_path = Path(prefix)/"pony_vs_the_killjoys_pool_004_108_duplicate.txt"
     df = _read_predictions_and_filter_keypoints(file_path, is_tracking=True)
-    df["frame"] = 1
+    df["frame"] = 108
 
     sut = KeypointsExtractor(df, 0.6)
-    with pytest.raises(ValueError, match="Detected more than 3 keypoints of same type in frame 1"):
-        sut.get_4_best_keypoint_pairs(frame_no=1)
+    result = sut.get_4_best_keypoint_pairs(108)
+    # Should drop the duplicate
+    assert result is not None
 
 def test_get_4_best_keypoint_pairs_only_one_keypoint_but_fallback_to_previous_frames_possible():
     prefix = "./src/tests/data/tracking_set_1"

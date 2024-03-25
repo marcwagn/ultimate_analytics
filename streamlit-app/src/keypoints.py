@@ -28,12 +28,16 @@ class KeypointQuad:
     @property
     def cls_ids(self):
         return self._cls_ids
+    
+    def __repr__(self) -> str:
+        return f"Keypoint quad: Lines: {self._keypoint_line_keys}; Cls ids: {self._cls_ids}\n Keypoints: {self._keypoints}"
 
 class KeypointsExtractor:
     """
     Initialize KeypointsExtractor.
     Args:
         all_frames_df (pd.DataFrame): DataFrame with keypoint predictions for all video frames/images
+            Mandatory columns: "cls", "x", "y", "conf", "frame"
         conf_threshold (float): confidence threshold to recognize a keypoint as valid
         max_lookback (int): how many video frames/images to look back if we don't have enough keypoints in current frame
     """
@@ -105,11 +109,6 @@ class KeypointsExtractor:
         s_at_least_2 = s_keypoints_by_count_and_pref[s_keypoints_by_count_and_pref == 2]
         if len(s_at_least_2) < 2:
             # Not enough keypoint candidates
-            # Found 0 eligible lines - run the whole algorith on the previous dataframe
-            # Found 1 eligible line - find 1 or 2 missing keypoints in previous dataframes
-            # have_line = s_keypoints_by_count_and_pref[0,"keypoint_line"]
-            # requested_keypoints = self._lines_to_keypoints_map[have_line]["cls_ids"]
-            # _get_keypoints_from_previous(requested_keypoints)
             return None
         keypoint_line_keys_top_2 = list(s_at_least_2.keys())[0:2]
         keypoint_coords_list = []
@@ -136,8 +135,17 @@ class KeypointsExtractor:
             keypoint_line_lr - whether the keypoint is on the left or right hand side of the pitch (from camera POV)
             keypoint_line_pref - algorithm's preference of choosing a line (used as tie-breaker)
         """
+        # Filter out non-keypoints
         mask = (df["cls"].isin(self._candidate_clsid_pairs.flatten())) & (df["conf"] > self.conf_threshold)
-        candidate_cls_df = df[mask].copy(deep=False)
+        candidate_cls_df = df[mask]
+        # Drop duplicates
+        # In each frame, we want unique cls, preferring low Ys (the objects at the back are typically more reliable, 
+        # as the model learnt to recognize them better)
+        candidate_cls_df = candidate_cls_df.sort_values(by=["frame", "cls", "y"], ascending=True)
+        candidate_cls_df = candidate_cls_df.drop_duplicates(subset=["frame", "cls"], keep="first")
+        # Copy the data frame before augmenting (we cannot augment a view slice)
+        candidate_cls_df = candidate_cls_df.copy(deep=False)
+        # Augment with keypoint line information
         candidate_cls_df["keypoint_line"] = candidate_cls_df["cls"].apply(lambda c: self._keypoints_to_lines_map[c]["line"])
         candidate_cls_df["keypoint_line_lr"] = candidate_cls_df["cls"].apply(lambda c: self._keypoints_to_lines_map[c]["lr"])
         candidate_cls_df["keypoint_line_pref"] = candidate_cls_df["cls"].apply(lambda c: self._keypoints_to_lines_map[c]["pref"])
