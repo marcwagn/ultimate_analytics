@@ -118,8 +118,6 @@ def test_get_4_best_keypoint_pairs_only_one_keypoint_but_fallback_to_previous_fr
         [0.666007, 0.203279]])
     assert_array_equal(result.keypoints, expected_keypoints)
 
-
-@pytest.mark.skip("Not passing yet")
 def test_get_4_best_keypoint_pairs_not_enough_keypoints_but_fallback_to_previous_frames_possible():
     prefix = "./src/tests/data/tracking_set_1"
     file_path295 = Path(prefix)/"pony_vs_the_killjoys_pool_004_295_not_enough_with_fallback.txt"
