@@ -29,23 +29,29 @@ def calculate_homography_matrix(keypoints:KeypointQuad) -> np.ndarray:
 
 def convert_h(H, vec):
     """
-    Converts a vector of point coordinates (2D: (x, y) or 3D) to new coordinates using homography matrix.
+    Converts point coordinates (x, y) to new coordinates using homography matrix.
     Args:
         H (np.ndarray): A homography matrix (3,3)
-        vec (np.ndarray): A vector of size (,2) or (,3), or a matrix of size (n,2) or (n,3), representing a single or multiple points
+        vec (np.ndarray): A vector of size (2,) a matrix of size (2,n), representing a single or multiple points to convert
     Return:
         np.ndarray of shape that matches vec
     """
-    m = vec.shape[-1]
-    if m == 2:
-        # Add z coordinate to make the vector/matrix 3d
-        if vec.ndim == 1:
-            vec = np.append(vec, [1])
-        else:
-            n = vec.shape[0]
-            vec = np.c_[vec, np.ones(n)]
-    elif m > 3:
-        raise ValueError("Invalid input vector size")
+    m = vec.shape[0]
+    if m != 2 or vec.ndim > 2:
+        raise ValueError("Input vector has to be of size (2,) or (2,n).")
+    n = vec.shape[1] if vec.ndim == 2 else 1
+    # Add z coordinate to make the vector/matrix compatible with the 3d homography matrix
+    ones = [1] if vec.ndim==1 else np.ones(n).reshape(1,n)
+    vec = np.r_[vec, ones]
+    
     pt = np.dot(H, vec)
-    pt_norm = pt/pt[2]
-    return pt_norm[0:m]
+    # Normalize the output vector/matrix (we want 1 in the last row, i.e. z=1)
+    if vec.ndim == 1:
+        pt_norm = pt/pt[2]
+        return pt_norm[0:2]
+    else:
+        t = np.eye(3)
+
+        t[-1,:] = np.array([1/sum(pt[-1,:])]*3)
+        pt_norm = np.dot(t, pt)
+        return pt_norm
