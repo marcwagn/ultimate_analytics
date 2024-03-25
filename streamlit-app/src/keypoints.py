@@ -8,7 +8,6 @@ class KeypointQuad:
     Args:
         keypoint_line_keys (list[str]): list of keypoint line identifiers (e.g. "TC", "BF")
         keypoints (np.ndarray): an numpy array of shape (4,2) consisting of keypoint coordinates in YOLO normalized format
-        keypoints_real_pitch_coords (np.ndarray): an numpy array of shape (4,2) consisting of coordinates of the real Ultimate pitch that correspond to keypoints
         cls_ids (list[int]): a list of class ids identifying specific keypoints (length=4)
     """
     def __init__(self, keypoint_line_keys: list[str], keypoints: np.ndarray, cls_ids: list[int]):
@@ -50,10 +49,10 @@ class KeypointsExtractor:
     }
 
     _lines_to_keypoints_map = {
-        "TC": dict(cls_ids=[31,32], pref=3, real_pitch_coords=np.float32([[0,0],[0,37]])),
-        "TF": dict(cls_ids=[34,35], pref=2, real_pitch_coords=np.float32([[18,0],[18,37]])),
-        "BF": dict(cls_ids=[39,40], pref=1, real_pitch_coords=np.float32([[82,0],[82,37]])),
-        "BC": dict(cls_ids=[41,42], pref=0, real_pitch_coords=np.float32([[100,0],[100,37]])),
+        "TC": dict(cls_ids=[31,32], pref=3),
+        "TF": dict(cls_ids=[34,35], pref=2),
+        "BF": dict(cls_ids=[39,40], pref=1),
+        "BC": dict(cls_ids=[41,42], pref=0),
     }
 
     _candidate_clsid_pairs = np.array([line["cls_ids"] for _, line in _lines_to_keypoints_map.items()])
@@ -90,7 +89,6 @@ class KeypointsExtractor:
                 coords = np.float32(df_augmented.loc[index_mask, "x":"y"]).squeeze()
                 keypoint_coords_list.append(coords)
                 keypoint_cls_ids.append(clsid)
-            #keypoints_real_pitch_coords_list.append(lines_to_keypoints_map[key]["real_pitch_coords"])
 
         return KeypointQuad(
             keypoint_line_keys=keypoint_line_keys_top_2, 
