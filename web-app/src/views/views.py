@@ -26,8 +26,8 @@ def upload():
 
     file = request.files['file']
     
-    temp_dir = tempfile.gettempdir()
-    video_path = os.path.join(temp_dir, file.filename)
+    video_data_dir = os.getenv("VIDEO_DATA_DIR", tempfile.gettempdir())
+    video_path = os.path.join(video_data_dir, file.filename)
 
     file.save(video_path)
     print(f"File samed to {video_path}")
