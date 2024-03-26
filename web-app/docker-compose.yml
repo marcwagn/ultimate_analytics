@@ -9,7 +9,7 @@ services:
     container_name: ultimate-worker
     image: ultimate:latest
     volumes:
-      - src/data/uploads:/data/uploads:rw
+      - ./src/data/uploads:/data/uploads:rw
     environment:
       - REDIS_URL=redis://redis-server:6379
       - VIDEO_DATA_DIR=/data/uploads
@@ -23,7 +23,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - src/data/uploads:/data/uploads:rw
+      - ./src/data/uploads:/data/uploads:rw
     environment:
       - REDIS_URL=redis://redis-server:6379
       - VIDEO_DATA_DIR=/data/uploads
