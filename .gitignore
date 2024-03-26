@@ -164,7 +164,7 @@ data/
 
 # Allow unit test data
 !ultimate-pipeline/src/tests/data/
-!streamlit-app/src/tests/data/
+!web-app/tests/data/
 
 # Yolo output
 runs/
