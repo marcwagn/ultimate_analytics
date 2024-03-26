@@ -95,9 +95,9 @@ def test_convert_single_image_annotation_with_generation_of_bounding_boxes_aroun
     with open(metadata_file, 'r') as f:
         metadata = json.load(f)
     
-    padding_x, padding_y = 20, 20
-    keypoints_bboxes_generation = True, padding_x, padding_y
-    df = sc.convert_single_image_annotation_to_detect_data(annotations, frame_key=0, meta_file=metadata, keypoints_bboxes_generation=keypoints_bboxes_generation)
+    padding_x, padding_y = (20.0, 20.0)
+    keypoints_bboxes_generation = sc.KeypointsBoxesGenerationSettings(first_keypoint_class_id=31, settings=(padding_x, padding_y))
+    df = sc.convert_single_image_annotation_to_detect_data(annotations, frame_key=0, meta_file=metadata, keypoints_bboxes_settings=keypoints_bboxes_generation)
     assert df is not None
     assert isinstance(df, pd.DataFrame)
     width = 3840.0
