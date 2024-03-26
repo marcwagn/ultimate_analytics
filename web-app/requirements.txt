@@ -1,0 +1,8 @@
+pandas~=2.1.0
+numpy~=1.26.0
+opencv-python~=4.9.0
+flask~=3.0
+celery~=5.3
+flask-cors~=4.0
+redis~=5.0
+python-dotenv~=1.0

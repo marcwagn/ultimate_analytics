@@ -1,0 +1,26 @@
+services:
+  redis:
+    container_name: redis-server
+    image: redis:alpine
+    ports:
+      - 6379:6379
+
+  worker:
+    container_name: ultimate-worker
+    image: ultimate:latest
+    environment:
+      - REDIS_URL=redis://redis-server:6379
+    depends_on:
+      - redis
+    command: celery -A make_celery worker --loglevel=INFO
+
+  web:
+    container_name: ultimate-web
+    image: ultimate:latest
+    ports:
+      - 5000:5000
+    environment:
+      - REDIS_URL=redis://redis-server:6379
+    depends_on:
+      - worker
+    command: python app.py

@@ -3,14 +3,17 @@ from flask import Flask
 from flask import render_template
 
 from flask_cors import CORS
+from dotenv import load_dotenv
+import os
 
 def create_app() -> Flask:
+    load_dotenv()
     app = Flask(__name__)
     CORS(app)
     app.config.from_mapping(
         CELERY=dict(
-            broker_url="redis://localhost",
-            result_backend="redis://localhost",
+            broker_url=os.getenv("REDIS_URL", "redis://localhost"),
+            result_backend=os.getenv("REDIS_URL", "redis://localhost"),
             task_ignore_result=True,
         ),
     )
@@ -40,4 +43,5 @@ def celery_init_app(app: Flask) -> Celery:
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
