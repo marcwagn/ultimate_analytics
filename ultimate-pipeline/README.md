@@ -2,36 +2,43 @@
 
 ## Overview
 
-This is your new Kedro project, which was generated using `kedro 0.19.3`.
+This is the data processing pipeline for the Ultimate project.
 
-Take a look at the [Kedro documentation](https://docs.kedro.org) to get started.
+## How to run the Kedro pipeline
 
-## Rules and guidelines
-
-In order to get the best out of the template:
-
-* Don't remove any lines from the `.gitignore` file we provide
-* Make sure your results can be reproduced by following a data engineering convention
-* Don't commit data to your repository
-* Don't commit any credentials or your local configuration to your repository. Keep all your credentials and local configuration in `conf/local/`
-
-## How to run your Kedro pipeline
-
-You can run your Kedro project with:
+You can run the Kedro project with:
 
 ```
 kedro run
 ```
 
-## How to test your Kedro project
+By default, it downloads Ultimate project images and annotations from Supervisely and converts them to format used by YOLO.
 
-Have a look at the file `src/tests/test_run.py` for instructions on how to write your tests. You can run your tests as follows:
-
+To run the pipeline only from a specific step, e.g. to skip Supervisely download:
+```bash
+kedro run --from-nodes=convert_supervisely_annotations_to_yolo_detect_dataframe_node
 ```
+
+## Data folder structure
+
+Training data is not in source control and needs to be downloaded from Supervisely by `kedro run`.
+After a successful pipeline run, the `data` folder will have following subfolders:
+- `raw` - images and annotations downloaded from Supervisely
+- `processed` - images and annotations ready for Machine Learning training with YOLO object detection 
+
+For Kedro datasets description, see `conf/base/catalog.yml`.
+
+For YOLO training dataset description, see `conf/base/ultimate_detect.yml`.
+
+## How to test the Kedro project
+
+Unit tests can be run as follows:
+
+```bash
 python -m pytest
 ```
 
-You can configure the coverage threshold in your project's `pyproject.toml` file under the `[tool.coverage.report]` section.
+Code coverage threshold can be configured in `pyproject.toml` file under the `[tool.coverage.report]` section.
 
 # Development
 
@@ -67,11 +74,44 @@ To add a new development/build dependency, edit `project.optional-dependencies` 
 ### Troubleshooting dependencies
 
 You can use `pipdeptree` to visualise pip dependencies:
-```
+```bash
 pip install pipdeptree
 pipdeptree
 ```
 
+# Machine Learning training
+Machine Learning training requires the training data being downloaded and processed by Kedro first, but it's performed outside of the Kedro pipeline.
+
+
+Object detection training is performed with [Ultralytics YOLO](https://docs.ultralytics.com/quickstart/).
+
+## Training
+Example:
+```bash
+ yolo detect train data=conf/base/ultimate_detect.yml model=yolov8n.yaml pretrained=yolov8n.pt epochs=100 imgsz=3840 batch=2
+```
+
+### Resume training
+Resuming an interrupted training
+```bash
+ yolo detect train resume data=conf/base/ultimate_detect.yml model=runs/detect/train10/weights/last.pt
+```
+where `runs/detect/train10` are the results of the previous YOLO training run.
+
+## Validation
+```bash
+yolo detect val model=runs/detect/train10/weights/best.pt
+```
+where `runs/detect/train10` are the results of the previous YOLO training run.
+
+
+## Prediction
+```bash
+yolo detect track model=runs/detect/train10/weights/best.pt save=True save_txt=True save_conf=True agnostic_nms=True source=<some_ultimate_frisbee_match.mp4>
+```
+/Note/: Prediction is performed by the main web app of the Ultimate project.
+
+# Notebooks
 
 ## How to work with Kedro and notebooks
 

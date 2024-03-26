@@ -12,6 +12,37 @@ JSONGenerator: TypeAlias = Callable[[], dict]
 
 logger = logging.getLogger(__name__)
 
+class KeypointsBoxesGenerationSettings:
+    """
+    Settings for bounding boxes generation for keypoints.
+    A keypoint is defined by a mid-point. These settings define the size of the bounding box around it
+    by defining paddings for X and Y (i.e. the upper corner is (mid_x-padding_x, mid_y-padding_y)).
+    Settings can be either fixed (the same for all keypoint classes), or dynamic (defined per class).
+    Args:
+        first_keypoint_class_id (int): Class id of the first keypoint class, for which we need to generate bounding boxes around
+        settings:  fixed padding_x, padding_y passed as Tuple[float, float],
+                    or per-class padding settings passed as dict[int, Tuple[float, float]]
+    """
+    def __init__(self, first_keypoint_class_id:int, settings: Union[Tuple[float, float], dict[int, Tuple[float, float]]]):
+        self._first_keypoint_class_id = first_keypoint_class_id
+        if settings is None:
+            raise ValueError("settings cannot be None")
+        if isinstance(settings, dict):
+            self._dynamic_settings = settings
+            self._fixed_settings = None
+        else:
+            self._fixed_settings = settings
+            self._dynamic_settings = None
+    
+    @property
+    def first_keypoint_class_id(self):
+        return self._first_keypoint_class_id
+
+    def get_settings_for_class(self, cls_id: int) -> Tuple[float, float]:
+        if self._dynamic_settings is not None:
+            return self._dynamic_settings[cls_id]
+        return self._fixed_settings
+
 
 def convert_video_annotations(source: Union[str, dict]) -> pd.DataFrame:
     """
@@ -106,7 +137,7 @@ def convert_video_annotations(source: Union[str, dict]) -> pd.DataFrame:
 
 
 def convert_images_annotations_folder_to_detect_data(
-    source: Union[str, dict[str, JSONGenerator]], meta_file: Union[str, dict], keypoints_bboxes_generation: Tuple[bool, int, int]=(False,0,0)
+    source: Union[str, dict[str, JSONGenerator]], meta_file: Union[str, dict], keypoints_bboxes_settings: Union[KeypointsBoxesGenerationSettings,None]=None
 ) -> pd.DataFrame:
     """
     Convert a Supervisely image annotations in a folder to normalized bounding boxes.
@@ -115,8 +146,7 @@ def convert_images_annotations_folder_to_detect_data(
         source (str|JSONGenerator): path to the root folder containing JSON annotation files,
             or a dictionary (keyed by file name) containing Callables that generate JSON annotation content as dict
         meta_file (str|dict): path to the meta.json file, or the JSON content of the meta file as dict
-        keypoints_bboxes_generation (bool,int,int): settings for optional generation of bounding boxes around keypoints
-
+        keypoints_bboxes_settings (Union[KeypointsBoxesGenerationSettings,None]): optional settings for optional generation of bounding boxes around keypoints
     """
     # Each DataFrame in dfs will correspond to bounding boxes from 1 image
     dfs = []
@@ -136,14 +166,14 @@ def convert_images_annotations_folder_to_detect_data(
                 annotations=annotations_gen(), 
                 frame_key=key, 
                 meta_file=meta_file_content,
-                keypoints_bboxes_generation=keypoints_bboxes_generation
+                keypoints_bboxes_settings=keypoints_bboxes_settings
                 )
         )
     return pd.concat(dfs, axis=0)
 
 
 def convert_single_image_annotation_to_detect_data(
-    annotations: dict, frame_key: str, meta_file: dict, keypoints_bboxes_generation: Tuple[bool, int, int]=(False,0,0)
+    annotations: dict, frame_key: str, meta_file: dict, keypoints_bboxes_settings: Union[KeypointsBoxesGenerationSettings,None]=None
 ) -> pd.DataFrame:
     """
     Convert a Supervisely annotation for a single image to normalized bounding boxes.
@@ -151,7 +181,7 @@ def convert_single_image_annotation_to_detect_data(
         annotations (dict): content of JSON annotation file
         frame_key (str): frame number or name
         meta_file (dict): content of meta.json
-        keypoints_bboxes_generation (bool,int,int): settings for optional generation of bounding boxes around keypoints
+        keypoints_bboxes_settings (Union[KeypointsBoxesGenerationSettings,None]): optional settings for optional generation of bounding boxes around keypoints
     """
 
     meta_map = {m["id"]: i for i, m in enumerate(meta_file["classes"])}
@@ -181,7 +211,6 @@ def convert_single_image_annotation_to_detect_data(
         return class_idx, box_scaled, box_arr
     
     def extract_boxes_from_graph(detected:dict) -> Generator[Tuple[int, np.ndarray, np.ndarray], None, None]:
-        _, padding_x, padding_y = keypoints_bboxes_generation
         class_id = detected["classId"]
 
         detected_nodes_filtered = { key: node for (key, node) in detected["nodes"].items() if key in graph_id_to_nodes[class_id] }
@@ -191,6 +220,10 @@ def convert_single_image_annotation_to_detect_data(
             if node_key in detected_nodes:
                 if "disabled" in detected_nodes[node_key]:
                     continue
+
+                class_idx = keypoints_bboxes_settings.first_keypoint_class_id + i
+                padding_x, padding_y = keypoints_bboxes_settings.get_settings_for_class(class_idx)
+
                 x_mid=detected_nodes[node_key]["loc"][0]
                 y_mid=detected_nodes[node_key]["loc"][1]
                 (x1, y1) = max(x_mid-padding_x, 0), max(y_mid-padding_y, 0)
@@ -198,20 +231,16 @@ def convert_single_image_annotation_to_detect_data(
                 box_arr = np.array([x1, y1, x2, y2], dtype='float')
                 box_scaled = _xyxy2xywhn(box_arr, w=width, h=height)
 
-                #class_idx = graph_id_to_idx[class_id]
-                # HACK - hardcoded index start
-                class_idx = 31 + i
 
                 yield class_idx, box_scaled, box_arr
 
-    generate_boxes_around_keypoints_flag, _, _ = keypoints_bboxes_generation
     obj_idx = 0
 
     for detected in annotations["objects"]:
         boxes = [] # (class_id, box_scaled, box_arr)
         if detected["geometryType"] == "rectangle":
             boxes = [ extract_box_from_rectangle(detected) ]
-        elif detected["geometryType"] == "graph" and generate_boxes_around_keypoints_flag:
+        elif detected["geometryType"] == "graph" and keypoints_bboxes_settings is not None:
             boxes = list(extract_boxes_from_graph(detected))
         else:
             # Unsupported geometry type, skip
