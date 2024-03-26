@@ -48,11 +48,23 @@ def convert_supervisely_annotations_to_yolo_detect_dataframe(
         annotation_partitions_without_extension[filename_without_extension] = content_generator
 
     # Arbitrary padding for bounding box generation around keypoints (graphs in Supervisely annotations)
-    dynamic_padding = {}
-    for cls_id in range(31, 38):
-        dynamic_padding[cls_id] = (20.0, 20.0)
-    for cls_id in range(38, 44):
-        dynamic_padding[cls_id] = (30.0, 30.0)
+    small_padding = (20.0, 20.0)
+    dynamic_padding = {
+        "31": small_padding,
+        "32": small_padding,
+        "33": small_padding,
+        "34": small_padding,
+        "35": small_padding,
+        "36": small_padding,
+        "37": small_padding,
+        "38": (25, 25),
+        "39": (30, 30),
+        "40": (30, 30),
+        "41": (40, 40),
+        "42": (40, 40),
+        "43": (40, 40),
+    }
+   
     keypoints_bboxes_settings = KeypointsBoxesGenerationSettings(first_keypoint_class_id=31, settings=dynamic_padding)
 
     yolo_detect_df = convert_images_annotations_folder_to_detect_data(
