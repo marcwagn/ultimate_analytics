@@ -95,8 +95,14 @@ def test_convert_single_image_annotation_with_generation_of_bounding_boxes_aroun
     with open(metadata_file, 'r') as f:
         metadata = json.load(f)
     
-    padding_x, padding_y = (20.0, 20.0)
-    keypoints_bboxes_generation = sc.KeypointsBoxesGenerationSettings(first_keypoint_class_id=31, settings=(padding_x, padding_y))
+    small_padding_x, small_padding_y = (20.0, 20.0)
+    large_padding_x, large_padding_y = (30.0, 30.0)
+    dynamic_padding = {}
+    for cls_id in range(31, 38):
+        dynamic_padding[cls_id] = (small_padding_x, small_padding_y)
+    for cls_id in range(38, 44):
+        dynamic_padding[cls_id] = (large_padding_x, large_padding_y)
+    keypoints_bboxes_generation = sc.KeypointsBoxesGenerationSettings(first_keypoint_class_id=31, settings=dynamic_padding)
     df = sc.convert_single_image_annotation_to_detect_data(annotations, frame_key=0, meta_file=metadata, keypoints_bboxes_settings=keypoints_bboxes_generation)
     assert df is not None
     assert isinstance(df, pd.DataFrame)
@@ -111,12 +117,16 @@ def test_convert_single_image_annotation_with_generation_of_bounding_boxes_aroun
     assert len(df[df["cls"] > 30]) == expected_keypoints_bounding_boxes_len
 
     actualFirstRow = df.iloc[0, 0:5].to_numpy()
-    expectedFirstRow = np.array([31.0, 1260.0/width, 432.0/height, 2*padding_x/width, 2*padding_y/height], dtype='float')
+    expectedFirstRow = np.array([31.0, 1260.0/width, 432.0/height, 2*small_padding_x/width, 2*small_padding_y/height], dtype='float')
     assert_array_equal(actualFirstRow, expectedFirstRow)
 
     actualSecondRow = df.iloc[1, 0:5].to_numpy()
-    expectedSecondRow = np.array([32.0, 2568.0/width, 424.0/height, 2*padding_x/width, 2*padding_y/height], dtype='float')
+    expectedSecondRow = np.array([32.0, 2568.0/width, 424.0/height, 2*small_padding_x/width, 2*small_padding_y/height], dtype='float')
     assert_array_equal(actualSecondRow, expectedSecondRow)
+
+    actualTenthRow = df.iloc[10, 0:5].to_numpy()
+    expectedTenthRow = np.array([43.0, 1952.0/width, 1494.0/height, 2*large_padding_x/width, 2*large_padding_y/height], dtype='float')
+    assert_array_equal(actualTenthRow, expectedTenthRow)
 
     # Verify that all values are scaled
     assert len(df[(df["x"] < 0) | (df["x"] > 1.0)]) == 0
