@@ -3,14 +3,24 @@ from flask import Flask
 from flask import render_template
 
 from flask_cors import CORS
+from dotenv import load_dotenv
+import os
+import logging
+from google.cloud import logging as gcp_logging
 
 def create_app() -> Flask:
+    load_dotenv()
+    if os.getenv("GCP_LOGGING") == "True":
+        gcp_logging_client = gcp_logging.Client()
+        gcp_logging_client.setup_logging()
+
     app = Flask(__name__)
+    app.logger.setLevel(logging.INFO)
     CORS(app)
     app.config.from_mapping(
         CELERY=dict(
-            broker_url="redis://localhost",
-            result_backend="redis://localhost",
+            broker_url=os.getenv("REDIS_URL", "redis://localhost:6379"),
+            result_backend=os.getenv("REDIS_URL", "redis://localhost:6379"),
             task_ignore_result=True,
         ),
     )
@@ -20,6 +30,11 @@ def create_app() -> Flask:
     @app.route("/")
     def index() -> str:
         return render_template("index.html")
+    
+    @app.errorhandler(Exception)
+    def handle_error(e):
+        app.logger.error(f'Web app: An error occurred: {str(e)}')
+        return str(e), 500
 
     from views import views
 
@@ -40,4 +55,5 @@ def celery_init_app(app: Flask) -> Celery:
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True)
+    port = int(os.environ.get('INTERNAL_PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
