@@ -4,16 +4,23 @@ from flask import render_template
 
 from flask_cors import CORS
 from dotenv import load_dotenv
+import logging
 import os
+from google.cloud import logging as gcp_logging
 
 def create_app() -> Flask:
     load_dotenv()
+    if os.getenv("GCP_LOGGING") == "True":
+        gcp_logging_client = gcp_logging.Client()
+        gcp_logging_client.setup_logging()
+
     app = Flask(__name__)
+    app.logger.setLevel(logging.INFO)
     CORS(app)
     app.config.from_mapping(
         CELERY=dict(
-            broker_url=os.getenv("REDIS_URL", "redis://localhost"),
-            result_backend=os.getenv("REDIS_URL", "redis://localhost"),
+            broker_url=os.getenv("REDIS_URL", "redis://localhost:6379"),
+            result_backend=os.getenv("REDIS_URL", "redis://localhost:6379"),
             task_ignore_result=True,
         ),
     )
@@ -23,6 +30,11 @@ def create_app() -> Flask:
     @app.route("/")
     def index() -> str:
         return render_template("index.html")
+    
+    @app.errorhandler(Exception)
+    def handle_error(e):
+        app.logger.error(f'Web app: An error occurred: {str(e)}')
+        return str(e), 500
 
     from views import views
 

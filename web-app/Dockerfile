@@ -1,19 +1,37 @@
-FROM python:3.11.8-slim-bullseye
+FROM python:3.11-bookworm
 
 COPY src /app/src
 COPY requirements* /app
 
 WORKDIR /app
 
+# Register Google Cloud SDK and Fuse repository
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+RUN echo "deb https://packages.cloud.google.com/apt gcsfuse-bookworm main" | tee /etc/apt/sources.list.d/gcsfuse.list
+# Add GCS keys
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+
 RUN apt update && \
+    apt install -y \ 
     # The missing requirements for OpenCV
-    apt install -y libgl1 libglib2.0-0 && \
+    libgl1 libglib2.0-0 \
     # Useful for network troubleshooting
-    apt install -y netcat dnsutils
+    netcat-openbsd dnsutils \
+    # Google Cloud Storage components
+    google-cloud-cli fuse gcsfuse
 
 RUN pip install -r requirements.lock
 
+# Install extra GCP-specific packages
+RUN pip install google-cloud-logging
+
 WORKDIR /app/src
 
-EXPOSE 5000:5000
-CMD python app.py
+RUN groupadd -r svc_user -g 433 && \
+    useradd -u 431 -r -g svc_user -s /bin/bash -c "Unprivileged user" svc_user
+
+USER svc_user
+
+CMD python wsgi.py
