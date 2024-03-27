@@ -39,21 +39,19 @@ const taskForm = (formName, doPoll, report) => {
           }
         })
     })
+}
+
+taskForm("video-upload-form", true, data => {
+  const progressbar = document.getElementById("progressbar")
+  if (data === null) {
+    console.log("uploading...")
+  } else if (!data["ready"]) {
+    progressbar.value = data["value"]["status"]
+  } else if (!data["successful"]) {
+    console.log("error, check console")
+  } else {
+    progressbar.value = 1;
+    document.getElementById('dashboard-container').classList.remove('hidden')
   }
-
-  taskForm("video-upload-form", true, data => {
-    const progressbar = document.getElementById("progressbar")
-
-    if (data === null) {
-      console.log("uploading...")
-    } else if (!data["ready"]) {
-      progressbar.value = data["value"]["status"]
-    } else if (!data["successful"]) {
-      console.log("error, check console")
-    } else {
-      progressbar.value = 1;
-      document.getElementById('dashboard-container').classList.remove('hidden')
-
-    }
-    console.log(data)
-  })
+  console.log(data)
+})
