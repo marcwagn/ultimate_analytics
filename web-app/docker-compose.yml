@@ -13,7 +13,7 @@ services:
     environment:
       - REDIS_URL=redis://redis-server:6379
       - VIDEO_DATA_DIR=/data/uploads
-      - GCP_LOGGING=True
+      - GCP_LOGGING=False
     depends_on:
       - redis
     command: celery -A make_celery worker --loglevel=INFO
@@ -28,7 +28,7 @@ services:
     environment:
       - REDIS_URL=redis://redis-server:6379
       - VIDEO_DATA_DIR=/data/uploads
-      - GCP_LOGGING=True
+      - GCP_LOGGING=False
     depends_on:
       - worker
     command: python wsgi.py

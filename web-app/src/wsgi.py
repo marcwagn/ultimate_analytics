@@ -1,5 +1,4 @@
 from gevent.pywsgi import WSGIServer
-from hello import create_app
 import os
 from app import create_app
 
