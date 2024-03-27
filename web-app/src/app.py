@@ -4,8 +4,8 @@ from flask import render_template
 
 from flask_cors import CORS
 from dotenv import load_dotenv
-import logging
 import os
+import logging
 from google.cloud import logging as gcp_logging
 
 def create_app() -> Flask:
@@ -55,5 +55,5 @@ def celery_init_app(app: Flask) -> Celery:
 
 if __name__ == "__main__":
     app = create_app()
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('INTERNAL_PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)

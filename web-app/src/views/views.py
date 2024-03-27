@@ -30,7 +30,7 @@ def upload():
     video_path = os.path.join(video_data_dir, file.filename)
 
     file.save(video_path)
-    print(f"File samed to {video_path}")
+    print(f"File saved to {video_path}")
 
     result = tasks.video_analysis.delay(video_path=video_path)
 

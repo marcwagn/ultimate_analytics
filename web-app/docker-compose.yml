@@ -22,13 +22,16 @@ services:
     container_name: ultimate-web
     image: ultimate:latest
     ports:
-      - 5000:5000
+      - 8080:8080 # HTTP/2 h2c via nginx
+      - 5000:5000 # HTTP 1/1 via WSGI over Flask
     volumes:
       - ./src/data/uploads:/data/uploads:rw
     environment:
       - REDIS_URL=redis://redis-server:6379
       - VIDEO_DATA_DIR=/data/uploads
       - GCP_LOGGING=False
+      - INTERNAL_PORT=5000
     depends_on:
       - worker
-    command: python wsgi.py
+    command: /usr/bin/supervisord
+    #sudo systemctl restart nginx

@@ -27,11 +27,22 @@ RUN pip install -r requirements.lock
 # Install extra GCP-specific packages
 RUN pip install google-cloud-logging
 
+# Install nginx and supervisord 
+RUN apt-get -y install nginx supervisor openssl
+RUN mkdir -p /var/log/supervisor
+
+# Deploy NGINX conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/project.conf /etc/nginx/conf.d/
+COPY nginx/forward_headers.conf /etc/nginx/include/forward_headers.conf
+# Deploy supervisord conf
+COPY supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN chmod -R a+w /var/log/supervisor
+
 WORKDIR /app/src
 
 RUN groupadd -r svc_user -g 433 && \
     useradd -u 431 -r -g svc_user -s /bin/bash -c "Unprivileged user" svc_user
+#USER svc_user
 
-USER svc_user
-
-CMD python wsgi.py
+CMD ["/usr/bin/supervisord"]
