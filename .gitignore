@@ -174,3 +174,7 @@ certs/
 
 # Yolo output
 runs/
+
+# Allow web app data/upload directory placeholder (but not the content)
+!web-app/src/data/
+web-app/src/data/uploads/*

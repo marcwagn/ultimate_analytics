@@ -1,0 +1,36 @@
+services:
+  redis:
+    container_name: redis-server
+    image: redis:alpine
+    ports:
+      - 6379:6379
+
+  worker:
+    container_name: ultimate-worker
+    image: ultimate:latest
+    volumes:
+      - ./src/data/uploads:/data/uploads:rw
+    environment:
+      - REDIS_URL=redis://redis-server:6379
+      - VIDEO_DATA_DIR=/data/uploads
+      - GCP_LOGGING=False
+    depends_on:
+      - redis
+    command: celery -A make_celery worker --loglevel=INFO
+
+  web:
+    container_name: ultimate-web
+    image: ultimate:latest
+    ports:
+      - 8080:8080 # HTTP/2 h2c via nginx
+      - 5000:5000 # HTTP 1/1 via WSGI over Flask
+    volumes:
+      - ./src/data/uploads:/data/uploads:rw
+    environment:
+      - REDIS_URL=redis://redis-server:6379
+      - VIDEO_DATA_DIR=/data/uploads
+      - GCP_LOGGING=False
+      - INTERNAL_PORT=5000
+    depends_on:
+      - worker
+    command: /usr/bin/supervisord
