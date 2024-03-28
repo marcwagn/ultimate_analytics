@@ -7,13 +7,14 @@ const taskForm = (formName, doPoll, report) => {
       event.preventDefault()
 
       const fileInput = document.querySelector('input[type="file"]');
+      const videoPlayer = document.getElementById('videoplayer');
       
       const formData = new FormData(event.target)
-      formData.append('file', $('input[type="file"]').files[0]);
+      formData.append('file', fileInput.files[0]);
 
-      var url = URL.createObjectURL($('input[type="file"]').files[0]);
-      $("#videoplayer").src = url;
-      $("#videoplayer").style.display = 'block';
+      var url = URL.createObjectURL(fileInput.files[0]);
+      videoPlayer.src = url;
+      videoPlayer.style.display = 'block';
 
       fetch(event.target.action, {
         method: "POST",
@@ -46,6 +47,8 @@ const taskForm = (formName, doPoll, report) => {
 
 taskForm("video-upload-form", true, data => {
   const progressbar = document.getElementById("progressbar")
+  const tacticalboard = document.getElementById("tacticalboard")
+
   if (data === null) {
     console.log("uploading...")
   } else if (!data["ready"]) {
@@ -55,31 +58,44 @@ taskForm("video-upload-form", true, data => {
   } else {
     progressbar.value = 1;
 
-  let person_coords = data["value"]["coordinates"]
+    // get the coordinates of the players
+    let person_coords = data["value"]["coordinates"]
 
-  const updateCanvas = (now, metadata) => {
-    let shown_frame = Math.floor(metadata["mediaTime"] * 30)
-    // render pitch
-    drawPitchOutline($('#tacticalboard'));
+    // create a backbuffer canvas to draw the pitch on
+    let backBuffer = document.createElement('canvas');
+    backBuffer.width = tacticalboard.width;
+    backBuffer.height = tacticalboard.height;
+    let backBufferContext = backBuffer.getContext('2d');
 
-    // render players
-    for (let person of person_coords[shown_frame]) {
-      if (person.cls == 0) {
+    const updateCanvas = (now, metadata) => {
+      let shown_frame = Math.floor(metadata["mediaTime"] * 30)
 
-        const {x, y} = standardCoordsToCanvasCoords(person.x, person.y, $('#tacticalboard'));
+      // clear backbuffer
+      backBufferContext.fillStyle = 'rgba(255, 255, 255, 0)';
+      backBufferContext.fillRect(0, 0, backBuffer.width, backBuffer.height);
 
-        if (person.team == 0) {
-          drawCircle($('#tacticalboard').getContext('2d'), x, y, 5, 'black')
-        } else {
-          drawCircle($('#tacticalboard').getContext('2d'), x, y, 5, 'yellow')
+      // render pitch on backbuffer
+      drawPitchOutline(backBuffer);
+    
+      // render players on backbuffer
+      for (let person of person_coords[shown_frame]) {
+        if (person.cls == 0) {
+
+          const {x, y} = standardCoordsToCanvasCoords(person.x, person.y, backBuffer);
+
+          if (person.team == 0) {
+            drawCircle(backBufferContext, x, y + shown_frame, 5, 'black')
+          } else {
+            drawCircle(backBufferContext, x, y + shown_frame, 5, 'yellow')
+          }
         }
       }
-    }
-    //console.log(person_coords[shown_frame])
-    $("#videoplayer").requestVideoFrameCallback(updateCanvas);
-  };
+      // copy backbuffer to screen
+      tacticalboard.getContext('2d').drawImage(backBuffer, 0, 0);
+      // request next frame
+      videoplayer.requestVideoFrameCallback(updateCanvas);
+    };
 
-  $("#videoplayer").requestVideoFrameCallback(updateCanvas);
-  //console.log(data["value"]["coordinates"])
+  videoplayer.requestVideoFrameCallback(updateCanvas);
   }
 })

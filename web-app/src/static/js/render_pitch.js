@@ -50,6 +50,14 @@ export const getPitchDimensions = (tacticalboard)=> {
     return {vertical_pitch_offset, horizontal_pitch_offset, pitch_height, pitch_width};
 }
 
+/**
+ * Converts standard coordinates to canvas coordinates based on the given tactical board.
+ *
+ * @param {number} x - The x-coordinate in standard coordinates.
+ * @param {number} y - The y-coordinate in standard coordinates.
+ * @param {object} tacticalboard - The tactical board object.
+ * @returns {object} - The converted coordinates as an object with x and y properties.
+ */
 export const standardCoordsToCanvasCoords = (x, y, tacticalboard) => {
     const { vertical_pitch_offset, horizontal_pitch_offset, 
         pitch_height, pitch_width } = getPitchDimensions(tacticalboard);
