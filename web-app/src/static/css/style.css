@@ -1,0 +1,135 @@
+/* CSS files add styling rules to your content */
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../../static/img/background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.7; /* Adjust as needed */
+  z-index: -1;
+}
+
+body {
+    font-family: helvetica, arial, sans-serif;
+    margin: 2em;
+    height: 100%;
+  }
+  
+#title {
+    font-style: italic;
+    color: black;
+    text-align: center;
+    font-size: 3em;
+  }
+
+/* CSS for the video uploader and progress bar */
+
+#upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background-color: rgba(235, 144, 148, 0.5);
+}
+
+#video-upload-form, #progressbar {
+  width: 30%;
+}
+
+#video-upload-form  {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+#progressbar {
+  margin-top: 20px ;
+  margin-bottom: 20px;
+  accent-color: black;
+}
+
+/* CSS for the video player and drawable canvas */
+
+#dashboard-container {
+    display: flex;
+    height: calc(100vh - 200px);
+    align-items: center;
+}
+
+#video-container, #controls-container {
+  display: flex;
+  height: 100%;
+}
+#video-container, #controls-container {
+  width: 45%;
+  align-items: center;
+  justify-content: center; 
+}
+
+/* format video player left side */ 
+#videoplayer {
+  width: 100%;
+}
+
+/* format tacticalboard and drawable on right side */
+
+#tacticalboard {
+  position: absolute;
+  background-color: white; 
+  /* display: flex;
+  align-items: center;
+  background-color: white; */
+}
+#drawable{
+  position: absolute;
+}
+ /* format toolbar */
+
+#toolbar {
+  display: inline-flex;
+  flex-direction: column;
+  padding: 5px;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(133, 132, 132, 0.575);
+  border-radius: 10px;
+  border: 2px solid rgba(56, 56, 56, 0.575);  
+}
+
+#tools {
+  display: flex;
+  flex-direction: column;
+  width: 70px;
+  align-items: center;
+}
+
+#toolbar * {
+  margin-bottom: 6px;
+}
+
+#toolbar label {
+  font-size: 13px;
+}
+
+#toolbar input {
+  width: 100%;
+}
+
+#toolbar button {
+  background-color: #1565c0;
+  border: none;
+  border-radius: 4px;
+  color:white;
+  padding: 2px;
+}
+
+.hidden {
+  visibility: hidden;
+}

@@ -162,6 +162,12 @@ cython_debug/
 # Project database
 data/
 
+# Model folder
+model/
+
+# Certificate folder
+certs/
+
 # Allow unit test data
 !ultimate-pipeline/src/tests/data/
 

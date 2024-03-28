@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>Ultimate Frisbee</title>
+    
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- <script>if (location.protocol !== 'https:') { location.protocol = 'https:'; }</script> -->
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
+
+    <!-- import the webpage's javascript file -->
+    <script type="module"  src="{{url_for('static', filename='js/video_analysis.js')}}" defer></script>
+    <!-- <script src="{{url_for('static', filename='js/drawable.js')}}" defer></script> -->
+    <script type="module" src="{{url_for('static', filename='js/main_script.js')}}" defer></script>
+    <script type="module" src="{{url_for('static', filename='js/render_pitch.js')}}" defer></script>
+
+  </head>
+
+  <body>
+    <div id="header-container">
+      <h1 id="title">Ultimate Frisbee tactical dashboard</h1>
+      <!-- Upload Form-->
+      <div id="upload-container">
+        <form id=video-upload-form method=post action="{{ url_for("tasks.upload") }}">
+          <input type=file id=video-file accept="video/*"> 
+          <input type=submit>
+        </form>
+
+        <!-- Progress bar -->
+        <progress id="progressbar" value="0" max="1"></progress>
+      </div>
+    </div>
+    
+    <div id="dashboard-container" class="hidden">
+      
+      <div id="video-container">
+        <video id="videoplayer"  controls playsinline> </video>
+      </div>
+      
+      <div id="controls-container">
+        <canvas id="tacticalboard" > </canvas> 
+        <canvas id="drawable"></canvas>
+      </div>
+
+      <div id="toolbar">
+        <h1>Toolbox</h1>
+        <div id="tools">
+          <label for="stroke">Stroke</label>
+          <input id="stroke" name='stroke' type="color">
+          <label for="lineWidth">Line Width</label>
+          <input id="lineWidth" name='lineWidth' type="number" value="5">
+          <button id="clear">Clear</button>
+        </div>
+      </div>
+    </div>
+
+  </body>
+
+</html>
