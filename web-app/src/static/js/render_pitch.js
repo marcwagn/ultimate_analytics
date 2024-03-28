@@ -63,9 +63,10 @@ export const standardCoordsToCanvasCoords = (x, y, tacticalboard) => {
 /**
  * Draws the pitch outline on the tactical board canvas.
  * 
- * @param {CanvasRenderingContext2D} ctx_tacticalboard - The 2D rendering context of the tactical board canvas.
+ * @param {Object} tacticalboard - The tactical board.
  */
-export const drawPitchOutline = (tacticalboard,ctx_tacticalboard) => {
+export const drawPitchOutline = (tacticalboard) => {
+    const ctx_tacticalboard = tacticalboard.getContext('2d');
 
     // get dimensions of the pitch
     const { vertical_pitch_offset, horizontal_pitch_offset, 

@@ -60,7 +60,7 @@ taskForm("video-upload-form", true, data => {
   const updateCanvas = (now, metadata) => {
     let shown_frame = Math.floor(metadata["mediaTime"] * 30)
     // render pitch
-    drawPitchOutline($('#tacticalboard'), $('#tacticalboard').getContext('2d'));
+    drawPitchOutline($('#tacticalboard'));
 
     // render players
     for (let person of person_coords[shown_frame]) {

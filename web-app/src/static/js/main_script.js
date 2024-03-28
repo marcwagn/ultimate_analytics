@@ -56,14 +56,14 @@ const resizeDrawable = () => {
 
 window.onload = () => {
     resizeTactical();
-    drawPitchOutline(tacticalboard,tacticalboard.getContext('2d'));
+    drawPitchOutline(tacticalboard);
     resizeDrawable();
     document.getElementById('dashboard-container').classList.remove('hidden')
 }
 
 window.addEventListener('resize', e => {
     resizeTactical();
-    drawPitchOutline(tacticalboard, tacticalboard.getContext('2d'));
+    drawPitchOutline(tacticalboard);
     resizeDrawable();
     resizeDrawable();
 });
