@@ -12,6 +12,3 @@ apt update && \
     apt install -y \ 
     # Google Cloud Storage components
     google-cloud-cli fuse gcsfuse
-
-# Install extra GCP-specific pip packages
-pip install google-cloud-logging
