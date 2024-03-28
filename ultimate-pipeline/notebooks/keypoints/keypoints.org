@@ -42,6 +42,18 @@ See [[https://tactical-board.com/uk/ultimate-frisbee][Ultimate Frisbee tactical 
 |    | 12 |    |
 | 10 |    | 11 |
 
+*** Keypoints as class ids
+| 31 |    | 32 |
+|    | 33 |    |
+| 34 |    | 35 |
+|    | 36 |    |
+|    | 37 |    |
+|    | 38 |    |
+| 39 |    | 40 |
+|    | 43 |    |
+| 41 |    | 42 |
+
+
 ** Keypoints rotated around the centre
 | BRF | BEC | BLF |
 |     | BMB |     |

@@ -170,6 +170,7 @@ certs/
 
 # Allow unit test data
 !ultimate-pipeline/src/tests/data/
+!web-app/tests/data/
 
 # Yolo output
 runs/
