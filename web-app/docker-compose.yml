@@ -34,4 +34,3 @@ services:
     depends_on:
       - worker
     command: /usr/bin/supervisord
-    #sudo systemctl restart nginx

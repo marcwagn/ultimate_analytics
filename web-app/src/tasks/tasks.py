@@ -1,4 +1,3 @@
-import time
 import cv2
 
 from celery import shared_task
