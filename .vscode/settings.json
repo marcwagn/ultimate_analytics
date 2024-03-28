@@ -1,11 +1,11 @@
 {
     "python.testing.pytestArgs": [
-        "src/tests"
+        "tests"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.testing.cwd": "ultimate-pipeline",
-    "ruff.lint.args": ["--config=ultimate-pipeline/pyproject.toml"],
-    "ruff.format.args": ["--config=ultimate-pipeline/pyproject.toml"],
+    "python.testing.cwd": "web-app",
+    "ruff.lint.args": ["--config=ruff.toml"],
+    "ruff.format.args": ["--config=ruff.toml"],
     "testExplorer.useNativeTesting": true
 }

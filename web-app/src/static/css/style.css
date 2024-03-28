@@ -81,17 +81,14 @@ body {
 /* format tacticalboard and drawable on right side */
 
 #tacticalboard {
-  display: flex;
+  position: absolute;
+  background-color: white; 
+  /* display: flex;
   align-items: center;
-
-  background-color: white;
-  height: 700px;
-  width: 500px;
+  background-color: white; */
 }
 #drawable{
   position: absolute;
-  height: 700px;
-  width: 500px;
 }
  /* format toolbar */
 

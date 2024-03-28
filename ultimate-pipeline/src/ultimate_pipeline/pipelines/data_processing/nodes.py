@@ -7,7 +7,7 @@ import pandas as pd
 import logging
 import random
 
-from .supervisely_converter import convert_images_annotations_folder_to_detect_data, convert_images_annotations_folder_to_pose_data
+from .supervisely_converter import convert_images_annotations_folder_to_detect_data, convert_images_annotations_folder_to_pose_data, KeypointsBoxesGenerationSettings
 from .supervisely_downloader import helper_download_image_dataset_from_supervisely
 
 logger = logging.getLogger(__name__)
@@ -48,14 +48,31 @@ def convert_supervisely_annotations_to_yolo_detect_dataframe(
         annotation_partitions_without_extension[filename_without_extension] = content_generator
 
     # Arbitrary padding for bounding box generation around keypoints (graphs in Supervisely annotations)
-    padding_x, padding_y = 20, 20
+    small_padding = (20.0, 20.0)
+    dynamic_padding = {
+        "31": small_padding,
+        "32": small_padding,
+        "33": small_padding,
+        "34": small_padding,
+        "35": small_padding,
+        "36": small_padding,
+        "37": small_padding,
+        "38": (25, 25),
+        "39": (30, 30),
+        "40": (30, 30),
+        "41": (40, 40),
+        "42": (40, 40),
+        "43": (40, 40),
+    }
+   
+    keypoints_bboxes_settings = KeypointsBoxesGenerationSettings(first_keypoint_class_id=31, settings=dynamic_padding)
 
     yolo_detect_df = convert_images_annotations_folder_to_detect_data(
         source=annotation_partitions_without_extension, 
         meta_file=meta_file,
-        keypoints_bboxes_generation=(True, padding_x, padding_y))
+        keypoints_bboxes_settings=keypoints_bboxes_settings)
 
-    # Fix up certain class ids to align with COCO class ids from the pre-trained model
+    # A fix up certain class ids to align with COCO class ids from the pre-trained model
     # - frisbee: 29
     # - referee: 30 (overriding existing COCO class id)
     # (see https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/datasets/coco.yaml)
