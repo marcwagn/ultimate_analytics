@@ -2,29 +2,30 @@ import pytest
 import pandas as pd
 from src.tasks.keypoints import KeypointsExtractor
 from src.tasks.homography import calculate_homography_matrix
-import os
-
-def _read_prediction_dataframe_from_dir(folder: str, is_tracking=True) -> pd.DataFrame:
-    file_list = sorted(os.listdir(folder), key=lambda x: int(x.rstrip(".txt").split("_")[-1]))
-    dfs = []
-    for i, file_name in enumerate(file_list):
-        columns=["cls", "x", "y", "w", "h", "conf", "id"] if is_tracking else ["cls", "x", "y", "w", "h", "conf"]
-        df = pd.read_csv(os.path.join(folder, file_name), sep=" ", header=None, names=columns)
-        df["frame"] = i
-        df["filename"] = file_name
-        dfs.append(df)
-
-    return pd.concat(dfs)
+from io import BytesIO
+import zipfile
 
 
-# In order to run the test, make sure that it points to a folder with YOLO8 object tracking results (txt files) and remove the skip decorator.
-@pytest.mark.skip("Integration tests, not part of unit tests")
-@pytest.mark.parametrize("folder_path", [("../ultimate-pipeline/runs/detect/track6/labels")])
-def test_get_4_best_keypoint_pairs_on_real_folder(folder_path):
-    df = _read_prediction_dataframe_from_dir(folder_path)
+def _read_prediction_dataframe_from_txt_archive(archive_path: str, is_tracking=True) -> pd.DataFrame:
+    with zipfile.ZipFile(archive_path, 'r') as archive:
+        file_list = sorted(archive.namelist(), key=lambda x: int(x.rstrip(".txt").split("_")[-1]))
+        dfs = []
+        for i, file_name in enumerate(file_list):
+            columns=["cls", "x", "y", "w", "h", "conf", "id"] if is_tracking else ["cls", "x", "y", "w", "h", "conf"]
+            with BytesIO(archive.read(file_name)) as file_buffer:
+                df = pd.read_csv(file_buffer, sep=" ", header=None, names=columns)
+            df["frame"] = i
+            df["filename"] = file_name
+            dfs.append(df)
+
+        return pd.concat(dfs)
+
+
+@pytest.mark.parametrize("labels_archive_path", [("./tests/data/tracking_set_real_life_1/labels.zip")])
+def test_get_4_best_keypoint_pairs_on_real_folder(labels_archive_path):
+    df = _read_prediction_dataframe_from_txt_archive(labels_archive_path)
     expected_detections = 64057
     expected_video_frames = 2935
-
     assert len(df) == expected_detections
 
     unprocessable_frames = []
