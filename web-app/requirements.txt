@@ -7,3 +7,5 @@ flask-cors~=4.0
 redis~=5.0
 python-dotenv~=1.0
 gevent~=24.2
+# Special cases = transient dependencies made explicit to prevent clashes
+lapx==0.5.5
