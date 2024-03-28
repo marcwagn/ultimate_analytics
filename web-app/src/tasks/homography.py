@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from src.keypoints import KeypointQuad
+from .keypoints import KeypointQuad
 
 keypoints_to_known_coordinates_map = {
     31: dict(real_pitch=np.float32([0, 0])),

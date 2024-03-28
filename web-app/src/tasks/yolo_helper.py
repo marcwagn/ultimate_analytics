@@ -28,7 +28,10 @@ def _convert_single_tracking_result(frame_no, boxes_result:ultralytics.engine.re
     if box is not None:
         class_ids = int_vectorized(box.cls.cpu().numpy())
         observation_count = len(class_ids)
-        class_id_to_name = lambda id: boxes_result.names[int(id)]
+
+        def class_id_to_name(id):
+            return boxes_result.names[int(id)]
+
         class_names = list(map(class_id_to_name, class_ids))
         ids = int_vectorized(box.id.cpu()) if box.id is not None else np.zeros(shape=observation_count, dtype='int')
         xywh = box.xywh.cpu()
@@ -37,20 +40,23 @@ def _convert_single_tracking_result(frame_no, boxes_result:ultralytics.engine.re
         ws = xywh[:, 2]
         hs = xywh[:, 3]
         frame_nos = np.repeat(a=frame_no, repeats=observation_count)
-        data = dict(frame_no=frame_nos, class_id=class_ids, class_name=class_names, id=ids, x=xs, y=ys, w=ws, h=hs)
+        # TODO - find confidence
+        # Add conf, id, cls
+        data = dict(frame=frame_nos, cls=class_ids, cls_name=class_names, id=ids, x=xs, y=ys, w=ws, h=hs)
         df = pd.DataFrame(data=data)
         return df
     else:
-        return pd.DataFrame(columns=['frame_no','class_id', 'class_name', 'id', 'x', 'y', 'w', 'h'])
+        return pd.DataFrame(columns=['frame','cls', 'cls_name', 'id', 'x', 'y', 'w', 'h'])
 
 def convert_tracking_results_to_pandas(tracking_results):
     """
     Convert YOLOv8 tracking output to a Pandas DataFrame.
     The DataFrame contains the following columns:
-        - frame_no:int - frame number
-        - class_id:int - class identifier
-        - class_name:str - class name of the tracked object
-        - id:int - identifier of the tracked object
+        - frame (int): frame number
+        - cls (int) - class identifier
+        - cls_name (str) - class name of the tracked object
+        - conf (float) - class detection confidence
+        - id (int): identifier of the tracked object
         - x:int - coordinates of the bounding boxes
         - y:int
         - w:int

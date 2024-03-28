@@ -1,11 +1,11 @@
 from celery.result import AsyncResult
-from flask import Blueprint
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 
 from tasks import tasks
 
 import os
 import tempfile
+import logger
 
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -30,8 +30,10 @@ def upload():
     video_path = os.path.join(video_data_dir, file.filename)
 
     file.save(video_path)
-    print(f"File saved to {video_path}")
+    logger.info(f"File saved to {video_path}")
 
+    # TO CONSIDER - send task by name
+    # current_app.extensions["celery"].send_task('video_analysis', args=[video_path])
     result = tasks.video_analysis.delay(video_path=video_path)
 
     return {"result_id": result.id}

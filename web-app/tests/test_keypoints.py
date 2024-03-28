@@ -2,7 +2,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from numpy.testing import assert_array_equal
-from src.keypoints import KeypointsExtractor
+from src.tasks.keypoints import KeypointsExtractor
 
 def _read_predictions_and_filter_keypoints(file_path: Path, is_tracking: bool=True, frame_no: int=0):
     columns=["cls", "x", "y", "w", "h", "conf", "id"] if is_tracking else ["cls", "x", "y", "w", "h", "conf"]
