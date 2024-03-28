@@ -6,7 +6,7 @@ const startDrawing = () => {
     //const drawable = document.getElementById('drawable');
     const tacticalBoard_ctx = tacticalBoard.getContext("2d");
 
-    videouploader.addEventListener('change', function(event) {
+    $("#video-uploader").addEventListener('change', function(event) {
         var file = event.target.files[0];
         var url = URL.createObjectURL(file);
 

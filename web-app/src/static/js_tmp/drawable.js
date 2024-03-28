@@ -5,18 +5,19 @@ const ctx = canvas.getContext('2d');
 canvasOffsetX = canvas.offsetLeft;
 canvasOffsetY = canvas.offsetTop;
 
-let style = getComputedStyle(drawable);
-ctx.canvas.width = parseInt(style.width);
-ctx.canvas.height = parseInt(style.height); 
+// let style = getComputedStyle(drawable);
+// ctx.canvas.width = parseInt(style.width);
+// ctx.canvas.height = parseInt(style.height); 
 
 let isPainting = false;
 let lineWidth = 5;
 let startX;
 let startY;
 
-window.addEventListener('resize', resize);
 
-function resize(){ 
+window.addEventListener('resize', resizeDrawable);
+
+const resizeDrawable = () => { 
     let style = getComputedStyle(drawable);
     ctx.canvas.width = parseInt(style.width);
     ctx.canvas.height = parseInt(style.height);
