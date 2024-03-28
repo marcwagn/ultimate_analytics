@@ -1,16 +1,19 @@
+import { drawPitchOutline, drawCircle, standardCoordsToCanvasCoords } from './render_pitch.js';
+
+const $ = (selector) => document.querySelector(selector);
+
 const taskForm = (formName, doPoll, report) => {
     document.forms[formName].addEventListener("submit", (event) => {
       event.preventDefault()
 
       const fileInput = document.querySelector('input[type="file"]');
-      const video = document.querySelector("#videoplayer");
       
       const formData = new FormData(event.target)
-      formData.append('file', fileInput.files[0]);
+      formData.append('file', $('input[type="file"]').files[0]);
 
-      var url = URL.createObjectURL(fileInput.files[0]);
-      video.src = url;
-      video.style.display = 'block';
+      var url = URL.createObjectURL($('input[type="file"]').files[0]);
+      $("#videoplayer").src = url;
+      $("#videoplayer").style.display = 'block';
 
       fetch(event.target.action, {
         method: "POST",
@@ -51,7 +54,32 @@ taskForm("video-upload-form", true, data => {
     console.log("error, check console")
   } else {
     progressbar.value = 1;
-    document.getElementById('dashboard-container').classList.remove('hidden')
+
+  let person_coords = data["value"]["coordinates"]
+
+  const updateCanvas = (now, metadata) => {
+    let shown_frame = Math.floor(metadata["mediaTime"] * 30)
+    // render pitch
+    drawPitchOutline($('#tacticalboard'), $('#tacticalboard').getContext('2d'));
+
+    // render players
+    for (let person of person_coords[shown_frame]) {
+      if (person.cls == 0) {
+
+        const {x, y} = standardCoordsToCanvasCoords(person.x, person.y, $('#tacticalboard'));
+
+        if (person.team == 0) {
+          drawCircle($('#tacticalboard').getContext('2d'), x, y, 5, 'black')
+        } else {
+          drawCircle($('#tacticalboard').getContext('2d'), x, y, 5, 'yellow')
+        }
+      }
+    }
+    //console.log(person_coords[shown_frame])
+    $("#videoplayer").requestVideoFrameCallback(updateCanvas);
+  };
+
+  $("#videoplayer").requestVideoFrameCallback(updateCanvas);
+  //console.log(data["value"]["coordinates"])
   }
-  console.log(data)
 })
