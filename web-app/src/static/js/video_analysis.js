@@ -10,10 +10,6 @@ const taskForm = (formName, doPoll, report) => {
       const formData = new FormData(event.target)
       formData.append('file', fileInput.files[0]);
 
-      //var url = URL.createObjectURL(fileInput.files[0]);
-      //videoPlayer.src = url;
-      //videoPlayer.style.display = 'block';
-
       fetch(event.target.action, {
         method: "POST",
         body: formData
@@ -52,6 +48,7 @@ taskForm("video-upload-form", true, data => {
 
   if (data === null) {
     console.log("uploading...")
+    progressbar.value = 0;
   } else if (!data["ready"]) {
     progressbar.value = data["value"]["status"]
   } else if (!data["successful"]) {
@@ -79,8 +76,20 @@ taskForm("video-upload-form", true, data => {
       backBufferContext.fillStyle = 'rgba(255, 255, 255, 0)';
       backBufferContext.fillRect(0, 0, backBuffer.width, backBuffer.height);
 
+      // handle edge cases
+      let personCoordsLength = Object.keys(person_coords).length;
+      if (shown_frame >= personCoordsLength) {
+        shown_frame = personCoordsLength - 1;
+      } else if (shown_frame == 0) { 
+        shown_frame = 1;
+      }
+
       // render pitch on backbuffer
       drawPitchOutline(backBuffer);
+
+      console.log(person_coords)
+      console.log(person_coords.length)
+      console.log(shown_frame)
     
       // render players on backbuffer
       for (let person of person_coords[shown_frame]) {

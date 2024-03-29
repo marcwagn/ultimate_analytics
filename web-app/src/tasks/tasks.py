@@ -27,7 +27,7 @@ def video_analysis(self: Task, video_path: str) -> object:
         logger.info(f"YOLO object tracking for {video_path}: frame {frame}")
         self.update_state(state="PROGRESS", meta={"status": frame / total_frames })
 
-    model_dir = os.getenv("MODEL_DATA_DIR", "./src/data/model")
+    model_dir = os.getenv("MODEL_DATA_DIR", "./data/model")
     model_path = os.path.join(model_dir, "best.pt")
     tracking_results = track(model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
 
@@ -42,7 +42,7 @@ def video_analysis(self: Task, video_path: str) -> object:
     tracking_results_dict = _convert_to_final_results(tracking_results_df)
 
     logger.info(f"Finished analysis for for video {video_path}")
-    return {"status": tracking_results_dict }
+    return {"status": 1, "coordinates": tracking_results_dict }
 
 def track(model_path: str, video_path: str, progressbar_callback: Callable) -> Any:
         """
