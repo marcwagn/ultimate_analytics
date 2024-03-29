@@ -98,13 +98,12 @@ def _translate_coordinates(tracking_results: ultralytics.engine.results.Boxes, t
     return tracking_results_df
 
 def _convert_to_final_results(tracking_results_df: pd.DataFrame) -> dict:
-    # NB - video frames start typically from 1 # TODO!!!
     print(tracking_results_df.head(20))
     converted_results = tracking_results_df[tracking_results_df["cls"].isin([0, 29, 30])]
     converted_results = converted_results[["cls", "x", "y", "team", "id", "frame"]]
+    # NB - video frames start typically from 1
+    converted_results["frame"] = converted_results["frame"] + 1
     converted_results = converted_results.dropna()
-    #converted_results = converted_results.set_index(["frame"])
-    #converted_results = converted_results.to_dict(orient="records")
     final_dict = {}
     for frame in converted_results["frame"].unique(): 
         results_for_frame = converted_results[converted_results["frame"]==frame].drop(columns=["frame"])
