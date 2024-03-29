@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from src.tasks.keypoints import KeypointsExtractor
 
-PATH_PREFIX = Path("./tests/data/tracking_set_curated_short")
+PATH_PREFIX = Path("./tests/data/tracking_set_curated_txt")
 
 def _read_predictions_and_filter_keypoints(file_path: Path, is_tracking: bool=True, frame_no: int=0):
     columns=["cls", "x", "y", "w", "h", "conf", "id"] if is_tracking else ["cls", "x", "y", "w", "h", "conf"]

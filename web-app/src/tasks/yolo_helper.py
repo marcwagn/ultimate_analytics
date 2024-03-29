@@ -26,6 +26,7 @@ def _convert_single_tracking_result(frame_no, boxes_result:ultralytics.engine.re
     box = boxes_result.boxes # sic!
     int_vectorized = np.vectorize(np.int_, otypes=[int])
     if box is not None:
+        # NB - Torch tensors may sit on GPU if one was used, they need to be moved to CPU to convert to Numpy
         class_ids = int_vectorized(box.cls.cpu().numpy())
         observation_count = len(class_ids)
 
@@ -34,19 +35,18 @@ def _convert_single_tracking_result(frame_no, boxes_result:ultralytics.engine.re
 
         class_names = list(map(class_id_to_name, class_ids))
         ids = int_vectorized(box.id.cpu()) if box.id is not None else np.zeros(shape=observation_count, dtype='int')
-        xywh = box.xywh.cpu()
-        xs = xywh[:, 0]
-        ys = xywh[:, 1]
-        ws = xywh[:, 2]
-        hs = xywh[:, 3]
-        frame_nos = np.repeat(a=frame_no, repeats=observation_count)
-        # TODO - find confidence
-        # Add conf, id, cls
-        data = dict(frame=frame_nos, cls=class_ids, cls_name=class_names, id=ids, x=xs, y=ys, w=ws, h=hs)
+        # NB - use the normalized bounded boxes
+        xywhn = box.xywhn.cpu() 
+        xs = xywhn[:, 0]
+        ys = xywhn[:, 1]
+        ws = xywhn[:, 2]
+        hs = xywhn[:, 3]
+        confs = box.conf.cpu()
+        data = dict(cls=class_ids, x=xs, y=ys, w=ws, h=hs, conf=confs, id=ids, frame=frame_no, cls_name=class_names)
         df = pd.DataFrame(data=data)
         return df
     else:
-        return pd.DataFrame(columns=['frame','cls', 'cls_name', 'id', 'x', 'y', 'w', 'h'])
+        return pd.DataFrame(columns=['cls', 'x', 'y', 'w', 'h', 'conf', 'id', 'frame', 'cls_name'])
 
 def convert_tracking_results_to_pandas(tracking_results):
     """
@@ -57,10 +57,11 @@ def convert_tracking_results_to_pandas(tracking_results):
         - cls_name (str) - class name of the tracked object
         - conf (float) - class detection confidence
         - id (int): identifier of the tracked object
-        - x:int - coordinates of the bounding boxes
-        - y:int
-        - w:int
-        - h::int
+        - x (int) - coordinates of the bounding boxes
+        - y (int)
+        - w (int)
+        - h (int)
+        - frame (int) - frame number
     """
     dfs = [] # Will contain 1 data frame per video frame
     for i, tr in enumerate(tracking_results):

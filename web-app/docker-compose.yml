@@ -13,6 +13,7 @@ services:
     environment:
       - REDIS_URL=redis://redis-server:6379
       - VIDEO_DATA_DIR=/data/uploads
+      - MODEL_DATA_DIR=TODO # TODO :)
       - GCP_LOGGING=False
     depends_on:
       - redis

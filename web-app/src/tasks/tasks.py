@@ -1,59 +1,59 @@
+from typing import Any, Callable
 from celery import shared_task
 from celery import Task
 from celery.utils.log import get_task_logger
-from yolo_helper import make_callback_adapter_with_counter, convert_tracking_results_to_pandas
-from src.keypoints import KeypointsExtractor, KeypointQuad
-from src.homography import calculate_homography_matrix, convert_h
-from src.video_object import VideoObject
-from src.team_detector import TeamDetector
+from .yolo_helper import make_callback_adapter_with_counter, convert_tracking_results_to_pandas
+from .keypoints import KeypointsExtractor
+from .homography import calculate_homography_matrix, convert_h
+import ultralytics
+import cv2
+import os
+import pandas as pd
+import numpy as np
+import torch
+import pickle
 
 logger = get_task_logger(__name__)
 
-
+#TODO: uncomment that!!!
 @shared_task(bind=True, ignore_result=False)
 def video_analysis(self: Task, video_path: str) -> object:
     logger.info(f"Start analysis for video: {video_path}")
+    # TODO - remove
+    print(f"type of task is '{type(self)}'")
     self.update_state(state="PROGRESS", meta={"status": 0})
 
-    video_object = VideoObject(video_path=video_path)
-
-    #video = cv2.VideoCapture(video_path)
-    #total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-    total_frames = video_object.get_num_frames()
+    video = cv2.VideoCapture(video_path)
+    total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
     def update_progressbar(frame):
         if frame % 100:
             logger.info(f"YOLO object tracking for {video_path}: frame {frame}")
         self.update_state(state="PROGRESS", meta={"status": frame / total_frames })
 
-    model_path = "TODO"
-    tracking_results = track(self, model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
-
-    # Team detection
-    for frame in range(0, total_frames):
-        img = video_object.get_frame(frame)
-        team_detector = TeamDetector(img=img, detector_results=tracking_results)
-        team_prediction = team_detector.predict_player_clusters(player_imgs=TODO)
+    model_path = os.getenv("MODEL_DATA_DIR", "./src/data/model/best.pt")
+    tracking_results = track(model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
+    # # TODO - remove
+    # tracking_results_curated = list(tracking_results)[0:10]
+    # for result in tracking_results_curated:
+    #     del result.orig_img
+    # with open('tracking_results.pickle', 'wb') as f:
+    #      pickle.dump(tracking_results_curated, f)
 
     # Keypoints and perspective removal
-    tracking_results_df = convert_tracking_results_to_pandas(tracking_results)
+    logger.info(f"Removing perspective from video {video_path}")
+    tracking_results_df = _translate_coordinates(tracking_results, total_frames=total_frames)
 
-    keypoints_extractor = KeypointsExtractor(tracking_results_df, conf_threshold=0.5, max_lookback=30)
-    H_all = [calculate_homography_matrix(keypoints_extractor.get_4_best_keypoint_pairs(frame)) for frame in range(0, total_frames)]
-    # TODO - make it in 1 pass
-    tracking_results_df["x_t"] = tracking_results_df.apply(lambda row: convert_h(H_all[row["frame"]], row[1:3].to_numpy())[0], axis=1)
-    tracking_results_df["y_t"] = tracking_results_df.apply(lambda row: convert_h(H_all[row["frame"]], row[1:3].to_numpy())[1], axis=1)
+    # TODO - team detection
+    tracking_results_df["team"] = 0
 
+    logger.info(f"Preparing final results for video {video_path}")
+    tracking_results_dict = _convert_to_final_results(tracking_results_df)
 
-    # for frame in range(0,total_frames,100):
-    #     #logger.info(f"Detected frames: {frames}")
-    #     time.sleep(1)
-
-     # TODO
-    tracking_results_dict = tracking_results_df
+    logger.info(f"Finished analysis for for video {video_path}")
     return {"status": tracking_results_dict }
 
-def track(self, model_path: str, video_path: str, progressbar_callback: Callable) -> Any
+def track(model_path: str, video_path: str, progressbar_callback: Callable) -> Any:
         """
         Perform object tracking on the video with YOLOv8.
         Args:
@@ -67,7 +67,48 @@ def track(self, model_path: str, video_path: str, progressbar_callback: Callable
                                                                        lambda _,counter: progressbar_callback(counter))
         model.add_callback(yolo_progress_reporting_event, progress_callback_wrapped)
 
-        device = 0 if torch.cuda.is_available() else 'cpu' 
+        # NB - if torch package is installed in the CPU variant, the device will default to "cpu"
+        device = 0 if torch.cuda.is_available() else "cpu" 
         tracking_results = model.track(source=video_path, agnostic_nms=True, show=False, device=device, stream=True)
 
         return tracking_results
+
+def _translate_coordinates(tracking_results: ultralytics.engine.results.Boxes, total_frames: int) -> pd.DataFrame:
+    tracking_results_df = convert_tracking_results_to_pandas(tracking_results)
+
+    keypoints_extractor = KeypointsExtractor(tracking_results_df, conf_threshold=0.5, max_lookback=30)
+    # Calculate homography matrices
+    H_all = [calculate_homography_matrix(keypoints_extractor.get_4_best_keypoint_pairs(frame)) for frame in range(0, total_frames)]
+    # TODO - make it in 1 pass
+    # tracking_results_df["x_t"] = tracking_results_df.apply(lambda row: convert_h(H_all[row["frame"]], row["x":"y"].to_numpy())[0], axis=1)
+    # tracking_results_df["y_t"] = tracking_results_df.apply(lambda row: convert_h(H_all[row["frame"]], row["x":"y"].to_numpy())[1], axis=1)
+
+    def remove_perspective(row):
+         h = H_all[row["frame"]]
+         if h is None:
+              row["x"] = np.nan
+              row["y"] = np.nan
+         else:
+            translated_coords = convert_h(h, row["x":"y"].to_numpy())
+            row["x"] = translated_coords[0]
+            row["y"] = translated_coords[1]
+         return row
+
+    tracking_results_df = tracking_results_df.apply(remove_perspective, axis=1)
+    return tracking_results_df
+
+def _convert_to_final_results(tracking_results_df: pd.DataFrame) -> dict:
+    # NB - video frames start typically from 1 # TODO!!!
+    print(tracking_results_df.head(20))
+    converted_results = tracking_results_df[tracking_results_df["cls"].isin([0, 29, 30])]
+    converted_results = converted_results[["cls", "x", "y", "team", "id", "frame"]]
+    converted_results = converted_results.dropna()
+    #converted_results = converted_results.set_index(["frame"])
+    #converted_results = converted_results.to_dict(orient="records")
+    final_dict = {}
+    for frame in converted_results["frame"].unique(): 
+        results_for_frame = converted_results[converted_results["frame"]==frame].drop(columns=["frame"])
+        # NB - We convert frame number to string so that it can be later JSONified correctly as a dictionary key
+        final_dict[str(frame)] = results_for_frame.to_dict(orient="records")
+         
+    return final_dict

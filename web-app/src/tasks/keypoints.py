@@ -81,12 +81,13 @@ class KeypointsExtractor:
         Args:
             frame_no (int): image/video frame number
         """
-        # No eligible lines forming the 4 corner keypoints were found. Try to look back.
+        # Run in a loop. If no eligible lines forming the 4 corner keypoints were found, try to look back.
         for frame_to_look in range(frame_no, frame_no-self.max_lookback, -1):
             df = self._all_frames_augmented_df[self._all_frames_augmented_df["frame"]==frame_to_look]
             result = self._get_4_best_keypoint_pairs_internal(df, frame_no=frame_to_look)
             if result is not None:
                 return result
+        return None # Give up after looking at N frames back
 
 
     def _get_4_best_keypoint_pairs_internal(self, df: pd.DataFrame, frame_no: int) -> Union[KeypointQuad, None]:

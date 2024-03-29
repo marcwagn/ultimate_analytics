@@ -21,7 +21,7 @@ def _read_prediction_dataframe_from_txt_archive(archive_path: str, is_tracking=T
         return pd.concat(dfs)
 
 
-@pytest.mark.parametrize("labels_archive_path", [("./tests/data/tracking_set_real_life_1/labels.zip")])
+@pytest.mark.parametrize("labels_archive_path", [("./tests/data/tracking_set_large_zip/labels.zip")])
 def test_get_4_best_keypoint_pairs_on_real_folder(labels_archive_path):
     df = _read_prediction_dataframe_from_txt_archive(labels_archive_path)
     expected_detections = 64057
