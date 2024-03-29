@@ -1,7 +1,5 @@
 import { drawPitchOutline, drawCircle, standardCoordsToCanvasCoords } from './render_pitch.js';
 
-const $ = (selector) => document.querySelector(selector);
-
 const taskForm = (formName, doPoll, report) => {
     document.forms[formName].addEventListener("submit", (event) => {
       event.preventDefault()
@@ -12,9 +10,9 @@ const taskForm = (formName, doPoll, report) => {
       const formData = new FormData(event.target)
       formData.append('file', fileInput.files[0]);
 
-      var url = URL.createObjectURL(fileInput.files[0]);
-      videoPlayer.src = url;
-      videoPlayer.style.display = 'block';
+      //var url = URL.createObjectURL(fileInput.files[0]);
+      //videoPlayer.src = url;
+      //videoPlayer.style.display = 'block';
 
       fetch(event.target.action, {
         method: "POST",
@@ -46,8 +44,11 @@ const taskForm = (formName, doPoll, report) => {
 }
 
 taskForm("video-upload-form", true, data => {
-  const progressbar = document.getElementById("progressbar")
-  const tacticalboard = document.getElementById("tacticalboard")
+  const progressbar = document.getElementById("progressbar");
+  const tacticalboard = document.getElementById("tacticalboard");
+  const fileInput = document.querySelector('input[type="file"]');
+  const videoPlayer = document.getElementById('videoplayer');
+
 
   if (data === null) {
     console.log("uploading...")
@@ -57,6 +58,10 @@ taskForm("video-upload-form", true, data => {
     console.log("error, check console")
   } else {
     progressbar.value = 1;
+
+    var url = URL.createObjectURL(fileInput.files[0]);
+    videoPlayer.src = url;
+    videoPlayer.style.display = 'block';
 
     // get the coordinates of the players
     let person_coords = data["value"]["coordinates"]
@@ -90,6 +95,7 @@ taskForm("video-upload-form", true, data => {
           }
         }
       }
+
       // copy backbuffer to screen
       tacticalboard.getContext('2d').drawImage(backBuffer, 0, 0);
       // request next frame
