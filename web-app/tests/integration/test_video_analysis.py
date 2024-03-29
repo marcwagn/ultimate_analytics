@@ -1,27 +1,11 @@
 import pytest
 import pickle
 from src.tasks import tasks
-import json
-from unittest.mock import patch
+# from unittest.mock import patch
 
-@pytest.mark.skip("Not ready yet")
-@pytest.mark.parametrize("pickled_results_path", [("./tests/data/tracking_set_ultralytics/tracking_results.pickle")])
-def test_video_analysis_coordinates_translation(pickled_results_path):
-    with open(pickled_results_path, "rb") as f:
-        tracking_results = pickle.load(f)
-
-    expected_total_frames = 1
-    df = tasks._translate_coordinates(tracking_results, expected_total_frames)
-    #print(df.tail(30))
-    assert df is not None
-    assert len(df["frame"].unique()) == expected_total_frames
-
-
-@pytest.mark.skip("Not ready yet")
-@pytest.mark.parametrize("video_path", [("./tests/data/large_data/machine_vs_condors_pool_001-tiny.mp4")])
+@pytest.mark.parametrize("video_path", [("./tests/data/videos/machine_vs_condors_pool_001-supertiny.mp4")])
 # @patch('src.tasks.tasks.video_analysis.update_state')
 def test_video_analysis_can_run_prediction_on_video(video_path):
-    task_stub = TaskStub()
     # type of task is '<class 'src.tasks.tasks.video_analysis'>'
     print(type(tasks))
     #results = tasks.video_analysis(task_stub, video_path)
@@ -54,8 +38,3 @@ def test_video_analysis_final_translation(pickled_results_path):
     expected_columns = ["cls", "x", "y", "id", "frame"]
     assert set(df.columns).issuperset(set(expected_columns))
     assert not df.isna().any(axis=None)
-
-
-class TaskStub:
-    def update_state(self, state: str, meta: dict):
-        print(f"update_state called with state {state} and metadata {meta}")
