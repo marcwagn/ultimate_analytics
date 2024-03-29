@@ -8,7 +8,7 @@ def test_convert_to_final_results():
     ys = [6.411272e+01,6.456938e+01,6.159928e+01,5.963575e+01,1.659033e+01,1.406071e+01,1.800000e+01,1.547850e+01,3.578895e+01,4.909965e+01,1.872962e+01,1.800000e+01,6.411298e+01]
     ids = np.random.randint(1, 100)
     teams = np.random.randint(0, 1)
-    frames = [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2]
+    frames = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1]
     data = dict(cls=clses, x=xs, y=ys, team=teams, id=ids, frame=frames)
     df = pd.DataFrame(data=data)
 
@@ -17,6 +17,7 @@ def test_convert_to_final_results():
 
     assert isinstance(final_results, dict)
     # Expecting 2 frames
+    assert len(final_results.keys()) == 2
     assert "1" in final_results
     assert "2" in final_results
 

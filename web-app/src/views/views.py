@@ -1,3 +1,4 @@
+import logging
 from celery.result import AsyncResult
 from flask import request, jsonify, Blueprint
 
@@ -5,9 +6,9 @@ from tasks import tasks
 
 import os
 import tempfile
-import logger
 
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+logger = logging.getLogger(__name__)
 
 @bp.get("/result/<id>")
 def result(id: str) -> dict[str, object]:
@@ -21,9 +22,10 @@ def result(id: str) -> dict[str, object]:
 
 @bp.post('/upload')
 def upload():
+    logger.info("Received upload request")
     if 'file' not in request.files:
         return jsonify({'message': 'No file part in the request'}), 400
-
+    
     file = request.files['file']
     
     video_data_dir = os.getenv("VIDEO_DATA_DIR", tempfile.gettempdir())

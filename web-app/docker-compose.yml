@@ -9,11 +9,11 @@ services:
     container_name: ultimate-worker
     image: ultimate:latest
     volumes:
-      - ./src/data/uploads:/data/uploads:rw
+      - ./src/data:/data:rw
     environment:
       - REDIS_URL=redis://redis-server:6379
       - VIDEO_DATA_DIR=/data/uploads
-      - MODEL_DATA_DIR=TODO # TODO :)
+      - MODEL_DATA_DIR=/data/model
       - GCP_LOGGING=False
     depends_on:
       - redis

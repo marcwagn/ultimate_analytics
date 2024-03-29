@@ -9,6 +9,5 @@ curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 
 apt update && \
-    apt install -y \ 
-    # Google Cloud Storage components
-    google-cloud-cli fuse gcsfuse
+    apt install -y \
+    google-cloud-cli fuse gcsfuse    # Google Cloud components

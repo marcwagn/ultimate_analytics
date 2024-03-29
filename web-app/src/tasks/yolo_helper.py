@@ -22,7 +22,7 @@ def make_callback_adapter_with_counter(event_name, callback):
 
     return yolo_callback
 
-def _convert_single_tracking_result(frame_no, boxes_result:ultralytics.engine.results.Boxes):
+def _convert_single_tracking_result(frame_no, boxes_result:ultralytics.engine.results.Boxes) -> pd.DataFrame:
     box = boxes_result.boxes # sic!
     int_vectorized = np.vectorize(np.int_, otypes=[int])
     if box is not None:
@@ -48,7 +48,7 @@ def _convert_single_tracking_result(frame_no, boxes_result:ultralytics.engine.re
     else:
         return pd.DataFrame(columns=['cls', 'x', 'y', 'w', 'h', 'conf', 'id', 'frame', 'cls_name'])
 
-def convert_tracking_results_to_pandas(tracking_results):
+def convert_tracking_results_to_pandas(tracking_results: list[ultralytics.engine.results.Results]) -> pd.DataFrame:
     """
     Convert YOLOv8 tracking output to a Pandas DataFrame.
     The DataFrame contains the following columns:
@@ -62,6 +62,8 @@ def convert_tracking_results_to_pandas(tracking_results):
         - w (int)
         - h (int)
         - frame (int) - frame number
+    Args:
+        tracking_results (list[ultralytics.engine.results.Results]) - YOLO tracking results
     """
     dfs = [] # Will contain 1 data frame per video frame
     for i, tr in enumerate(tracking_results):

@@ -11,34 +11,25 @@ import os
 import pandas as pd
 import numpy as np
 import torch
-import pickle
 
 logger = get_task_logger(__name__)
 
-#TODO: uncomment that!!!
 @shared_task(bind=True, ignore_result=False)
 def video_analysis(self: Task, video_path: str) -> object:
     logger.info(f"Start analysis for video: {video_path}")
-    # TODO - remove
-    print(f"type of task is '{type(self)}'")
     self.update_state(state="PROGRESS", meta={"status": 0})
 
     video = cv2.VideoCapture(video_path)
     total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    logger.info(f"Found {total_frames} frames in video: {video_path}")
 
     def update_progressbar(frame):
-        if frame % 100:
-            logger.info(f"YOLO object tracking for {video_path}: frame {frame}")
+        logger.info(f"YOLO object tracking for {video_path}: frame {frame}")
         self.update_state(state="PROGRESS", meta={"status": frame / total_frames })
 
-    model_path = os.getenv("MODEL_DATA_DIR", "./src/data/model/best.pt")
+    model_dir = os.getenv("MODEL_DATA_DIR", "./src/data/model")
+    model_path = os.path.join(model_dir, "best.pt")
     tracking_results = track(model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
-    # # TODO - remove
-    # tracking_results_curated = list(tracking_results)[0:10]
-    # for result in tracking_results_curated:
-    #     del result.orig_img
-    # with open('tracking_results.pickle', 'wb') as f:
-    #      pickle.dump(tracking_results_curated, f)
 
     # Keypoints and perspective removal
     logger.info(f"Removing perspective from video {video_path}")
@@ -73,16 +64,13 @@ def track(model_path: str, video_path: str, progressbar_callback: Callable) -> A
 
         return tracking_results
 
-def _translate_coordinates(tracking_results: ultralytics.engine.results.Boxes, total_frames: int) -> pd.DataFrame:
+def _translate_coordinates(tracking_results: list[ultralytics.engine.results.Results], total_frames: int) -> pd.DataFrame:
     tracking_results_df = convert_tracking_results_to_pandas(tracking_results)
 
     keypoints_extractor = KeypointsExtractor(tracking_results_df, conf_threshold=0.5, max_lookback=30)
     # Calculate homography matrices
     H_all = [calculate_homography_matrix(keypoints_extractor.get_4_best_keypoint_pairs(frame)) for frame in range(0, total_frames)]
-    # TODO - make it in 1 pass
-    # tracking_results_df["x_t"] = tracking_results_df.apply(lambda row: convert_h(H_all[row["frame"]], row["x":"y"].to_numpy())[0], axis=1)
-    # tracking_results_df["y_t"] = tracking_results_df.apply(lambda row: convert_h(H_all[row["frame"]], row["x":"y"].to_numpy())[1], axis=1)
-
+ 
     def remove_perspective(row):
          h = H_all[row["frame"]]
          if h is None:

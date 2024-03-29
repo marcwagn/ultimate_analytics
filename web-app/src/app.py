@@ -1,21 +1,18 @@
+from werkzeug.exceptions import HTTPException
 from celery import Celery, Task
-from flask import Flask
-from flask import render_template
-
+from flask import Flask, request, render_template
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import logging
 from google.cloud import logging as gcp_logging
 
+
 def create_app() -> Flask:
     load_dotenv()
-    if os.getenv("GCP_LOGGING") == "True":
-        gcp_logging_client = gcp_logging.Client()
-        gcp_logging_client.setup_logging()
-
+    
     app = Flask(__name__)
-    app.logger.setLevel(logging.INFO)
+
     CORS(app)
     app.config.from_mapping(
         CELERY=dict(
@@ -26,6 +23,7 @@ def create_app() -> Flask:
     )
     app.config.from_prefixed_env()
     celery_init_app(app)
+    _configure_logging(app)
 
     @app.route("/")
     def index() -> str:
@@ -33,7 +31,12 @@ def create_app() -> Flask:
     
     @app.errorhandler(Exception)
     def handle_error(e):
-        app.logger.error(f'Web app: An error occurred: {str(e)}')
+        # pass through HTTP errors
+        if isinstance(e, HTTPException):
+            return e
+        # Handling non-HTTP exceptions only
+        exception_url = request.url
+        app.logger.error(f'Web app: An error occurred for request URL: {exception_url}: {str(e)}')
         return str(e), 500
 
     from views import views
@@ -52,6 +55,25 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app.set_default()
     app.extensions["celery"] = celery_app
     return celery_app
+
+
+def _configure_logging(app):
+    app.logger.setLevel(logging.INFO)
+
+    if os.getenv("GCP_LOGGING") == "True":
+        gcp_logging_client = gcp_logging.Client()
+        gcp_logging_client.setup_logging()
+    else:
+         # Create a console handler
+        console_handler = logging.StreamHandler()
+        # Create a formatter
+        #formatter = logging.Formatter('%(host)s -  %(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # Add the formatter to the console handler
+        console_handler.setFormatter(formatter)
+        # Add the console handler to the logger
+        app.logger.addHandler(console_handler)
+
 
 if __name__ == "__main__":
     app = create_app()
