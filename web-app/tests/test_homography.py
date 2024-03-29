@@ -1,8 +1,8 @@
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import pytest
-from src.keypoints import KeypointQuad
-import src.homography as hg
+from src.tasks.keypoints import KeypointQuad
+import src.tasks.homography as hg
 
 
 def generate_sample_keypoints():

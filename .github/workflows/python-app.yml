@@ -41,6 +41,8 @@ jobs:
       run: |
           cd web-app
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Special case Pytorch and Ultralytics to force the CPU-only version
+          pip install --no-cache torch torchvision ultralytics --extra-index-url https://download.pytorch.org/whl/cpu
     - name: Test web-app with pytest
       run: |
         cd web-app && python -m pytest tests
