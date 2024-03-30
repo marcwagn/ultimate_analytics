@@ -19,7 +19,7 @@ RUN pip install -r requirements.lock
 RUN pip install --no-cache torch torchvision ultralytics --extra-index-url https://download.pytorch.org/whl/cpu
 
 # Install extra GCP-specific packages
-RUN chmod +x scripts/install-gcs.sh && scripts/install-gcs.sh
+RUN chmod +x scripts/*.sh && scripts/install-gcs.sh
 
 # Install nginx and supervisord 
 RUN apt-get -y install nginx supervisor openssl

@@ -5,6 +5,7 @@ from celery.utils.log import get_task_logger
 from .yolo_helper import make_callback_adapter_with_counter, convert_tracking_results_to_pandas
 from .keypoints import KeypointsExtractor
 from .homography import calculate_homography_matrix, convert_h
+from .precalculated import get_precalculated_predictions_if_present
 import ultralytics
 import cv2
 import os
@@ -27,9 +28,11 @@ def video_analysis(self: Task, video_path: str) -> object:
         logger.info(f"YOLO object tracking for {video_path}: frame {frame}")
         self.update_state(state="PROGRESS", meta={"status": frame / total_frames })
 
-    model_dir = os.getenv("MODEL_DATA_DIR", "./src/data/model")
+    model_dir = os.getenv("MODEL_DATA_DIR", "data/model")
     model_path = os.path.join(model_dir, "best.pt")
-    tracking_results = track(model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
+
+    tracking_results = get_precalculated_predictions_if_present(video_path) \
+        or _track(model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
 
     # Keypoints and perspective removal
     logger.info(f"Removing perspective from video {video_path}")
@@ -44,7 +47,7 @@ def video_analysis(self: Task, video_path: str) -> object:
     logger.info(f"Finished analysis for for video {video_path}")
     return {"status": tracking_results_dict }
 
-def track(model_path: str, video_path: str, progressbar_callback: Callable) -> Any:
+def _track(model_path: str, video_path: str, progressbar_callback: Callable) -> Any:
         """
         Perform object tracking on the video with YOLOv8.
         Args:
@@ -52,11 +55,13 @@ def track(model_path: str, video_path: str, progressbar_callback: Callable) -> A
         Return:
             YOLO tracking results
         """
+
         model = ultralytics.YOLO(model_path, verbose=True)
-        yolo_progress_reporting_event = "on_predict_batch_start"
-        progress_callback_wrapped = make_callback_adapter_with_counter(yolo_progress_reporting_event, 
-                                                                       lambda _,counter: progressbar_callback(counter))
-        model.add_callback(yolo_progress_reporting_event, progress_callback_wrapped)
+        if progressbar_callback is not None and isinstance(progressbar_callback, Callable):
+            yolo_progress_reporting_event = "on_predict_batch_start"
+            progress_callback_wrapped = make_callback_adapter_with_counter(yolo_progress_reporting_event, 
+                                                                        lambda _,counter: progressbar_callback(counter))
+            model.add_callback(yolo_progress_reporting_event, progress_callback_wrapped)
 
         # NB - if torch package is installed in the CPU variant, the device will default to "cpu"
         device = 0 if torch.cuda.is_available() else "cpu" 
@@ -86,12 +91,12 @@ def _translate_coordinates(tracking_results: list[ultralytics.engine.results.Res
     return tracking_results_df
 
 def _convert_to_final_results(tracking_results_df: pd.DataFrame) -> dict:
-    print(tracking_results_df.head(20))
     converted_results = tracking_results_df[tracking_results_df["cls"].isin([0, 29, 30])]
     converted_results = converted_results[["cls", "x", "y", "team", "id", "frame"]]
     # NB - video frames start typically from 1
     converted_results["frame"] = converted_results["frame"] + 1
     converted_results = converted_results.dropna()
+
     final_dict = {}
     for frame in converted_results["frame"].unique(): 
         results_for_frame = converted_results[converted_results["frame"]==frame].drop(columns=["frame"])
@@ -99,3 +104,4 @@ def _convert_to_final_results(tracking_results_df: pd.DataFrame) -> dict:
         final_dict[str(frame)] = results_for_frame.to_dict(orient="records")
          
     return final_dict
+
