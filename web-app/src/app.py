@@ -1,6 +1,6 @@
 from werkzeug.exceptions import HTTPException
 from celery import Celery, Task
-from flask import Flask, request, render_template
+from flask import Flask, jsonify, request, render_template, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
@@ -28,6 +28,15 @@ def create_app() -> Flask:
     @app.route("/")
     def index() -> str:
         return render_template("index.html")
+    
+    @app.route('/healthcheck', methods=['GET'])
+    def healthcheck():
+        return jsonify({"status": "OK"}), 200
+    
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(os.path.join(app.root_path, 'static', 'img'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
     
     @app.errorhandler(Exception)
     def handle_error(e):
