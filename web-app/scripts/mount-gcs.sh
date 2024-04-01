@@ -23,4 +23,7 @@ echo "gcsfuse returned $?"
 if [ ! -d $MOUNT_DIR/precalculated ]; then
     echo "Error: expected $MOUNT_DIR/precalculated to exist in the mounted bucket, but nothing found"
     exit -2
+else
+    echo "Found $MOUNT_DIR/precalculated as expected"
+    ls -lh $MOUNT_DIR/precalculated
 fi

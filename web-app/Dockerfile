@@ -37,6 +37,9 @@ WORKDIR /app/src
 
 RUN groupadd -r svc_user -g 433 && \
     useradd -u 431 -r -g svc_user -s /bin/bash -c "Unprivileged user" svc_user
+
+#RUN chown -R svc_user.svc_user /app
+
 #USER svc_user
 
 CMD ["/usr/bin/supervisord"]
