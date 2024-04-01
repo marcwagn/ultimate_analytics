@@ -72,10 +72,16 @@ def _track(model_path: str, video_path: str, progressbar_callback: Callable) -> 
 def _translate_coordinates(tracking_results: list[ultralytics.engine.results.Results], total_frames: int) -> pd.DataFrame:
     tracking_results_df = convert_tracking_results_to_pandas(tracking_results)
 
-    keypoints_extractor = KeypointsExtractor(tracking_results_df, conf_threshold=0.5, max_lookback=30)
+    keypoints_extractor = KeypointsExtractor(tracking_results_df, conf_threshold=0.5, max_lookback=60)
     # Calculate homography matrices
-    H_all = [calculate_homography_matrix(keypoints_extractor.get_4_best_keypoint_pairs(frame)) for frame in range(0, total_frames)]
- 
+    H_all = []
+    for frame in range(0, total_frames):
+        kps = keypoints_extractor.get_4_best_keypoint_pairs(frame)
+        if kps is None:
+            raise RuntimeError(f"Error: couldnt detect enough keypoints for frame {frame}")
+        h = calculate_homography_matrix(kps)
+        H_all.append(h)
+        
     def remove_perspective(row):
          h = H_all[row["frame"]]
          if h is None:
