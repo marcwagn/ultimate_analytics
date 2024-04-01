@@ -7,3 +7,12 @@ flask-cors~=4.0
 redis~=5.0
 python-dotenv~=1.0
 gevent~=24.2
+google-cloud-logging~=3.10
+# Special cases = transient dependencies made explicit to prevent clashes
+lapx~=0.5
+# NB - torch, torchvision and ultralytics aren't specified here, as they require special handling to get the CPU-only variant installed.
+# See Dockerfile for the installation command of the packages below.
+# -f https://download.pytorch.org/whl/cpu
+# torch==2.2.0
+# torchvision==0.17.0
+# ultralytics
