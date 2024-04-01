@@ -62,7 +62,6 @@ taskForm("video-upload-form", true, data => {
 
     // get the coordinates of the players
     let person_coords = data["value"]["coordinates"]
-    console.log(person_coords)
 
     // create a backbuffer canvas to draw the pitch on
     let backBuffer = document.createElement('canvas');
@@ -99,9 +98,11 @@ taskForm("video-upload-form", true, data => {
           const {x, y} = standardCoordsToCanvasCoords(person.x, person.y, backBuffer);
 
           if (person.team == 0) {
-            drawCircle(backBufferContext, x, y + shown_frame, 5, 'black')
+            drawCircle(backBufferContext, x, y, 5, 'black')
+          } else if (person.team == 1) {
+            drawCircle(backBufferContext, x, y, 5, 'yellow')
           } else {
-            drawCircle(backBufferContext, x, y + shown_frame, 5, 'yellow')
+            drawCircle(backBufferContext, x, y, 5, 'orange')
           }
         }
       }

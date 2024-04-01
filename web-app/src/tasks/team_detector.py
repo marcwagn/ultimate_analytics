@@ -74,7 +74,7 @@ class TeamDetector:
         pred_labels_kmeans = kmeans.fit_predict(player_imgs_format)
     
         if len(player_imgs_format) > 14:
-            return pred_labels_kmeans
+            return pd.DataFrame({ 'id': ids, 'pred_team': pred_labels_kmeans})
         
         #get distence for each sample to each cluster center
         cluster_distances = kmeans.transform(player_imgs_format)
