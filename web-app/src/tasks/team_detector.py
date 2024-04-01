@@ -72,6 +72,12 @@ class TeamDetector:
 
         kmeans = KMeans(n_clusters=2)
         pred_labels_kmeans = kmeans.fit_predict(player_imgs_format)
+
+        # check if the first cluster center has a higher mean value than the second cluster center
+        cluster_centers = kmeans.cluster_centers_
+        cluster_center_means = np.mean(cluster_centers,axis=1)
+        if cluster_center_means[0] > cluster_center_means[1]:
+            pred_labels_kmeans = np.where(pred_labels_kmeans==0, 1, 0)
     
         if len(player_imgs_format) > 14:
             return pd.DataFrame({ 'id': ids, 'pred_team': pred_labels_kmeans})
