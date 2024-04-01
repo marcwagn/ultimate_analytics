@@ -2,7 +2,7 @@ import pytest
 import pickle
 from src.tasks import yolo_helper
 
-@pytest.mark.parametrize("pickled_results_path", [("./tests/data/tracking_set_ultralytics/tracking_results.pickle")])
+@pytest.mark.parametrize("pickled_results_path", [("./tests/data/tracking_set_ultralytics/tiny_tracking_results.pickle")])
 def test_yolo_tracking_results_conversion_to_dataframe(pickled_results_path: str):
     with open(pickled_results_path, "rb") as f:
         tracking_results = pickle.load(f)

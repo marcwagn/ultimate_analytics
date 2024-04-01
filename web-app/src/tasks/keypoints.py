@@ -46,6 +46,7 @@ class KeypointsExtractor:
         self._max_lookback = max_lookback
         # Filter and augment the prediction data with additional keypoint-specific columns
         self._all_frames_augmented_df = self._filter_and_augment_with_keypoint_columns(all_frames_df)
+        self._best_by_frame = {}
 
     @property 
     def conf_threshold(self):
@@ -81,11 +82,14 @@ class KeypointsExtractor:
         Args:
             frame_no (int): image/video frame number
         """
+
         # Run in a loop. If no eligible lines forming the 4 corner keypoints were found, try to look back.
         for frame_to_look in range(frame_no, frame_no-self.max_lookback, -1):
             df = self._all_frames_augmented_df[self._all_frames_augmented_df["frame"]==frame_to_look]
-            result = self._get_4_best_keypoint_pairs_internal(df, frame_no=frame_to_look)
+            result = self._best_by_frame[frame_no] if frame_no in self._best_by_frame else self._get_4_best_keypoint_pairs_internal(df, frame_no=frame_to_look)
             if result is not None:
+                if frame_no not in self._best_by_frame:
+                    self._best_by_frame[frame_no] = result
                 return result
         return None # Give up after looking at N frames back
 
