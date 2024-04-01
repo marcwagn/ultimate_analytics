@@ -18,6 +18,7 @@ def get_precalculated_predictions_if_present(video_path: str) -> Union[list[ultr
     video_sha256sum = _calculate_sha256sum(video_path)
     maybe_pickled_results_path = Path(precalculated_dir)/(video_sha256sum + ".pickle")
     if os.path.exists(maybe_pickled_results_path) and os.path.isfile(maybe_pickled_results_path):
+        logger.info(f"Found previously pickled results for video {video_path} saved as {maybe_pickled_results_path.name} in {precalculated_dir}")
         with open(maybe_pickled_results_path, "rb") as f:
             tracking_results = pickle.load(f)
             return tracking_results

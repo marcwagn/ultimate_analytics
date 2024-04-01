@@ -35,7 +35,7 @@ def video_analysis(self: Task, video_path: str) -> object:
         or _track(model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
 
     # Keypoints and perspective removal
-    logger.info(f"Removing perspective from video {video_path}")
+    logger.info(f"Running YOLO detection and removing perspective from video {video_path}")
     tracking_results_df = _translate_coordinates(tracking_results, total_frames=total_frames)
 
     # TODO - team detection
