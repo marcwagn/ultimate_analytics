@@ -19,7 +19,7 @@ RUN pip install -r requirements.lock
 RUN pip install --no-cache torch torchvision ultralytics --extra-index-url https://download.pytorch.org/whl/cpu
 
 # Install extra GCP-specific packages
-RUN chmod +x scripts/install-gcs.sh && scripts/install-gcs.sh
+RUN chmod +x scripts/*.sh && scripts/install-gcs.sh
 
 # Install nginx and supervisord 
 RUN apt-get -y install nginx supervisor openssl
@@ -37,6 +37,9 @@ WORKDIR /app/src
 
 RUN groupadd -r svc_user -g 433 && \
     useradd -u 431 -r -g svc_user -s /bin/bash -c "Unprivileged user" svc_user
+
+#RUN chown -R svc_user.svc_user /app
+
 #USER svc_user
 
 CMD ["/usr/bin/supervisord"]

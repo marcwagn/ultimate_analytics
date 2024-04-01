@@ -162,9 +162,6 @@ cython_debug/
 # Project database
 data/
 
-# Model folder
-model/
-
 # Certificate folder
 certs/
 
