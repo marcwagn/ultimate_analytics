@@ -34,10 +34,7 @@ def video_analysis(self: Task, video_path: str) -> object:
     # Keypoints and perspective removal
     logger.info(f"Removing perspective from video {video_path}")
     tracking_results_df = _translate_coordinates(tracking_results, total_frames=total_frames)
-
-    # TODO - team detection
-    tracking_results_df["team"] = 0
-
+ 
     logger.info(f"Preparing final results for video {video_path}")
     tracking_results_dict = _convert_to_final_results(tracking_results_df)
 

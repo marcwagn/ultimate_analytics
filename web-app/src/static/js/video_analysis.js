@@ -62,6 +62,7 @@ taskForm("video-upload-form", true, data => {
 
     // get the coordinates of the players
     let person_coords = data["value"]["coordinates"]
+    console.log(person_coords)
 
     // create a backbuffer canvas to draw the pitch on
     let backBuffer = document.createElement('canvas');
