@@ -40,21 +40,27 @@ body {
 
 #upload-container label {
   font-size: 13px;
+  padding-right: 10px;
+}
+
+#upload-container p {
+  font-size: 13px;
 }
 
 #upload-container input {
   /*background-color: rgb(15 112 230);*/
+  /*background-color: rgba(133, 132, 132, 0.575);*/
   /*color: white;*/
   text-align: center;
   text-decoration: none;
-  padding: 20px;
+  /*padding: 20px;*/
   border: none;
   font-size: 13px;
   border-radius: 2px;
 }
 
 #video-upload-form, #progressbar {
-  width: 30%;
+  width: 50%;
 }
 
 #video-upload-form  {

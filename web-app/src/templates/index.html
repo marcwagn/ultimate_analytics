@@ -35,16 +35,18 @@
       </div>
       <!-- Upload Form-->
       <div id="upload-container">
+       
         <form id=video-upload-form method=post action="{{ url_for("tasks.upload") }}">
-          <p> <label for="video-file" title="* The maximum video file size is 32MB">Please upload a video file:</label>
-            </p><p>
+          <p> <label for="video-file" title="Note: The maximum video upload is 32MB">Please select a video file:</label> </p>
+          <p>
             <input type=file id=video-file accept="video/*">
           </p>
           <p>
             <input type=submit>
           </p>
         </form>
-        <!-- Progress bar -->
+        <p id="upload-in-progress-caption" class="hidden">Video processing in progress...</p>
+         <!-- Progress bar -->
         <progress id="progressbar" value="0" max="1"></progress>
       </div>
     </div>

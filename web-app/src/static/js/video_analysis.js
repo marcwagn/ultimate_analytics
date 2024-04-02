@@ -26,6 +26,8 @@ const taskForm = (formName, doPoll, report) => {
       const formData = new FormData(event.target)
       formData.append('file', fileInput.files[0]);
 
+      document.getElementById('upload-in-progress-caption').classList.remove('hidden');
+
       fetch(event.target.action, {
         method: "POST",
         body: formData
@@ -85,10 +87,7 @@ taskForm("video-upload-form", true, data => {
     backBuffer.height = tacticalboard.height;
     let backBufferContext = backBuffer.getContext('2d');
 
-    // resizeTactical();
-    // drawPitchOutline(tacticalboard);
-    // resizeDrawable();
-    console.log('About to remove the hidden attribute');
+    document.getElementById('upload-in-progress-caption').classList.add('hidden');
     document.getElementById('dashboard-container').classList.remove('hidden')
 
     const updateCanvas = (now, metadata) => {
