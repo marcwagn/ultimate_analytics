@@ -105,9 +105,9 @@ export const drawPitchOutline = (tacticalboard) => {
         
         // draw top break point
         drawCircle(ctx_tacticalboard, 
-            horizontal_pitch_offset + pitch_width/2, vertical_pitch_offset + pitch_height*0.32, 5, "white");
+            horizontal_pitch_offset + pitch_width/2, vertical_pitch_offset + pitch_height*0.32, 3, "white");
         // draw bottom break point
         drawCircle(ctx_tacticalboard,
-            horizontal_pitch_offset + pitch_width/2, vertical_pitch_offset + pitch_height*(1-0.32), 5, "white");
+            horizontal_pitch_offset + pitch_width/2, vertical_pitch_offset + pitch_height*(1-0.32), 3, "white");
       });
 }

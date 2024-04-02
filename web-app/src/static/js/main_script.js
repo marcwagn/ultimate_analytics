@@ -1,34 +1,26 @@
 import { drawPitchOutline } from './render_pitch.js';
 import { resizeDrawable } from './drawable.js';
+import { resizeTactical  } from './video_analysis.js';
 
 const drawable = document.getElementById('drawable');
 const tacticalboard = document.getElementById('tacticalboard');
-const controlsContainer = document.getElementById('controls-container');
 
+const checkHtmlVideoElementCapabilities = () => {
+    if (!('requestVideoFrameCallback' in HTMLVideoElement.prototype)) {
+        document.getElementById('supported-browsers-disclaimer').classList.remove('nodisplay');
+    }
 
-const resizeTactical = () => {
-    const controlsContainerHeight = controlsContainer.offsetHeight;
-  
-    let offsetHeight = 25;
-    let controlsHeight = controlsContainerHeight - 2*offsetHeight;
-    let controlsWidth = controlsContainerHeight / 1.5;
-  
-    tacticalboard.width = controlsWidth;
-    tacticalboard.height = controlsHeight;
-  
-    drawable.width = controlsWidth;
-    drawable.height = controlsHeight;
-  }
+}
 
 //---------------------------------------------
 // EVENT LISTENERS
 //---------------------------------------------
 
 window.onload = () => {
+    checkHtmlVideoElementCapabilities();
     resizeTactical();
     drawPitchOutline(tacticalboard);
     resizeDrawable();
-    document.getElementById('dashboard-container').classList.remove('hidden')
 }
 
 window.addEventListener('resize', e => {

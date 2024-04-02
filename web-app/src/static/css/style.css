@@ -38,6 +38,21 @@ body {
   background-color: rgba(235, 144, 148, 0.5);
 }
 
+#upload-container label {
+  font-size: 13px;
+}
+
+#upload-container input {
+  /*background-color: rgb(15 112 230);*/
+  /*color: white;*/
+  text-align: center;
+  text-decoration: none;
+  padding: 20px;
+  border: none;
+  font-size: 13px;
+  border-radius: 2px;
+}
+
 #video-upload-form, #progressbar {
   width: 30%;
 }
@@ -54,6 +69,7 @@ body {
   margin-bottom: 20px;
   accent-color: black;
 }
+
 
 /* CSS for the video player and drawable canvas */
 
@@ -132,4 +148,8 @@ body {
 
 .hidden {
   visibility: hidden;
+}
+
+.nodisplay {
+  display: none;
 }

@@ -1,4 +1,20 @@
 import { drawPitchOutline, drawCircle, standardCoordsToCanvasCoords } from './render_pitch.js';
+import { resizeDrawable } from './drawable.js';
+
+export const resizeTactical = () => {
+  const controlsContainer = document.getElementById('controls-container');
+  const controlsContainerHeight = controlsContainer.offsetHeight;
+
+  let offsetHeight = 25;
+  let controlsHeight = controlsContainerHeight - 2*offsetHeight;
+  let controlsWidth = controlsContainerHeight / 1.5;
+
+  tacticalboard.width = controlsWidth;
+  tacticalboard.height = controlsHeight;
+
+  drawable.width = controlsWidth;
+  drawable.height = controlsHeight;
+}
 
 const taskForm = (formName, doPoll, report) => {
     document.forms[formName].addEventListener("submit", (event) => {
@@ -68,6 +84,12 @@ taskForm("video-upload-form", true, data => {
     backBuffer.width = tacticalboard.width;
     backBuffer.height = tacticalboard.height;
     let backBufferContext = backBuffer.getContext('2d');
+
+    // resizeTactical();
+    // drawPitchOutline(tacticalboard);
+    // resizeDrawable();
+    console.log('About to remove the hidden attribute');
+    document.getElementById('dashboard-container').classList.remove('hidden')
 
     const updateCanvas = (now, metadata) => {
       let shown_frame = Math.floor(metadata["mediaTime"] * 30)

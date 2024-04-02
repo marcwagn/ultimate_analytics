@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 
   <head>
     <title>Ultimate Frisbee</title>
@@ -25,13 +25,25 @@
   <body>
     <div id="header-container">
       <h1 id="title">Ultimate Frisbee tactical dashboard</h1>
+      <div id="supported-browsers-disclaimer" class="nodisplay">
+        <p>
+          Your browser does not support the 'Video.requestVideoFrameCallback()' API that is required by this demo website.
+        </p>
+        <p>
+          Please use Chrome/Chromium or Edge, or ask Mozilla to implement this <a href="https://github.com/mozilla/standards-positions/issues/250" target="_blank">feature</a>&#x1F642;
+        </p>
+      </div>
       <!-- Upload Form-->
       <div id="upload-container">
         <form id=video-upload-form method=post action="{{ url_for("tasks.upload") }}">
-          <input type=file id=video-file accept="video/*"> 
-          <input type=submit>
+          <p> <label for="video-file" title="* The maximum video file size is 32MB">Please upload a video file:</label>
+            </p><p>
+            <input type=file id=video-file accept="video/*">
+          </p>
+          <p>
+            <input type=submit>
+          </p>
         </form>
-
         <!-- Progress bar -->
         <progress id="progressbar" value="0" max="1"></progress>
       </div>
