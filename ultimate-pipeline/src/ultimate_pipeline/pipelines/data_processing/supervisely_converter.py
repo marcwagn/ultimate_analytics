@@ -40,8 +40,13 @@ class KeypointsBoxesGenerationSettings:
 
     def get_settings_for_class(self, cls_id: int) -> Tuple[float, float]:
         if self._dynamic_settings is not None:
-            return self._dynamic_settings[cls_id]
+            return self._dynamic_settings[str(cls_id)]
         return self._fixed_settings
+    
+    def __repr__(self) -> str:
+        if self._dynamic_settings is not None:
+            return f"Dynamic settings: {self._dynamic_settings}"
+        return f"Static settings: {self._fixed_settings}"
 
 
 def convert_video_annotations(source: Union[str, dict]) -> pd.DataFrame:
@@ -183,7 +188,8 @@ def convert_single_image_annotation_to_detect_data(
         meta_file (dict): content of meta.json
         keypoints_bboxes_settings (Union[KeypointsBoxesGenerationSettings,None]): optional settings for optional generation of bounding boxes around keypoints
     """
-
+    logger.info("Starting convert_single_image_annotation_to_detect_data")
+    logger.info(f"Received following keypoints settings: {keypoints_bboxes_settings}")
     meta_map = {m["id"]: i for i, m in enumerate(meta_file["classes"])}
 
     # Each element in datas correspond to 1 bounding box
