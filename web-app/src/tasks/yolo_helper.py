@@ -2,6 +2,8 @@ import ultralytics
 import pandas as pd
 import numpy as np
 
+from .team_detector import TeamDetector
+
 frames = 0
 
 def make_callback_adapter_with_counter(event_name, callback):
@@ -68,6 +70,31 @@ def convert_tracking_results_to_pandas(tracking_results: list[ultralytics.engine
     dfs = [] # Will contain 1 data frame per video frame
     for i, tr in enumerate(tracking_results):
         df = _convert_single_tracking_result(i, tr)
+        
+        # init team prediction for non players
+        df["team"] = -1 
+        # update team prediction for players
+        pred_teams_df = _get_team_prediction(tr)
+        for _, row in pred_teams_df.iterrows():
+            df.loc[df['id'] == row['id'], 'team'] = row['pred_team']
+
         dfs.append(df)
 
     return pd.concat(dfs)
+
+def _get_team_prediction(tracking_results: list[ultralytics.engine.results.Results]) -> pd.DataFrame:
+    """
+    Get the team prediction from the tracking results.
+    Args:
+        tracking_results (ultralytics.engine.results.Results): The tracking results.
+    Returns:
+        pd.DataFrame: The team prediction.
+    """
+    frame = tracking_results.orig_img
+    detector = TeamDetector(frame, tracking_results)
+    lst_player_imgs = detector.get_player_images()
+
+    if not lst_player_imgs:
+        return pd.DataFrame(columns=["id", "pred_team"])
+
+    return detector.predict_player_clusters(lst_player_imgs)

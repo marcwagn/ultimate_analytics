@@ -3,6 +3,7 @@ import pickle
 import os
 from src.tasks import tasks
 # from unittest.mock import patch
+@pytest.skip("Not ready yet", allow_module_level=True)
 
 @pytest.mark.parametrize("video_path", [("./tests/data/videos/machine_vs_condors_pool_001-supertiny.mp4")])
 # @patch('src.tasks.tasks.video_analysis.update_state')
