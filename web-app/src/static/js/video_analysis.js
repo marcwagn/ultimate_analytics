@@ -50,7 +50,7 @@ taskForm("video-upload-form", true, data => {
     console.log("uploading...")
     progressbar.value = 0;
   } else if (!data["ready"]) {
-    progressbar.value = data["value"]["status"]
+    progressbar.value = data["value"]?.["status"] ?? 0
   } else if (!data["successful"]) {
     console.log("error, check console")
   } else {
