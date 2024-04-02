@@ -35,7 +35,6 @@ def video_analysis(self: Task, video_path: str) -> object:
     model_dir = os.getenv("MODEL_DATA_DIR", "data/model")
     model_path = os.path.join(model_dir, "best.pt")
 
-
     tracking_results = get_precalculated_results_if_present(video_path) \
         or _track(model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
 
