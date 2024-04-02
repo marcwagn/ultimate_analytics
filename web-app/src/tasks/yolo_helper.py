@@ -97,4 +97,5 @@ def _get_team_prediction(tracking_results: list[ultralytics.engine.results.Resul
     if not lst_player_imgs:
         return pd.DataFrame(columns=["id", "pred_team"])
 
-    return detector.predict_player_clusters(lst_player_imgs)
+    kmeans, _ = detector.train_kmeans(lst_player_imgs, n_colors=3)
+    return detector.predict_player_clusters(kmeans, lst_player_imgs)
