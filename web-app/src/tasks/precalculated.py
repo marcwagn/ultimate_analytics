@@ -9,7 +9,7 @@ from celery.utils.log import get_task_logger
 
 logger = get_task_logger(__name__)
 
-def get_precalculated_predictions_if_present(video_path: str) -> Union[list[ultralytics.engine.results.Results], None]:
+def get_precalculated_results_if_present(video_path: str) -> Union[list[ultralytics.engine.results.Results], None]:
     precalculated_dir = os.getenv("PRECALCULATED_DATA_DIR")
     if precalculated_dir is None or precalculated_dir == "":
          logger.info("PRECALCULATED_DATA_DIR not set, skipping")
@@ -20,8 +20,8 @@ def get_precalculated_predictions_if_present(video_path: str) -> Union[list[ultr
     if os.path.exists(maybe_pickled_results_path) and os.path.isfile(maybe_pickled_results_path):
         logger.info(f"Found previously pickled results for video {video_path} saved as {maybe_pickled_results_path.name} in {precalculated_dir}")
         with open(maybe_pickled_results_path, "rb") as f:
-            tracking_results = pickle.load(f)
-            return tracking_results
+            precalculated_results = pickle.load(f)
+            return precalculated_results
     logger.info(f"Did not find {maybe_pickled_results_path.name} in {precalculated_dir}")
     return None
     

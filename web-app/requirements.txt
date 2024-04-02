@@ -8,6 +8,7 @@ redis~=5.0
 python-dotenv~=1.0
 gevent~=24.2
 google-cloud-logging~=3.10
+scikit-learn~=1.4
 # Special cases = transient dependencies made explicit to prevent clashes
 lapx~=0.5
 # NB - torch, torchvision and ultralytics aren't specified here, as they require special handling to get the CPU-only variant installed.

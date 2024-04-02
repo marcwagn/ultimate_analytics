@@ -5,7 +5,7 @@ from celery.utils.log import get_task_logger
 from .yolo_helper import make_callback_adapter_with_counter, convert_tracking_results_to_pandas
 from .keypoints import KeypointsExtractor
 from .homography import calculate_homography_matrix, convert_h
-from .precalculated import get_precalculated_predictions_if_present
+from .precalculated import get_precalculated_results_if_present
 import ultralytics
 import cv2
 import os
@@ -20,6 +20,10 @@ def video_analysis(self: Task, video_path: str) -> object:
     logger.info(f"Start analysis for video: {video_path}")
     self.update_state(state="PROGRESS", meta={"status": 0})
 
+    maybe_precalculated_results = get_precalculated_results_if_present(video_path=video_path)
+    if maybe_precalculated_results is not None:
+        return  {"status": 1, "coordinates": maybe_precalculated_results }
+
     video = cv2.VideoCapture(video_path)
     total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
     logger.info(f"Found {total_frames} frames in video: {video_path}")
@@ -31,7 +35,8 @@ def video_analysis(self: Task, video_path: str) -> object:
     model_dir = os.getenv("MODEL_DATA_DIR", "data/model")
     model_path = os.path.join(model_dir, "best.pt")
 
-    tracking_results = get_precalculated_predictions_if_present(video_path) \
+
+    tracking_results = get_precalculated_results_if_present(video_path) \
         or _track(model_path=model_path, video_path=video_path, progressbar_callback=update_progressbar)
 
     # Keypoints and perspective removal
@@ -107,4 +112,3 @@ def _convert_to_final_results(tracking_results_df: pd.DataFrame) -> dict:
         final_dict[str(frame)] = results_for_frame.to_dict(orient="records")
          
     return final_dict
-
