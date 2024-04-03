@@ -24,7 +24,7 @@ def main():
         sys.exit(-1)
 
     video_path = sys.argv[1]
-    output_dir = sys.argv[2] if len(sys.argv) >= 3 else "./src/data/precalculated"
+    output_dir = sys.argv[2] if len(sys.argv) >= 3 else "./data/precalculated"
     print(f"Using output_dir: {output_dir}")
     if not os.path.exists(output_dir) or not os.path.isdir(output_dir):
         print(f"Error: {output_dir} needs to be an existing directory")
