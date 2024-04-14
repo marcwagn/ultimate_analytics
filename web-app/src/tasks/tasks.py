@@ -15,6 +15,9 @@ import torch
 
 logger = get_task_logger(__name__)
 
+CONF_THRESHOLD=0.5
+MAX_LOOKBACK=60
+
 @shared_task(bind=True, ignore_result=False)
 def video_analysis(self: Task, video_path: str) -> object:
     logger.info(f"Start analysis for video: {video_path}")
@@ -73,7 +76,7 @@ def _track(model_path: str, video_path: str, progressbar_callback: Callable) -> 
 def _translate_coordinates(tracking_results: list[ultralytics.engine.results.Results], total_frames: int) -> pd.DataFrame:
     tracking_results_df = convert_tracking_results_to_pandas(tracking_results)
 
-    keypoints_extractor = KeypointsExtractor(tracking_results_df, conf_threshold=0.5, max_lookback=60)
+    keypoints_extractor = KeypointsExtractor(tracking_results_df, conf_threshold=CONF_THRESHOLD, max_lookback=MAX_LOOKBACK)
     # Calculate homography matrices
     H_all = []
     for frame in range(0, total_frames):
@@ -89,7 +92,13 @@ def _translate_coordinates(tracking_results: list[ultralytics.engine.results.Res
               row["x"] = np.nan
               row["y"] = np.nan
          else:
-            translated_coords = convert_h(h, row["x":"y"].to_numpy())
+            # For players and referees, take the bottom centre of the bounding box
+            if row["cls"] in [0, 30]:
+                x_t, y_t = row["x"], (row["y"]+row["h"]/2)
+                coords = np.array([x_t, y_t])
+            else:
+                coords = row["x":"y"].to_numpy()
+            translated_coords = convert_h(h, coords)
             row["x"] = translated_coords[0]
             row["y"] = translated_coords[1]
          return row
