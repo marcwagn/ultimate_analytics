@@ -79,7 +79,7 @@ pip install pipdeptree
 pipdeptree
 ```
 
-# Machine Learning training
+# <a id="Machine-Learning-Training"></a>Machine Learning Training
 Machine Learning training requires the training data being downloaded and processed by Kedro first, but it's performed outside of the Kedro pipeline.
 
 
@@ -100,7 +100,7 @@ where `runs/detect/train10` are the results of the previous YOLO training run.
 
 ## Validation
 ```bash
-yolo detect val model=runs/detect/train10/weights/best.pt
+yolo detect val model=runs/detect/train10/weights/best.pt data=conf/base/ultimate_detect.yml
 ```
 where `runs/detect/train10` are the results of the previous YOLO training run.
 
