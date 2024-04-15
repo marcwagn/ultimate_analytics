@@ -13,7 +13,7 @@ This ML project consists of:
 - a [web app](web-app) that allows to analyze an uploaded video and play it side by side with a tactical board, rendered from bird's-eye view
 
 ## Presentations
-- [DSR Demo Day April 2024](docs/presentations/Ultimate%20Dashboard%20Demo%20Day.pdf)
+- [DSR Demo Day April 2024](docs/presentations/ultimate_dashboard_demo_day.pdf) 
 
 ## Screenshots
 ![Ultimate Frisbee Dashboard - Screenshot 1](docs/images/ultimate_frisbee_dashboard_screenshot_1.png)
